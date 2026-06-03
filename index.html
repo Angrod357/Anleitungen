@@ -369,6 +369,10 @@ tr:hover td{background:rgba(124,58,237,0.04);}
       <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><rect x="1" y="1" width="13" height="5" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="13" height="5" rx="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="3.5" r=".9" fill="currentColor"/><circle cx="12" cy="11.5" r=".9" fill="currentColor"/></svg>
       Windows Server Setup
     </div>
+    <div class="nav-item active" onclick="show('plex',this)">
+      <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.2"></circle><path d="M6 5l4 2.5L6 10V5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"></path></svg>
+      Plex-Server einrichten
+    </div>
     <div class="sidebar-divider"></div>
     <div class="sidebar-label">Rollen</div>
     <div class="nav-item" onclick="show('dhcp',this)">
@@ -443,8 +447,20 @@ tr:hover td{background:rgba(124,58,237,0.04);}
     </div>
     <div class="nav-item" onclick="show('skript-dateisystem',this)">
       <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M1 4a1 1 0 011-1h3l1.5 2H13a1 1 0 011 1v6a1 1 0 01-1 1H2a1 1 0 01-1-1V4z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
-      04 · Dateisystem &amp; Ordner
+      04 · Dateisystem &amp; Ordner</div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">Trollprojekte</div>
+    <div class="nav-item" onclick="show('iso',this)">
+      <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><circle cx="7.5" cy="7.5" r="5.5" stroke="currentColor" stroke-width="1.2"/><circle cx="7.5" cy="7.5" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M7.5 2v1M7.5 12v1M2 7.5h1M12 7.5h1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Newsletter
     </div>
+    <div class="sidebar-divider"></div>
+
+
+
+
+
+
   </nav>
 
   <!-- MAIN -->
@@ -611,6 +627,423 @@ Alternativer DNS:  <span class="str">8.8.8.8</span></div>
         </div></div>
       </div>
     </div><!-- /winsrv -->
+    <!-- ══════════════════════════════════
+         SECTION: PLEX SERVER
+    ══════════════════════════════════ -->
+
+<div id="plex" class="section active">
+      <div class="sec-eyebrow">Anleitungen · Heimmediacenter</div>
+      <div class="sec-title">Plex-Server <span>einrichten</span></div>
+      <div class="sec-sub">Raspberry Pi 5 mit grafischer Oberfläche (Desktop) als vollständiger Medienserver — Plex, qBittorrent, Sonarr, Radarr, Prowlarr und Overseerr installieren und verbinden.</div>
+
+      <!-- ARCHITEKTUR ÜBERSICHT -->
+      <div class="phase">
+        <div class="phase-header"><div class="phase-num">Überblick</div><div class="phase-title">Wie alles zusammenspielt</div><span class="badge b-info">Architektur</span></div>
+        <div class="card"><div class="card-inner">
+          <div class="tbl-wrap"><table>
+            <tbody><tr><th>Tool</th><th>Funktion</th><th>Port</th><th>Verbindet mit</th></tr>
+            <tr><td><strong>Plex Media Server</strong></td><td>Medien streamen auf TV, Handy, Browser</td><td class="td-mono">32400</td><td>Dateisystem</td></tr>
+            <tr><td><strong>qBittorrent</strong></td><td>Download-Client — lädt Torrents herunter</td><td class="td-mono">8080</td><td>Sonarr, Radarr</td></tr>
+            <tr><td><strong>Prowlarr</strong></td><td>Indexer-Manager — durchsucht Torrent-Quellen</td><td class="td-mono">9696</td><td>Sonarr, Radarr</td></tr>
+            <tr><td><strong>Sonarr</strong></td><td>Automatischer Download von Serien</td><td class="td-mono">8989</td><td>Prowlarr, qBittorrent, Plex</td></tr>
+            <tr><td><strong>Radarr</strong></td><td>Automatischer Download von Filmen</td><td class="td-mono">7878</td><td>Prowlarr, qBittorrent, Plex</td></tr>
+            <tr><td><strong>Overseerr</strong></td><td>Web-UI um Serien/Filme anzufragen</td><td class="td-mono">5055</td><td>Sonarr, Radarr, Plex</td></tr>
+          </tbody></table></div>
+          <div class="note n-info"><div class="note-icon">🔄</div><div>
+            <strong>Ablauf:</strong> Du fragst in <strong>Overseerr</strong> einen Film an → Radarr sucht via <strong>Prowlarr</strong> nach einem Torrent → <strong>qBittorrent</strong> lädt ihn herunter → Radarr verschiebt die Datei in den Mediaordner → <strong>Plex</strong> erkennt sie automatisch und zeigt sie in deiner Bibliothek.
+          </div></div>
+        </div></div>
+      </div>
+
+      <!-- VORAUSSETZUNGEN -->
+      <div class="phase">
+        <div class="phase-header"><div class="phase-num">Vorbereitung</div><div class="phase-title">Hardware &amp; OS einrichten</div><span class="badge b-warn">Checkliste</span></div>
+        <div class="card"><div class="card-inner">
+          <div class="tbl-wrap"><table>
+            <tbody><tr><th>Komponente</th><th>Empfehlung</th><th>Pflicht</th></tr>
+            <tr><td><strong>Raspberry Pi 5 (8 GB)</strong></td><td>8 GB RAM für alle Dienste gleichzeitig</td><td class="ok">✓</td></tr>
+            <tr><td><strong>microSD 64 GB A2</strong></td><td>Für das OS — SanDisk Endurance</td><td class="ok">✓</td></tr>
+            <tr><td><strong>USB 3.0 Festplatte 4+ TB</strong></td><td>Für Medien — WD Elements oder Seagate</td><td class="ok">✓</td></tr>
+            <tr><td><strong>LAN-Kabel</strong></td><td>Stabiler als WLAN für Streaming</td><td class="ok">✓</td></tr>
+            <tr><td><strong>Raspberry Pi OS Desktop (64-bit)</strong></td><td>Mit grafischer Oberfläche — kein Lite!</td><td class="ok">✓</td></tr>
+            <tr><td><strong>Aktives USB-C Netzteil 5V/5A</strong></td><td>Offizielles Pi 5 Netzteil — Pi 5 braucht mehr</td><td class="ok">✓</td></tr>
+          </tbody></table></div>
+          <div class="note n-warn"><div class="note-icon">⚠️</div><div>
+            <strong>Raspberry Pi OS Desktop</strong> (nicht Lite) auswählen im Imager — du brauchst die grafische Oberfläche für die erste Plex-Einrichtung im Browser. Raspberry Pi Imager → Gerät: Pi 5 → OS: <em>Raspberry Pi OS (64-bit)</em> mit Desktop.
+          </div></div>
+          <div class="cmd-block" style="margin-top:10px">
+<span class="cmt"># Nach erstem Boot — System aktualisieren</span>
+<span class="prompt">$</span> sudo apt update &amp;&amp; sudo apt upgrade -y &amp;&amp; sudo apt autoremove -y
+
+<span class="cmt"># Festplatte einbinden (Abschnitt Heim-NAS für Details)</span>
+<span class="prompt">$</span> sudo mkdir -p /mnt/media/{filme,serien,downloads}
+<span class="prompt">$</span> sudo chown -R $USER:$USER /mnt/media</div>
+        </div></div>
+      </div>
+
+      <!-- SCHRITT 1: PLEX -->
+      <div class="phase">
+        <div class="phase-header"><div class="phase-num">Schritt 01</div><div class="phase-title">Plex Media Server installieren</div><span class="badge b-cmd">Terminal</span></div>
+        <div class="card"><div class="card-inner">
+          <div class="cmd-block">
+<span class="cmt"># Plex-Repository hinzufügen</span>
+<span class="prompt">$</span> curl https://downloads.plex.tv/plex-keys/PlexSign.key | gpg --dearmor | \
+  sudo tee /usr/share/keyrings/plex.gpg &gt; /dev/null
+
+<span class="prompt">$</span> echo "deb [signed-by=/usr/share/keyrings/plex.gpg] \
+  https://downloads.plex.tv/repo/deb public main" | \
+  sudo tee /etc/apt/sources.list.d/plexmediaserver.list
+
+<span class="cmt"># Plex installieren</span>
+<span class="prompt">$</span> sudo apt update
+<span class="prompt">$</span> sudo apt install plexmediaserver -y
+
+<span class="cmt"># Dienst aktivieren &amp; starten</span>
+<span class="prompt">$</span> sudo systemctl enable --now plexmediaserver
+
+<span class="cmt"># Status prüfen</span>
+<span class="prompt">$</span> sudo systemctl status plexmediaserver</div>
+          <div class="steps" style="margin-top:12px">
+            <div class="step"><div class="step-n">1</div><div class="step-body">Browser auf dem Pi öffnen (Chromium) → <code>http://localhost:32400/web</code></div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-body">Plex-Konto erstellen oder einloggen auf <code>plex.tv</code> (kostenlos).</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-body">Server benennen: z.B. <code>Pi-Plex</code> → <strong>Weiter</strong>.</div></div>
+            <div class="step"><div class="step-n">4</div><div class="step-body">Bibliotheken hinzufügen: <strong>+ Bibliothek hinzufügen</strong> → Typ <em>Filme</em> → Ordner <code>/mnt/media/filme</code> → Hinzufügen. Dasselbe für Serien mit <code>/mnt/media/serien</code>.</div></div>
+            <div class="step"><div class="step-n">5</div><div class="step-body">Plex ist jetzt erreichbar unter: <code>http://&lt;pi-ip&gt;:32400/web</code></div></div>
+          </div>
+          <div class="note n-ok"><div class="note-icon">✅</div><div>Plex-App (kostenlos) auf TV, Handy oder Fire Stick installieren → Server automatisch gefunden → sofort streamen.</div></div>
+          <div class="cmd-block" style="margin-top:10px">
+<span class="cmt"># Plex darf auf Medienordner zugreifen</span>
+<span class="prompt">$</span> sudo chown -R plex:plex /mnt/media
+<span class="prompt">$</span> sudo chmod -R 755 /mnt/media</div>
+        </div></div>
+      </div>
+
+      <!-- SCHRITT 2: qBITTORRENT -->
+      <div class="phase">
+        <div class="phase-header"><div class="phase-num">Schritt 02</div><div class="phase-title">qBittorrent-nox installieren (Web-UI)</div><span class="badge b-cmd">Terminal</span></div>
+        <div class="card"><div class="card-inner">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:10px"><strong style="color:var(--text)">qBittorrent-nox</strong> ist die headless-Version — ohne grafische Oberfläche, nur mit Web-UI. Perfekt für den Pi.</p>
+          <div class="cmd-block">
+<span class="cmt"># qBittorrent-nox installieren</span>
+<span class="prompt">$</span> sudo apt install qbittorrent-nox -y
+
+<span class="cmt"># Systemd-Service erstellen</span>
+<span class="prompt">$</span> sudo nano /etc/systemd/system/qbittorrent.service</div>
+          <div class="cmd-block" style="margin-top:8px">
+<span class="cmt"># Inhalt der Service-Datei:</span>
+[Unit]
+Description=qBittorrent-nox
+After=network.target
+
+[Service]
+Type=forking
+User=<span class="str">pi</span>
+Group=<span class="str">pi</span>
+ExecStart=/usr/bin/qbittorrent-nox -d --webui-port=8080
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target</div>
+          <div class="cmd-block" style="margin-top:8px">
+<span class="cmt"># Dienst starten</span>
+<span class="prompt">$</span> sudo systemctl daemon-reload
+<span class="prompt">$</span> sudo systemctl enable --now qbittorrent</div>
+          <div class="steps" style="margin-top:10px">
+            <div class="step"><div class="step-n">1</div><div class="step-body">Browser → <code>http://localhost:8080</code> — Login: User <code>admin</code> / Passwort <code>adminadmin</code></div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-body"><strong>Einstellungen → Web UI</strong>: Passwort sofort ändern!</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-body"><strong>Einstellungen → Downloads</strong>: Standardpfad auf <code>/mnt/media/downloads</code> setzen.</div></div>
+            <div class="step"><div class="step-n">4</div><div class="step-body"><strong>Einstellungen → Downloads → Abgeschlossene Downloads verschieben nach</strong>: aktivieren. Sonarr/Radarr werden die Dateien selbst verschieben — Pfad leer lassen.</div></div>
+          </div>
+          <div class="note n-info"><div class="note-icon">📌</div><div>Kategorien werden von Sonarr/Radarr automatisch gesetzt (<code>sonarr</code> / <code>radarr</code>). qBittorrent muss die <strong>Web-UI-Authentifizierung</strong> für <code>localhost</code> nicht deaktivieren — Sonarr/Radarr verbinden sich per API-Key.</div></div>
+        </div></div>
+      </div>
+
+      <!-- SCHRITT 3: PROWLARR -->
+      <div class="phase">
+        <div class="phase-header"><div class="phase-num">Schritt 03</div><div class="phase-title">Prowlarr installieren (Indexer-Manager)</div><span class="badge b-cmd">Terminal</span></div>
+        <div class="card"><div class="card-inner">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:10px"><strong style="color:var(--text)">Prowlarr</strong> verwaltet alle deine Torrent-Indexer an einem Ort und synchronisiert sie automatisch zu Sonarr und Radarr.</p>
+          <div class="cmd-block">
+<span class="cmt"># Abhängigkeiten</span>
+<span class="prompt">$</span> sudo apt install curl sqlite3 -y
+
+<span class="cmt"># Prowlarr herunterladen (aktuelle Version prüfen auf github.com/Prowlarr/Prowlarr)</span>
+<span class="prompt">$</span> cd /tmp
+<span class="prompt">$</span> curl -L https://github.com/Prowlarr/Prowlarr/releases/latest/download/Prowlarr.master.linux-musl-arm64.tar.gz \
+  -o prowlarr.tar.gz
+<span class="prompt">$</span> tar -xzf prowlarr.tar.gz
+<span class="prompt">$</span> sudo mv Prowlarr /opt/prowlarr
+
+<span class="cmt"># Systemd-Service</span>
+<span class="prompt">$</span> sudo nano /etc/systemd/system/prowlarr.service</div>
+          <div class="cmd-block" style="margin-top:8px">
+[Unit]
+Description=Prowlarr
+After=network.target
+
+[Service]
+Type=simple
+User=<span class="str">pi</span>
+Group=<span class="str">pi</span>
+ExecStart=/opt/prowlarr/Prowlarr -nobrowser -data=/home/pi/.config/Prowlarr
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target</div>
+          <div class="cmd-block" style="margin-top:8px">
+<span class="prompt">$</span> sudo systemctl daemon-reload
+<span class="prompt">$</span> sudo systemctl enable --now prowlarr</div>
+          <div class="steps" style="margin-top:10px">
+            <div class="step"><div class="step-n">1</div><div class="step-body">Browser → <code>http://localhost:9696</code></div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-body"><strong>Indexers → Add Indexer</strong> → gewünschte Indexer hinzufügen (z.B. 1337x, EZTV, YTS für öffentliche Indexer).</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-body">Prowlarr API-Key notieren: <strong>Settings → General → API Key</strong> — wird für Sonarr/Radarr gebraucht.</div></div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- SCHRITT 4: SONARR -->
+      <div class="phase">
+        <div class="phase-header"><div class="phase-num">Schritt 04</div><div class="phase-title">Sonarr installieren (Serien-Downloader)</div><span class="badge b-cmd">Terminal</span></div>
+        <div class="card"><div class="card-inner">
+          <div class="cmd-block">
+<span class="cmt"># Sonarr-Repository hinzufügen</span>
+<span class="prompt">$</span> sudo apt install gnupg ca-certificates -y
+<span class="prompt">$</span> curl -fsSL https://mediaserver.tools/keys/sonarr.asc | \
+  sudo gpg --dearmor -o /usr/share/keyrings/sonarr.gpg
+
+<span class="prompt">$</span> echo "deb [arch=arm64 signed-by=/usr/share/keyrings/sonarr.gpg] \
+  https://apt.sonarr.tv/ubuntu focal main" | \
+  sudo tee /etc/apt/sources.list.d/sonarr.list
+
+<span class="prompt">$</span> sudo apt update
+<span class="prompt">$</span> sudo apt install sonarr -y
+
+<span class="cmt"># Alternativ — manuelle Installation (zuverlässiger auf Pi)</span>
+<span class="prompt">$</span> cd /tmp
+<span class="prompt">$</span> curl -L https://services.sonarr.tv/v1/download/main/latest?version=4&amp;os=linux&amp;arch=arm64 \
+  -o sonarr.tar.gz
+<span class="prompt">$</span> tar -xzf sonarr.tar.gz
+<span class="prompt">$</span> sudo mv Sonarr /opt/sonarr</div>
+          <div class="cmd-block" style="margin-top:8px">
+<span class="cmt"># Systemd-Service</span>
+<span class="prompt">$</span> sudo nano /etc/systemd/system/sonarr.service</div>
+          <div class="cmd-block" style="margin-top:4px">
+[Unit]
+Description=Sonarr
+After=network.target
+
+[Service]
+Type=simple
+User=<span class="str">pi</span>
+Group=<span class="str">pi</span>
+ExecStart=/opt/sonarr/Sonarr -nobrowser -data=/home/pi/.config/Sonarr
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target</div>
+          <div class="cmd-block" style="margin-top:8px">
+<span class="prompt">$</span> sudo systemctl daemon-reload
+<span class="prompt">$</span> sudo systemctl enable --now sonarr</div>
+          <div class="steps" style="margin-top:10px">
+            <div class="step"><div class="step-n">1</div><div class="step-body">Browser → <code>http://localhost:8989</code></div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-body"><strong>Settings → Media Management → Root Folders</strong>: <code>/mnt/media/serien</code> hinzufügen.</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-body">API-Key notieren: <strong>Settings → General → API Key</strong>.</div></div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- SCHRITT 5: RADARR -->
+      <div class="phase">
+        <div class="phase-header"><div class="phase-num">Schritt 05</div><div class="phase-title">Radarr installieren (Film-Downloader)</div><span class="badge b-cmd">Terminal</span></div>
+        <div class="card"><div class="card-inner">
+          <div class="cmd-block">
+<span class="cmt"># Radarr herunterladen</span>
+<span class="prompt">$</span> cd /tmp
+<span class="prompt">$</span> curl -L https://github.com/Radarr/Radarr/releases/latest/download/Radarr.master.linux-musl-arm64.tar.gz \
+  -o radarr.tar.gz
+<span class="prompt">$</span> tar -xzf radarr.tar.gz
+<span class="prompt">$</span> sudo mv Radarr /opt/radarr
+
+<span class="cmt"># Systemd-Service</span>
+<span class="prompt">$</span> sudo nano /etc/systemd/system/radarr.service</div>
+          <div class="cmd-block" style="margin-top:4px">
+[Unit]
+Description=Radarr
+After=network.target
+
+[Service]
+Type=simple
+User=<span class="str">pi</span>
+Group=<span class="str">pi</span>
+ExecStart=/opt/radarr/Radarr -nobrowser -data=/home/pi/.config/Radarr
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target</div>
+          <div class="cmd-block" style="margin-top:8px">
+<span class="prompt">$</span> sudo systemctl daemon-reload
+<span class="prompt">$</span> sudo systemctl enable --now radarr</div>
+          <div class="steps" style="margin-top:10px">
+            <div class="step"><div class="step-n">1</div><div class="step-body">Browser → <code>http://localhost:7878</code></div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-body"><strong>Settings → Media Management → Root Folders</strong>: <code>/mnt/media/filme</code> hinzufügen.</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-body">API-Key notieren: <strong>Settings → General → API Key</strong>.</div></div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- SCHRITT 6: OVERSEERR -->
+      <div class="phase">
+        <div class="phase-header"><div class="phase-num">Schritt 06</div><div class="phase-title">Overseerr installieren (Anfrage-Interface)</div><span class="badge b-cmd">Terminal</span></div>
+        <div class="card"><div class="card-inner">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:10px"><strong style="color:var(--text)">Overseerr</strong> ist die schöne Benutzeroberfläche: Freunde und Familie können hier Filme und Serien anfragen, ohne Zugang zu Sonarr/Radarr zu brauchen.</p>
+          <div class="cmd-block">
+<span class="cmt"># Node.js installieren (benötigt für Overseerr)</span>
+<span class="prompt">$</span> curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
+<span class="prompt">$</span> sudo apt install nodejs -y
+<span class="prompt">$</span> node --version   <span class="cmt">← sollte v20.x.x zeigen</span>
+
+<span class="cmt"># Overseerr installieren</span>
+<span class="prompt">$</span> sudo npm install -g overseerr
+
+<span class="cmt"># Oder via Docker (empfohlen auf Pi)</span>
+<span class="prompt">$</span> docker run -d \
+  --name overseerr \
+  -e LOG_LEVEL=debug \
+  -e TZ=Europe/Zurich \
+  -p 5055:5055 \
+  -v /home/pi/.config/overseerr:/app/config \
+  --restart unless-stopped \
+  sctx/overseerr</div>
+          <div class="steps" style="margin-top:10px">
+            <div class="step"><div class="step-n">1</div><div class="step-body">Browser → <code>http://localhost:5055</code></div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-body">Mit Plex-Konto einloggen → Plex-Server auswählen (<code>Pi-Plex</code>).</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-body">Sonarr und Radarr verbinden (nächster Schritt).</div></div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- SCHRITT 7: ALLES VERBINDEN -->
+      <div class="phase">
+        <div class="phase-header"><div class="phase-num">Schritt 07</div><div class="phase-title">Alle Tools verbinden — die grosse Verkabelung</div><span class="badge b-warn">Wichtigster Schritt</span></div>
+        <div class="card"><div class="card-inner">
+
+          <div class="phase-title" style="font-size:13px;color:var(--purple2);margin-bottom:8px">① Prowlarr → Sonarr &amp; Radarr verbinden</div>
+          <div class="steps">
+            <div class="step"><div class="step-n">1</div><div class="step-body">Prowlarr öffnen (<code>:9696</code>) → <strong>Settings → Apps → Add Application</strong>.</div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-body">Sonarr hinzufügen: URL <code>http://localhost:8989</code> · API-Key von Sonarr einfügen → <strong>Test → Save</strong>.</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-body">Radarr hinzufügen: URL <code>http://localhost:7878</code> · API-Key von Radarr einfügen → <strong>Test → Save</strong>.</div></div>
+            <div class="step"><div class="step-n">4</div><div class="step-body">Prowlarr synchronisiert nun alle Indexer automatisch zu Sonarr und Radarr. <strong>Sync App Indexers</strong> klicken.</div></div>
+          </div>
+
+          <div class="phase-title" style="font-size:13px;color:var(--purple2);margin:14px 0 8px">② Sonarr → qBittorrent verbinden</div>
+          <div class="steps">
+            <div class="step"><div class="step-n">1</div><div class="step-body">Sonarr (<code>:8989</code>) → <strong>Settings → Download Clients → Add</strong> → <em>qBittorrent</em> wählen.</div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-body">Host: <code>localhost</code> · Port: <code>8080</code> · Username: <code>admin</code> · Password: dein Passwort · Category: <code>sonarr</code>.</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-body"><strong>Test</strong> → grüner Haken → <strong>Save</strong>.</div></div>
+          </div>
+
+          <div class="phase-title" style="font-size:13px;color:var(--purple2);margin:14px 0 8px">③ Radarr → qBittorrent verbinden</div>
+          <div class="steps">
+            <div class="step"><div class="step-n">1</div><div class="step-body">Radarr (<code>:7878</code>) → <strong>Settings → Download Clients → Add</strong> → <em>qBittorrent</em> wählen.</div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-body">Gleiche Einstellungen wie bei Sonarr — nur Category: <code>radarr</code>.</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-body"><strong>Test → Save</strong>.</div></div>
+          </div>
+
+          <div class="phase-title" style="font-size:13px;color:var(--purple2);margin:14px 0 8px">④ Sonarr &amp; Radarr → Plex verbinden</div>
+          <div class="steps">
+            <div class="step"><div class="step-n">1</div><div class="step-body">Sonarr (<code>:8989</code>) → <strong>Settings → Connect → Add</strong> → <em>Plex Media Server</em>.</div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-body">Host: <code>localhost</code> · Port: <code>32400</code> · <strong>Authenticate with Plex.tv</strong> → Plex-Konto verbinden.</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-body">Dasselbe in Radarr wiederholen.</div></div>
+            <div class="step"><div class="step-n">4</div><div class="step-body">Jetzt scannt Plex automatisch die Bibliothek wenn Sonarr/Radarr neue Dateien hinzufügen.</div></div>
+          </div>
+
+          <div class="phase-title" style="font-size:13px;color:var(--purple2);margin:14px 0 8px">⑤ Overseerr → Sonarr, Radarr &amp; Plex verbinden</div>
+          <div class="steps">
+            <div class="step"><div class="step-n">1</div><div class="step-body">Overseerr (<code>:5055</code>) → <strong>Settings → Services → Add Radarr Server</strong>.</div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-body">Hostname: <code>localhost</code> · Port: <code>7878</code> · API-Key von Radarr · Root Folder: <code>/mnt/media/filme</code> · Quality Profile: <em>Any</em> → <strong>Test → Save</strong>.</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-body"><strong>Add Sonarr Server</strong>: Port <code>8989</code> · API-Key von Sonarr · Root Folder: <code>/mnt/media/serien</code> → <strong>Test → Save</strong>.</div></div>
+          </div>
+          <div class="note n-ok"><div class="note-icon">🎉</div><div>Ab jetzt: in Overseerr nach einem Film suchen → anfordern → alles passiert automatisch → nach Download in Plex streamen.</div></div>
+        </div></div>
+      </div>
+
+      <!-- SCHRITT 8: DESKTOP AUTOSTART -->
+      <div class="phase">
+        <div class="phase-header"><div class="phase-num">Schritt 08</div><div class="phase-title">Desktop-Autostart &amp; Dashboard einrichten</div><span class="badge b-gui">Desktop</span></div>
+        <div class="card"><div class="card-inner">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Da du die grafische Oberfläche hast, kannst du einen Browser-Dashboard-Tab mit allen Web-UIs einrichten der beim Start automatisch öffnet.</p>
+          <div class="cmd-block">
+<span class="cmt"># Autostart-Datei für Chromium erstellen</span>
+<span class="prompt">$</span> mkdir -p ~/.config/autostart
+<span class="prompt">$</span> nano ~/.config/autostart/dashboard.desktop</div>
+          <div class="cmd-block" style="margin-top:8px">
+[Desktop Entry]
+Type=Application
+Name=Plex Dashboard
+Exec=chromium-browser --new-window \
+  http://localhost:32400/web \
+  http://localhost:8989 \
+  http://localhost:7878 \
+  http://localhost:9696 \
+  http://localhost:8080 \
+  http://localhost:5055
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true</div>
+          <div class="steps" style="margin-top:10px">
+            <div class="step"><div class="step-n">💡</div><div class="step-body">Chromium öffnet beim Login alle Web-UIs als Tabs: Plex · Sonarr · Radarr · Prowlarr · qBittorrent · Overseerr</div></div>
+            <div class="step"><div class="step-n">📌</div><div class="step-body">Für Remote-Zugriff: VPN (WireGuard) einrichten — sieh Heim-NAS Anleitung. Alle Ports sind dann von unterwegs erreichbar.</div></div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- SCHRITT 9: ALLE DIENSTE ÜBERSICHT -->
+      <div class="phase">
+        <div class="phase-header"><div class="phase-num">Diagnose</div><div class="phase-title">Alle Dienste verwalten</div><span class="badge b-cmd">Terminal</span></div>
+        <div class="card"><div class="card-inner">
+          <div class="cmd-block">
+<span class="cmt"># Status aller Dienste auf einmal prüfen</span>
+<span class="prompt">$</span> for s in plexmediaserver qbittorrent prowlarr sonarr radarr; do
+    echo "─── $s ───"
+    sudo systemctl status $s --no-pager -l | grep -E "Active|Main"
+  done
+
+<span class="cmt"># Alle auf einmal starten / stoppen / neu starten</span>
+<span class="prompt">$</span> sudo systemctl restart plexmediaserver qbittorrent prowlarr sonarr radarr
+
+<span class="cmt"># Logs eines Dienstes live verfolgen</span>
+<span class="prompt">$</span> journalctl -u sonarr -f
+<span class="prompt">$</span> journalctl -u radarr -f
+
+<span class="cmt"># Ressourcenverbrauch anzeigen</span>
+<span class="prompt">$</span> htop
+
+<span class="cmt"># Speicherplatz prüfen</span>
+<span class="prompt">$</span> df -h /mnt/media</div>
+        </div></div>
+      </div>
+
+      <!-- PORT-ÜBERSICHT -->
+      <div class="phase">
+        <div class="phase-header"><div class="phase-num">Zusammenfassung</div><div class="phase-title">Alle Web-UIs auf einen Blick</div><span class="badge b-info">Referenz</span></div>
+        <div class="card"><div class="card-inner">
+          <div class="tbl-wrap"><table>
+            <tbody><tr><th>Dienst</th><th>URL (lokal)</th><th>URL (via VPN)</th><th>Standard-Login</th></tr>
+            <tr><td>🎬 <strong>Plex</strong></td><td class="td-mono">localhost:32400/web</td><td class="td-mono">192.168.1.x:32400/web</td><td>Plex-Konto</td></tr>
+            <tr><td>🌊 <strong>qBittorrent</strong></td><td class="td-mono">localhost:8080</td><td class="td-mono">192.168.1.x:8080</td><td>admin / adminadmin</td></tr>
+            <tr><td>🔍 <strong>Prowlarr</strong></td><td class="td-mono">localhost:9696</td><td class="td-mono">192.168.1.x:9696</td><td>kein Login (lokal)</td></tr>
+            <tr><td>📺 <strong>Sonarr</strong></td><td class="td-mono">localhost:8989</td><td class="td-mono">192.168.1.x:8989</td><td>kein Login (lokal)</td></tr>
+            <tr><td>🎥 <strong>Radarr</strong></td><td class="td-mono">localhost:7878</td><td class="td-mono">192.168.1.x:7878</td><td>kein Login (lokal)</td></tr>
+            <tr><td>🙋 <strong>Overseerr</strong></td><td class="td-mono">localhost:5055</td><td class="td-mono">192.168.1.x:5055</td><td>Plex-Konto</td></tr>
+          </tbody></table></div>
+          <div class="note n-warn"><div class="note-icon">⚠️</div><div>
+            <strong>Sicherheit:</strong> Niemals diese Ports direkt aus dem Internet zugänglich machen! Ausschliesslich via <strong>VPN (WireGuard)</strong> — sieh die Heim-NAS Anleitung. qBittorrent-Passwort sofort nach Installation ändern.
+          </div></div>
+        </div></div>
+      </div>
+
+    </div>
+
 
 
     <!-- ══════════════════════════════════
@@ -4412,902 +4845,5 @@ function cmdFilter() {
   document.getElementById('cmdCount').textContent = vis + ' von ' + cards.length + ' Befehlen';
 }
 </script>
-
-
-<!-- ZUSÄTZLICHE EINTRÄGE AUS DATEI 2 -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.7;min-height:100vh;display:flex;flex-direction:column;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(120,80,220,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(120,80,220,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
-body::after{content:'';position:fixed;top:-180px;left:-180px;width:520px;height:520px;background:radial-gradient(circle,rgba(124,58,237,0.14) 0%,transparent 65%);pointer-events:none;z-index:0;}
-.topbar{position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:14px;padding:0 1.5rem;height:52px;background:rgba(12,10,20,0.85);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);}
-.topbar-logo{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--purple2);letter-spacing:0.08em;display:flex;align-items:center;gap:8px;}
-.topbar-badge{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:0.08em;background:rgba(124,58,237,0.12);border:1px solid var(--border2);color:var(--purple);padding:3px 10px;border-radius:20px;}
-.shell{position:relative;z-index:1;display:flex;flex:1;max-width:1100px;width:100%;margin:0 auto;padding:0 1.5rem 3rem;}
-.sidebar{width:230px;flex-shrink:0;padding:2rem 0;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
-.sidebar-label{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);padding:0 1rem;margin-bottom:6px;margin-top:1.5rem;}
-.nav-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);padding:8px 1rem;border-radius:8px;cursor:pointer;border-left:2px solid transparent;transition:all 0.17s;user-select:none;}
-.nav-item.active{color:var(--purple2);background:rgba(124,58,237,0.10);border-left-color:var(--purple);}
-.sec-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--purple);margin-bottom:6px;}
-.sec-title{font-family:var(--sans);font-size:1.6rem;font-weight:600;color:var(--text);line-height:1.2;margin-bottom:6px;}
-.phase-num{font-family:var(--mono);font-size:10px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);padding:3px 9px;border-radius:5px;white-space:nowrap;}
-.badge{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase;border:1px solid;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
-.step{display:flex;gap:12px;align-items:flex-start;padding:9px 11px;border-radius:8px;background:var(--surface2);border:1px solid transparent;transition:border-color .18s;}
-.step-n{min-width:24px;height:24px;border-radius:6px;background:var(--bg);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--muted);flex-shrink:0;margin-top:1px;}
-code{font-family:var(--mono);font-size:11.5px;background:rgba(124,58,237,0.10);border:1px solid var(--border2);color:var(--purple2);padding:1px 6px;border-radius:4px;}
-.cmd-block{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.9rem 1.1rem;font-family:var(--mono);font-size:12px;color:var(--green);line-height:1.9;margin:8px 0;overflow-x:auto;position:relative;white-space:pre-wrap;word-break:normal;overflow-wrap:anywhere;}
-.note{display:flex;gap:10px;align-items:flex-start;border-radius:8px;padding:9px 13px;font-size:13px;margin:10px 0;border:1px solid;}
-.n-ok{background:rgba(134,239,172,0.07);border-color:rgba(134,239,172,0.22);color:var(--green);}
-.n-err{background:rgba(248,113,113,0.07);border-color:rgba(248,113,113,0.22);color:var(--red);}
-th{background:var(--surface2);padding:7px 11px;text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);font-weight:500;}
-.iso-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem;}
-.iso-search{flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;font-family:var(--mono);font-size:12px;color:var(--text);outline:none;transition:border-color .18s;}
-.filter-btn{font-family:var(--mono);font-size:11px;letter-spacing:0.05em;padding:6px 13px;border-radius:7px;border:1px solid var(--border2);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .17s;white-space:nowrap;}
-.filter-btn.on{background:rgba(124,58,237,0.15);border-color:var(--purple);color:var(--purple2);}
-.iso-count{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;}
-.iso-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
-.iso-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:10px;transition:border-color .18s,background .18s;}
-.iso-icon{width:36px;height:36px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;}
-.ico-win{background:rgba(147,197,253,0.10);}
-.ico-bsd{background:rgba(253,186,116,0.10);}
-.iso-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.iso-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.iso-tag{font-family:var(--mono);font-size:10px;letter-spacing:0.05em;padding:2px 7px;border-radius:4px;border:1px solid;}
-.t-win{color:#93c5fd;background:rgba(147,197,253,0.08);border-color:rgba(147,197,253,0.22);}
-.t-bsd{color:var(--yellow);background:rgba(253,230,138,0.08);border-color:rgba(253,230,138,0.22);}
-.t-srv{color:var(--purple2);background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.22);}
-.t-desk{color:var(--cyan);background:rgba(103,232,249,0.08);border-color:rgba(103,232,249,0.22);}
-.iso-dl{display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.dl-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;background:rgba(124,58,237,0.12);border:1px solid var(--border2);color:var(--purple2);padding:5px 12px;border-radius:7px;text-decoration:none;transition:all .17s;}
-.dl-sha{font-family:var(--mono);font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;cursor:default;}
-.iso-noresult{grid-column:1/-1;text-align:center;padding:3rem 1rem;color:var(--muted);font-family:var(--mono);font-size:13px;display:none;}
-@media(max-width:700px){.shell{flex-direction:column;padding:0 1rem 3rem;}.sidebar{width:100%;height:auto;position:static;padding:1rem 0;}main{padding:1rem 0 0;}.sec-title{font-size:1.2rem;}.iso-grid{grid-template-columns:1fr;}}
-/* ── NEWSLETTER SECTION ── */
-.nl-email-row{display:flex;gap:8px;margin-bottom:1rem;}
-.nl-email-row input{flex:1;}
-.nl-stats-row{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap;}
-.nl-stat{background:var(--surface2);border-radius:8px;padding:10px 16px;flex:1;min-width:90px;}
-.nl-stat-label{font-family:var(--mono);font-size:10px;color:var(--muted);margin:0 0 2px;}
-.nl-stat-val{font-size:20px;font-weight:600;color:var(--text);margin:0;}
-.nl-filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
-.nl-filter-btn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:7px;border:1px solid var(--border2);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .17s;white-space:nowrap;}
-.nl-filter-btn:hover{color:var(--text);border-color:var(--purple);}
-.nl-filter-btn.on{background:rgba(124,58,237,0.15);border-color:var(--purple);color:var(--purple2);}
-.nl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;}
-.nl-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;transition:border-color .15s,background .15s;}
-.nl-card:hover{border-color:var(--border2);background:var(--surface2);}
-.nl-card.nl-sel{border:1.5px solid var(--purple);background:rgba(124,58,237,0.08);}
-.nl-card.nl-done{border-color:rgba(134,239,172,0.4);background:rgba(134,239,172,0.05);opacity:0.65;pointer-events:none;}
-.nl-icon{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
-.nl-body{flex:1;min-width:0;}
-.nl-name{font-size:13px;font-weight:600;color:var(--text);margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.nl-desc{font-size:11px;color:var(--muted);margin:0 0 5px;line-height:1.4;}
-.nl-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
-.nl-cat{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid;}
-.nl-freq{font-family:var(--mono);font-size:10px;color:var(--muted);}
-.nl-chk{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;}
-.nl-card.nl-sel .nl-chk{background:var(--purple3);border-color:var(--purple3);color:#fff;}
-.nl-card.nl-done .nl-chk{background:rgba(134,239,172,0.3);border-color:var(--green);color:var(--green);}
-.nl-bar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--border);padding:12px 0 0;margin-top:1rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.nl-bar-info{font-size:13px;color:var(--muted);flex:1;}
-.nl-bar-info strong{color:var(--text);}
-.nl-error{font-size:12px;color:var(--red);margin-top:-6px;margin-bottom:8px;display:none;}
-.nl-toast{background:rgba(134,239,172,0.07);border:1px solid rgba(134,239,172,0.25);border-radius:8px;padding:11px 15px;font-size:13px;color:var(--green);margin-top:1rem;display:none;align-items:center;gap:8px;}
-.nl-count-lbl{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;}
-.nl-search-inp{flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;font-family:var(--mono);font-size:12px;color:var(--text);outline:none;transition:border-color .18s;}
-.nl-search-inp::placeholder{color:var(--muted);}
-.nl-search-inp:focus{border-color:var(--purple);}
-.nl-noresult{grid-column:1/-1;text-align:center;padding:2.5rem;color:var(--muted);font-family:var(--mono);font-size:13px;display:none;}
-    <div class="nav-item" onclick="show('plex',this)">
-      <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M6 5l4 2.5L6 10V5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
-      Plex-Server einrichten
-    <!-- ── TROLLPROJEKTE ── -->
-    <div class="sidebar-label" style="color:var(--red);opacity:0.8;">TrollProjekte</div>
-    <div class="nav-item" onclick="show('newsletter',this)">
-      <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M2 3h11a1 1 0 011 1v7a1 1 0 01-1 1H2a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2"/><path d="M1 6h13M5 9h5M5 11h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      Newsletter
-    <!-- SECTION: VIRTUALBOX -->
-        <div class="phase-header"><div class="phase-num">Vorbereitung</div><div class="phase-title">Systemvoraussetzungen prüfen</div><span class="badge b-info">Theorie</span></div>
-            <tr><td>RAM</td><td>4 GB</td><td class="ok">16 GB</td></tr>
-          <div class="note n-warn"><div class="note-icon">⚠️</div><div>Virtualisierung muss im BIOS/UEFI aktiviert sein. <strong>BIOS → Advanced → CPU → Intel VT-x</strong> oder <strong>AMD-V → Enabled</strong>.</div></div>
-        <div class="phase-header"><div class="phase-num">Schritt 01</div><div class="phase-title">VirtualBox herunterladen &amp; installieren</div><span class="badge b-gui">GUI</span></div>
-            <div class="step"><div class="step-n">1</div><div class="step-body">Browser öffnen → <code>virtualbox.org</code> → <strong>Downloads</strong> → Paket für dein OS wählen.</div></div>
-            <div class="step"><div class="step-n">2</div><div class="step-body">Installer starten → Standardoptionen belassen → <strong>Install</strong> → Treiber bestätigen.</div></div>
-            <div class="step"><div class="step-n">3</div><div class="step-body">Extension Pack installieren: <strong>Datei → Werkzeuge → Extension Packs</strong> → <code>.vbox-extpack</code> öffnen → Zustimmen.</div></div>
-      <div class="note n-info"><div class="note-icon">📌</div><div>Alle weiteren Anleitungen (Windows Server, DHCP, DNS, Printserver, Raspberry Pi, Docker, Zammad, Pi-hole, Proxmox, Netzwerk, Fehlercode-Datenbank, Skriptsprachen) sind vollständig in der Original-HTML enthalten. Diese vereinfachte Version zeigt die Struktur mit der neuen TrollProjekte-Sektion.</div></div>
-         SECTION: PLEX SERVER
-    <div id="plex" class="section">
-      <div class="sec-eyebrow">Anleitungen · Heimmediacenter</div>
-      <div class="sec-title">Plex-Server <span>einrichten</span></div>
-      <div class="sec-sub">Raspberry Pi 5 mit grafischer Oberfläche (Desktop) als vollständiger Medienserver — Plex, qBittorrent, Sonarr, Radarr, Prowlarr und Overseerr installieren und verbinden.</div>
-      <!-- ARCHITEKTUR ÜBERSICHT -->
-        <div class="phase-header"><div class="phase-num">Überblick</div><div class="phase-title">Wie alles zusammenspielt</div><span class="badge b-info">Architektur</span></div>
-            <tr><th>Tool</th><th>Funktion</th><th>Port</th><th>Verbindet mit</th></tr>
-            <tr><td><strong>Plex Media Server</strong></td><td>Medien streamen auf TV, Handy, Browser</td><td class="td-mono">32400</td><td>Dateisystem</td></tr>
-            <tr><td><strong>qBittorrent</strong></td><td>Download-Client — lädt Torrents herunter</td><td class="td-mono">8080</td><td>Sonarr, Radarr</td></tr>
-            <tr><td><strong>Prowlarr</strong></td><td>Indexer-Manager — durchsucht Torrent-Quellen</td><td class="td-mono">9696</td><td>Sonarr, Radarr</td></tr>
-            <tr><td><strong>Sonarr</strong></td><td>Automatischer Download von Serien</td><td class="td-mono">8989</td><td>Prowlarr, qBittorrent, Plex</td></tr>
-            <tr><td><strong>Radarr</strong></td><td>Automatischer Download von Filmen</td><td class="td-mono">7878</td><td>Prowlarr, qBittorrent, Plex</td></tr>
-            <tr><td><strong>Overseerr</strong></td><td>Web-UI um Serien/Filme anzufragen</td><td class="td-mono">5055</td><td>Sonarr, Radarr, Plex</td></tr>
-          <div class="note n-info"><div class="note-icon">🔄</div><div>
-            <strong>Ablauf:</strong> Du fragst in <strong>Overseerr</strong> einen Film an → Radarr sucht via <strong>Prowlarr</strong> nach einem Torrent → <strong>qBittorrent</strong> lädt ihn herunter → Radarr verschiebt die Datei in den Mediaordner → <strong>Plex</strong> erkennt sie automatisch und zeigt sie in deiner Bibliothek.
-      <!-- VORAUSSETZUNGEN -->
-        <div class="phase-header"><div class="phase-num">Vorbereitung</div><div class="phase-title">Hardware &amp; OS einrichten</div><span class="badge b-warn">Checkliste</span></div>
-            <tr><th>Komponente</th><th>Empfehlung</th><th>Pflicht</th></tr>
-            <tr><td><strong>Raspberry Pi 5 (8 GB)</strong></td><td>8 GB RAM für alle Dienste gleichzeitig</td><td class="ok">✓</td></tr>
-            <tr><td><strong>microSD 64 GB A2</strong></td><td>Für das OS — SanDisk Endurance</td><td class="ok">✓</td></tr>
-            <tr><td><strong>USB 3.0 Festplatte 4+ TB</strong></td><td>Für Medien — WD Elements oder Seagate</td><td class="ok">✓</td></tr>
-            <tr><td><strong>LAN-Kabel</strong></td><td>Stabiler als WLAN für Streaming</td><td class="ok">✓</td></tr>
-            <tr><td><strong>Raspberry Pi OS Desktop (64-bit)</strong></td><td>Mit grafischer Oberfläche — kein Lite!</td><td class="ok">✓</td></tr>
-            <tr><td><strong>Aktives USB-C Netzteil 5V/5A</strong></td><td>Offizielles Pi 5 Netzteil — Pi 5 braucht mehr</td><td class="ok">✓</td></tr>
-          <div class="note n-warn"><div class="note-icon">⚠️</div><div>
-            <strong>Raspberry Pi OS Desktop</strong> (nicht Lite) auswählen im Imager — du brauchst die grafische Oberfläche für die erste Plex-Einrichtung im Browser. Raspberry Pi Imager → Gerät: Pi 5 → OS: <em>Raspberry Pi OS (64-bit)</em> mit Desktop.
-<span class="cmt"># Nach erstem Boot — System aktualisieren</span>
-<span class="prompt">$</span> sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
-<span class="cmt"># Festplatte einbinden (Abschnitt Heim-NAS für Details)</span>
-<span class="prompt">$</span> sudo mkdir -p /mnt/media/{filme,serien,downloads}
-<span class="prompt">$</span> sudo chown -R $USER:$USER /mnt/media</div>
-      <!-- SCHRITT 1: PLEX -->
-        <div class="phase-header"><div class="phase-num">Schritt 01</div><div class="phase-title">Plex Media Server installieren</div><span class="badge b-cmd">Terminal</span></div>
-<span class="cmt"># Plex-Repository hinzufügen</span>
-<span class="prompt">$</span> curl https://downloads.plex.tv/plex-keys/PlexSign.key | gpg --dearmor | \
-  sudo tee /usr/share/keyrings/plex.gpg > /dev/null
-<span class="prompt">$</span> echo "deb [signed-by=/usr/share/keyrings/plex.gpg] \
-  https://downloads.plex.tv/repo/deb public main" | \
-  sudo tee /etc/apt/sources.list.d/plexmediaserver.list
-<span class="cmt"># Plex installieren</span>
-<span class="prompt">$</span> sudo apt install plexmediaserver -y
-<span class="cmt"># Dienst aktivieren &amp; starten</span>
-<span class="prompt">$</span> sudo systemctl enable --now plexmediaserver
-<span class="prompt">$</span> sudo systemctl status plexmediaserver</div>
-          <div class="steps" style="margin-top:12px">
-            <div class="step"><div class="step-n">1</div><div class="step-body">Browser auf dem Pi öffnen (Chromium) → <code>http://localhost:32400/web</code></div></div>
-            <div class="step"><div class="step-n">2</div><div class="step-body">Plex-Konto erstellen oder einloggen auf <code>plex.tv</code> (kostenlos).</div></div>
-            <div class="step"><div class="step-n">3</div><div class="step-body">Server benennen: z.B. <code>Pi-Plex</code> → <strong>Weiter</strong>.</div></div>
-            <div class="step"><div class="step-n">4</div><div class="step-body">Bibliotheken hinzufügen: <strong>+ Bibliothek hinzufügen</strong> → Typ <em>Filme</em> → Ordner <code>/mnt/media/filme</code> → Hinzufügen. Dasselbe für Serien mit <code>/mnt/media/serien</code>.</div></div>
-            <div class="step"><div class="step-n">5</div><div class="step-body">Plex ist jetzt erreichbar unter: <code>http://&lt;pi-ip&gt;:32400/web</code></div></div>
-          <div class="note n-ok"><div class="note-icon">✅</div><div>Plex-App (kostenlos) auf TV, Handy oder Fire Stick installieren → Server automatisch gefunden → sofort streamen.</div></div>
-<span class="cmt"># Plex darf auf Medienordner zugreifen</span>
-<span class="prompt">$</span> sudo chown -R plex:plex /mnt/media
-<span class="prompt">$</span> sudo chmod -R 755 /mnt/media</div>
-      <!-- SCHRITT 2: qBITTORRENT -->
-        <div class="phase-header"><div class="phase-num">Schritt 02</div><div class="phase-title">qBittorrent-nox installieren (Web-UI)</div><span class="badge b-cmd">Terminal</span></div>
-          <p style="font-size:13px;color:var(--muted);margin-bottom:10px"><strong style="color:var(--text)">qBittorrent-nox</strong> ist die headless-Version — ohne grafische Oberfläche, nur mit Web-UI. Perfekt für den Pi.</p>
-<span class="cmt"># qBittorrent-nox installieren</span>
-<span class="prompt">$</span> sudo apt install qbittorrent-nox -y
-<span class="cmt"># Systemd-Service erstellen</span>
-<span class="prompt">$</span> sudo nano /etc/systemd/system/qbittorrent.service</div>
-<span class="cmt"># Inhalt der Service-Datei:</span>
-[Unit]
-Description=qBittorrent-nox
-After=network.target
-[Service]
-Type=forking
-User=<span class="str">pi</span>
-Group=<span class="str">pi</span>
-ExecStart=/usr/bin/qbittorrent-nox -d --webui-port=8080
-Restart=on-failure
-[Install]
-WantedBy=multi-user.target</div>
-<span class="cmt"># Dienst starten</span>
-<span class="prompt">$</span> sudo systemctl daemon-reload
-<span class="prompt">$</span> sudo systemctl enable --now qbittorrent</div>
-            <div class="step"><div class="step-n">1</div><div class="step-body">Browser → <code>http://localhost:8080</code> — Login: User <code>admin</code> / Passwort <code>adminadmin</code></div></div>
-            <div class="step"><div class="step-n">2</div><div class="step-body"><strong>Einstellungen → Web UI</strong>: Passwort sofort ändern!</div></div>
-            <div class="step"><div class="step-n">3</div><div class="step-body"><strong>Einstellungen → Downloads</strong>: Standardpfad auf <code>/mnt/media/downloads</code> setzen.</div></div>
-            <div class="step"><div class="step-n">4</div><div class="step-body"><strong>Einstellungen → Downloads → Abgeschlossene Downloads verschieben nach</strong>: aktivieren. Sonarr/Radarr werden die Dateien selbst verschieben — Pfad leer lassen.</div></div>
-          <div class="note n-info"><div class="note-icon">📌</div><div>Kategorien werden von Sonarr/Radarr automatisch gesetzt (<code>sonarr</code> / <code>radarr</code>). qBittorrent muss die <strong>Web-UI-Authentifizierung</strong> für <code>localhost</code> nicht deaktivieren — Sonarr/Radarr verbinden sich per API-Key.</div></div>
-      <!-- SCHRITT 3: PROWLARR -->
-        <div class="phase-header"><div class="phase-num">Schritt 03</div><div class="phase-title">Prowlarr installieren (Indexer-Manager)</div><span class="badge b-cmd">Terminal</span></div>
-          <p style="font-size:13px;color:var(--muted);margin-bottom:10px"><strong style="color:var(--text)">Prowlarr</strong> verwaltet alle deine Torrent-Indexer an einem Ort und synchronisiert sie automatisch zu Sonarr und Radarr.</p>
-<span class="cmt"># Abhängigkeiten</span>
-<span class="prompt">$</span> sudo apt install curl sqlite3 -y
-<span class="cmt"># Prowlarr herunterladen (aktuelle Version prüfen auf github.com/Prowlarr/Prowlarr)</span>
-<span class="prompt">$</span> cd /tmp
-<span class="prompt">$</span> curl -L https://github.com/Prowlarr/Prowlarr/releases/latest/download/Prowlarr.master.linux-musl-arm64.tar.gz \
-  -o prowlarr.tar.gz
-<span class="prompt">$</span> tar -xzf prowlarr.tar.gz
-<span class="prompt">$</span> sudo mv Prowlarr /opt/prowlarr
-<span class="cmt"># Systemd-Service</span>
-<span class="prompt">$</span> sudo nano /etc/systemd/system/prowlarr.service</div>
-[Unit]
-Description=Prowlarr
-After=network.target
-[Service]
-Type=simple
-User=<span class="str">pi</span>
-Group=<span class="str">pi</span>
-ExecStart=/opt/prowlarr/Prowlarr -nobrowser -data=/home/pi/.config/Prowlarr
-Restart=on-failure
-[Install]
-WantedBy=multi-user.target</div>
-<span class="prompt">$</span> sudo systemctl daemon-reload
-<span class="prompt">$</span> sudo systemctl enable --now prowlarr</div>
-            <div class="step"><div class="step-n">1</div><div class="step-body">Browser → <code>http://localhost:9696</code></div></div>
-            <div class="step"><div class="step-n">2</div><div class="step-body"><strong>Indexers → Add Indexer</strong> → gewünschte Indexer hinzufügen (z.B. 1337x, EZTV, YTS für öffentliche Indexer).</div></div>
-            <div class="step"><div class="step-n">3</div><div class="step-body">Prowlarr API-Key notieren: <strong>Settings → General → API Key</strong> — wird für Sonarr/Radarr gebraucht.</div></div>
-      <!-- SCHRITT 4: SONARR -->
-        <div class="phase-header"><div class="phase-num">Schritt 04</div><div class="phase-title">Sonarr installieren (Serien-Downloader)</div><span class="badge b-cmd">Terminal</span></div>
-<span class="cmt"># Sonarr-Repository hinzufügen</span>
-<span class="prompt">$</span> sudo apt install gnupg ca-certificates -y
-<span class="prompt">$</span> curl -fsSL https://mediaserver.tools/keys/sonarr.asc | \
-  sudo gpg --dearmor -o /usr/share/keyrings/sonarr.gpg
-<span class="prompt">$</span> echo "deb [arch=arm64 signed-by=/usr/share/keyrings/sonarr.gpg] \
-  https://apt.sonarr.tv/ubuntu focal main" | \
-  sudo tee /etc/apt/sources.list.d/sonarr.list
-<span class="prompt">$</span> sudo apt install sonarr -y
-<span class="cmt"># Alternativ — manuelle Installation (zuverlässiger auf Pi)</span>
-<span class="prompt">$</span> cd /tmp
-<span class="prompt">$</span> curl -L https://services.sonarr.tv/v1/download/main/latest?version=4&os=linux&arch=arm64 \
-  -o sonarr.tar.gz
-<span class="prompt">$</span> tar -xzf sonarr.tar.gz
-<span class="prompt">$</span> sudo mv Sonarr /opt/sonarr</div>
-<span class="cmt"># Systemd-Service</span>
-<span class="prompt">$</span> sudo nano /etc/systemd/system/sonarr.service</div>
-          <div class="cmd-block" style="margin-top:4px">
-[Unit]
-Description=Sonarr
-After=network.target
-[Service]
-Type=simple
-User=<span class="str">pi</span>
-Group=<span class="str">pi</span>
-ExecStart=/opt/sonarr/Sonarr -nobrowser -data=/home/pi/.config/Sonarr
-Restart=on-failure
-[Install]
-WantedBy=multi-user.target</div>
-<span class="prompt">$</span> sudo systemctl daemon-reload
-<span class="prompt">$</span> sudo systemctl enable --now sonarr</div>
-            <div class="step"><div class="step-n">1</div><div class="step-body">Browser → <code>http://localhost:8989</code></div></div>
-            <div class="step"><div class="step-n">2</div><div class="step-body"><strong>Settings → Media Management → Root Folders</strong>: <code>/mnt/media/serien</code> hinzufügen.</div></div>
-            <div class="step"><div class="step-n">3</div><div class="step-body">API-Key notieren: <strong>Settings → General → API Key</strong>.</div></div>
-      <!-- SCHRITT 5: RADARR -->
-        <div class="phase-header"><div class="phase-num">Schritt 05</div><div class="phase-title">Radarr installieren (Film-Downloader)</div><span class="badge b-cmd">Terminal</span></div>
-<span class="cmt"># Radarr herunterladen</span>
-<span class="prompt">$</span> cd /tmp
-<span class="prompt">$</span> curl -L https://github.com/Radarr/Radarr/releases/latest/download/Radarr.master.linux-musl-arm64.tar.gz \
-  -o radarr.tar.gz
-<span class="prompt">$</span> tar -xzf radarr.tar.gz
-<span class="prompt">$</span> sudo mv Radarr /opt/radarr
-<span class="cmt"># Systemd-Service</span>
-<span class="prompt">$</span> sudo nano /etc/systemd/system/radarr.service</div>
-          <div class="cmd-block" style="margin-top:4px">
-[Unit]
-Description=Radarr
-After=network.target
-[Service]
-Type=simple
-User=<span class="str">pi</span>
-Group=<span class="str">pi</span>
-ExecStart=/opt/radarr/Radarr -nobrowser -data=/home/pi/.config/Radarr
-Restart=on-failure
-[Install]
-WantedBy=multi-user.target</div>
-<span class="prompt">$</span> sudo systemctl daemon-reload
-<span class="prompt">$</span> sudo systemctl enable --now radarr</div>
-            <div class="step"><div class="step-n">1</div><div class="step-body">Browser → <code>http://localhost:7878</code></div></div>
-            <div class="step"><div class="step-n">2</div><div class="step-body"><strong>Settings → Media Management → Root Folders</strong>: <code>/mnt/media/filme</code> hinzufügen.</div></div>
-            <div class="step"><div class="step-n">3</div><div class="step-body">API-Key notieren: <strong>Settings → General → API Key</strong>.</div></div>
-      <!-- SCHRITT 6: OVERSEERR -->
-        <div class="phase-header"><div class="phase-num">Schritt 06</div><div class="phase-title">Overseerr installieren (Anfrage-Interface)</div><span class="badge b-cmd">Terminal</span></div>
-          <p style="font-size:13px;color:var(--muted);margin-bottom:10px"><strong style="color:var(--text)">Overseerr</strong> ist die schöne Benutzeroberfläche: Freunde und Familie können hier Filme und Serien anfragen, ohne Zugang zu Sonarr/Radarr zu brauchen.</p>
-<span class="cmt"># Node.js installieren (benötigt für Overseerr)</span>
-<span class="prompt">$</span> curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
-<span class="prompt">$</span> sudo apt install nodejs -y
-<span class="prompt">$</span> node --version   <span class="cmt">← sollte v20.x.x zeigen</span>
-<span class="cmt"># Overseerr installieren</span>
-<span class="prompt">$</span> sudo npm install -g overseerr
-<span class="cmt"># Oder via Docker (empfohlen auf Pi)</span>
-<span class="prompt">$</span> docker run -d \
-  --name overseerr \
-  -e LOG_LEVEL=debug \
-  -e TZ=Europe/Zurich \
-  -p 5055:5055 \
-  -v /home/pi/.config/overseerr:/app/config \
-  --restart unless-stopped \
-  sctx/overseerr</div>
-            <div class="step"><div class="step-n">1</div><div class="step-body">Browser → <code>http://localhost:5055</code></div></div>
-            <div class="step"><div class="step-n">2</div><div class="step-body">Mit Plex-Konto einloggen → Plex-Server auswählen (<code>Pi-Plex</code>).</div></div>
-            <div class="step"><div class="step-n">3</div><div class="step-body">Sonarr und Radarr verbinden (nächster Schritt).</div></div>
-      <!-- SCHRITT 7: ALLES VERBINDEN -->
-        <div class="phase-header"><div class="phase-num">Schritt 07</div><div class="phase-title">Alle Tools verbinden — die grosse Verkabelung</div><span class="badge b-warn">Wichtigster Schritt</span></div>
-          <div class="phase-title" style="font-size:13px;color:var(--purple2);margin-bottom:8px">① Prowlarr → Sonarr &amp; Radarr verbinden</div>
-            <div class="step"><div class="step-n">1</div><div class="step-body">Prowlarr öffnen (<code>:9696</code>) → <strong>Settings → Apps → Add Application</strong>.</div></div>
-            <div class="step"><div class="step-n">2</div><div class="step-body">Sonarr hinzufügen: URL <code>http://localhost:8989</code> · API-Key von Sonarr einfügen → <strong>Test → Save</strong>.</div></div>
-            <div class="step"><div class="step-n">3</div><div class="step-body">Radarr hinzufügen: URL <code>http://localhost:7878</code> · API-Key von Radarr einfügen → <strong>Test → Save</strong>.</div></div>
-            <div class="step"><div class="step-n">4</div><div class="step-body">Prowlarr synchronisiert nun alle Indexer automatisch zu Sonarr und Radarr. <strong>Sync App Indexers</strong> klicken.</div></div>
-          <div class="phase-title" style="font-size:13px;color:var(--purple2);margin:14px 0 8px">② Sonarr → qBittorrent verbinden</div>
-            <div class="step"><div class="step-n">1</div><div class="step-body">Sonarr (<code>:8989</code>) → <strong>Settings → Download Clients → Add</strong> → <em>qBittorrent</em> wählen.</div></div>
-            <div class="step"><div class="step-n">2</div><div class="step-body">Host: <code>localhost</code> · Port: <code>8080</code> · Username: <code>admin</code> · Password: dein Passwort · Category: <code>sonarr</code>.</div></div>
-            <div class="step"><div class="step-n">3</div><div class="step-body"><strong>Test</strong> → grüner Haken → <strong>Save</strong>.</div></div>
-          <div class="phase-title" style="font-size:13px;color:var(--purple2);margin:14px 0 8px">③ Radarr → qBittorrent verbinden</div>
-            <div class="step"><div class="step-n">1</div><div class="step-body">Radarr (<code>:7878</code>) → <strong>Settings → Download Clients → Add</strong> → <em>qBittorrent</em> wählen.</div></div>
-            <div class="step"><div class="step-n">2</div><div class="step-body">Gleiche Einstellungen wie bei Sonarr — nur Category: <code>radarr</code>.</div></div>
-            <div class="step"><div class="step-n">3</div><div class="step-body"><strong>Test → Save</strong>.</div></div>
-          <div class="phase-title" style="font-size:13px;color:var(--purple2);margin:14px 0 8px">④ Sonarr &amp; Radarr → Plex verbinden</div>
-            <div class="step"><div class="step-n">1</div><div class="step-body">Sonarr (<code>:8989</code>) → <strong>Settings → Connect → Add</strong> → <em>Plex Media Server</em>.</div></div>
-            <div class="step"><div class="step-n">2</div><div class="step-body">Host: <code>localhost</code> · Port: <code>32400</code> · <strong>Authenticate with Plex.tv</strong> → Plex-Konto verbinden.</div></div>
-            <div class="step"><div class="step-n">3</div><div class="step-body">Dasselbe in Radarr wiederholen.</div></div>
-            <div class="step"><div class="step-n">4</div><div class="step-body">Jetzt scannt Plex automatisch die Bibliothek wenn Sonarr/Radarr neue Dateien hinzufügen.</div></div>
-          <div class="phase-title" style="font-size:13px;color:var(--purple2);margin:14px 0 8px">⑤ Overseerr → Sonarr, Radarr &amp; Plex verbinden</div>
-            <div class="step"><div class="step-n">1</div><div class="step-body">Overseerr (<code>:5055</code>) → <strong>Settings → Services → Add Radarr Server</strong>.</div></div>
-            <div class="step"><div class="step-n">2</div><div class="step-body">Hostname: <code>localhost</code> · Port: <code>7878</code> · API-Key von Radarr · Root Folder: <code>/mnt/media/filme</code> · Quality Profile: <em>Any</em> → <strong>Test → Save</strong>.</div></div>
-            <div class="step"><div class="step-n">3</div><div class="step-body"><strong>Add Sonarr Server</strong>: Port <code>8989</code> · API-Key von Sonarr · Root Folder: <code>/mnt/media/serien</code> → <strong>Test → Save</strong>.</div></div>
-          <div class="note n-ok"><div class="note-icon">🎉</div><div>Ab jetzt: in Overseerr nach einem Film suchen → anfordern → alles passiert automatisch → nach Download in Plex streamen.</div></div>
-      <!-- SCHRITT 8: DESKTOP AUTOSTART -->
-        <div class="phase-header"><div class="phase-num">Schritt 08</div><div class="phase-title">Desktop-Autostart &amp; Dashboard einrichten</div><span class="badge b-gui">Desktop</span></div>
-          <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Da du die grafische Oberfläche hast, kannst du einen Browser-Dashboard-Tab mit allen Web-UIs einrichten der beim Start automatisch öffnet.</p>
-<span class="cmt"># Autostart-Datei für Chromium erstellen</span>
-<span class="prompt">$</span> mkdir -p ~/.config/autostart
-<span class="prompt">$</span> nano ~/.config/autostart/dashboard.desktop</div>
-[Desktop Entry]
-Type=Application
-Name=Plex Dashboard
-Exec=chromium-browser --new-window \
-  http://localhost:32400/web \
-  http://localhost:8989 \
-  http://localhost:7878 \
-  http://localhost:9696 \
-  http://localhost:8080 \
-  http://localhost:5055
-Hidden=false
-NoDisplay=false
-X-GNOME-Autostart-enabled=true</div>
-            <div class="step"><div class="step-n">💡</div><div class="step-body">Chromium öffnet beim Login alle Web-UIs als Tabs: Plex · Sonarr · Radarr · Prowlarr · qBittorrent · Overseerr</div></div>
-            <div class="step"><div class="step-n">📌</div><div class="step-body">Für Remote-Zugriff: VPN (WireGuard) einrichten — sieh Heim-NAS Anleitung. Alle Ports sind dann von unterwegs erreichbar.</div></div>
-      <!-- SCHRITT 9: ALLE DIENSTE ÜBERSICHT -->
-        <div class="phase-header"><div class="phase-num">Diagnose</div><div class="phase-title">Alle Dienste verwalten</div><span class="badge b-cmd">Terminal</span></div>
-<span class="cmt"># Status aller Dienste auf einmal prüfen</span>
-<span class="prompt">$</span> for s in plexmediaserver qbittorrent prowlarr sonarr radarr; do
-    echo "─── $s ───"
-    sudo systemctl status $s --no-pager -l | grep -E "Active|Main"
-  done
-<span class="cmt"># Alle auf einmal starten / stoppen / neu starten</span>
-<span class="prompt">$</span> sudo systemctl restart plexmediaserver qbittorrent prowlarr sonarr radarr
-<span class="cmt"># Logs eines Dienstes live verfolgen</span>
-<span class="prompt">$</span> journalctl -u sonarr -f
-<span class="prompt">$</span> journalctl -u radarr -f
-<span class="cmt"># Ressourcenverbrauch anzeigen</span>
-<span class="prompt">$</span> htop
-<span class="cmt"># Speicherplatz prüfen</span>
-<span class="prompt">$</span> df -h /mnt/media</div>
-      <!-- PORT-ÜBERSICHT -->
-        <div class="phase-header"><div class="phase-num">Zusammenfassung</div><div class="phase-title">Alle Web-UIs auf einen Blick</div><span class="badge b-info">Referenz</span></div>
-            <tr><th>Dienst</th><th>URL (lokal)</th><th>URL (via VPN)</th><th>Standard-Login</th></tr>
-            <tr><td>🎬 <strong>Plex</strong></td><td class="td-mono">localhost:32400/web</td><td class="td-mono">192.168.1.x:32400/web</td><td>Plex-Konto</td></tr>
-            <tr><td>🌊 <strong>qBittorrent</strong></td><td class="td-mono">localhost:8080</td><td class="td-mono">192.168.1.x:8080</td><td>admin / adminadmin</td></tr>
-            <tr><td>🔍 <strong>Prowlarr</strong></td><td class="td-mono">localhost:9696</td><td class="td-mono">192.168.1.x:9696</td><td>kein Login (lokal)</td></tr>
-            <tr><td>📺 <strong>Sonarr</strong></td><td class="td-mono">localhost:8989</td><td class="td-mono">192.168.1.x:8989</td><td>kein Login (lokal)</td></tr>
-            <tr><td>🎥 <strong>Radarr</strong></td><td class="td-mono">localhost:7878</td><td class="td-mono">192.168.1.x:7878</td><td>kein Login (lokal)</td></tr>
-            <tr><td>🙋 <strong>Overseerr</strong></td><td class="td-mono">localhost:5055</td><td class="td-mono">192.168.1.x:5055</td><td>Plex-Konto</td></tr>
-          <div class="note n-warn"><div class="note-icon">⚠️</div><div>
-            <strong>Sicherheit:</strong> Niemals diese Ports direkt aus dem Internet zugänglich machen! Ausschliesslich via <strong>VPN (WireGuard)</strong> — sieh die Heim-NAS Anleitung. qBittorrent-Passwort sofort nach Installation ändern.
-    </div><!-- /plex -->
-    <!-- SECTION: NEWSLETTER (TROLLPROJEKTE) -->
-    <div id="newsletter" class="section">
-      <div class="sec-eyebrow">TrollProjekte</div>
-      <div class="sec-title">Newsletter <span>Anmeldung</span></div>
-      <div class="sec-sub">400 Newsletter — von seriös bis völlig satirisch. E-Mail eingeben, Newsletter auswählen, einmal anmelden.</div>
-      <div class="nl-email-row">
-        <input type="email" id="nl-email" class="nl-search-inp" placeholder="deine@email.de" />
-        <button class="dl-btn" id="nl-btn" onclick="nlSignup()" style="padding:8px 18px;font-size:13px;cursor:pointer;">
-          <svg width="13" height="13" fill="none" viewBox="0 0 13 13"><path d="M2 6.5h9M7 2l4 4.5L7 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Anmelden
-        </button>
-      <div class="nl-error" id="nl-error">Bitte gib eine gültige E-Mail-Adresse ein.</div>
-      <div class="nl-stats-row">
-        <div class="nl-stat"><p class="nl-stat-label">Verfügbar</p><p class="nl-stat-val" id="nl-total">400</p></div>
-        <div class="nl-stat"><p class="nl-stat-label">Ausgewählt</p><p class="nl-stat-val" id="nl-sel-count">0</p></div>
-        <div class="nl-stat"><p class="nl-stat-label">Angemeldet</p><p class="nl-stat-val" id="nl-done-count">0</p></div>
-      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center;">
-        <input class="nl-search-inp" type="text" id="nl-search" placeholder="Newsletter suchen…" oninput="nlFilter()" style="flex:1;min-width:180px;" />
-        <span class="nl-count-lbl" id="nl-count-lbl">400 / 400</span>
-      <div class="nl-filter-row" id="nl-filter-row"></div>
-      <div class="nl-grid" id="nl-grid">
-        <div class="nl-noresult" id="nl-noresult">Keine Newsletter gefunden.</div>
-      <div class="nl-toast" id="nl-toast">
-        <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span id="nl-toast-msg"></span>
-      <div class="nl-bar">
-        <p class="nl-bar-info"><strong id="nl-bar-sel">0</strong> ausgewählt &nbsp;·&nbsp; <span id="nl-bar-done">0</span> angemeldet</p>
-        <button class="filter-btn" onclick="nlSelectAll()">Alle wählen</button>
-        <button class="filter-btn" onclick="nlClearAll()">Auswahl leeren</button>
-    </div><!-- /newsletter -->
-  if (id === 'newsletter') { nlRenderFilters(); nlRenderGrid(); nlUpdateStats(); }
-// ── NEWSLETTER DATA ───────────────────────────────────────────────────────────
-const NL = [
-  {id:1,name:"Morning Brew",desc:"Tagesaktuelle Wirtschafts- und Tech-News, locker aufbereitet.",cat:"Business",freq:"Täglich",icon:"ti-coffee",color:"#FAC775",tc:"#633806"},
-  {id:2,name:"The Hustle",desc:"Startup- und Business-Trends für Unternehmer.",cat:"Business",freq:"Täglich",icon:"ti-bolt",color:"#FAC775",tc:"#633806"},
-  {id:3,name:"Lenny's Newsletter",desc:"Produktmanagement und Wachstumsstrategien.",cat:"Business",freq:"Wöchentlich",icon:"ti-rocket",color:"#FAC775",tc:"#633806"},
-  {id:4,name:"Stratechery",desc:"Tech-Business-Strategie von Ben Thompson.",cat:"Business",freq:"Wöchentlich",icon:"ti-chess",color:"#FAC775",tc:"#633806"},
-  {id:5,name:"Not Boring",desc:"Strategie-Analysen zu Tech-Unternehmen.",cat:"Business",freq:"Wöchentlich",icon:"ti-confetti",color:"#FAC775",tc:"#633806"},
-  {id:6,name:"CB Insights",desc:"Startup- und VC-Marktanalysen.",cat:"Business",freq:"Täglich",icon:"ti-chart-pie",color:"#FAC775",tc:"#633806"},
-  {id:7,name:"Y Combinator",desc:"Insights aus dem besten Startup-Ökosystem.",cat:"Business",freq:"Wöchentlich",icon:"ti-hexagon",color:"#FAC775",tc:"#633806"},
-  {id:8,name:"SaaStr",desc:"SaaS-Wachstum, B2B und Unternehmens-Insights.",cat:"Business",freq:"Wöchentlich",icon:"ti-stack",color:"#FAC775",tc:"#633806"},
-  {id:9,name:"a16z",desc:"Venture Capital-Perspektiven auf Tech und Kultur.",cat:"Business",freq:"Wöchentlich",icon:"ti-trending-up",color:"#FAC775",tc:"#633806"},
-  {id:10,name:"Sifted",desc:"Europäische Startups und Tech-Ökosystem.",cat:"Business",freq:"Täglich",icon:"ti-map",color:"#FAC775",tc:"#633806"},
-  {id:11,name:"Fast Company",desc:"Innovation im Business und Leadership.",cat:"Business",freq:"Täglich",icon:"ti-flame",color:"#FAC775",tc:"#633806"},
-  {id:12,name:"Harvard Business Review",desc:"Führung, Management und Strategie.",cat:"Business",freq:"Wöchentlich",icon:"ti-school",color:"#FAC775",tc:"#633806"},
-  {id:13,name:"Gründerszene",desc:"Startup-News aus dem DACH-Raum.",cat:"Business",freq:"Täglich",icon:"ti-trophy",color:"#FAC775",tc:"#633806"},
-  {id:14,name:"Trends.vc",desc:"Marktchancen und neue Business-Trends.",cat:"Business",freq:"Wöchentlich",icon:"ti-arrows-up",color:"#FAC775",tc:"#633806"},
-  {id:15,name:"Mailchimp Presents",desc:"Unternehmer-Geschichten und Business-Tipps.",cat:"Business",freq:"Monatlich",icon:"ti-mail",color:"#FAC775",tc:"#633806"},
-  {id:16,name:"TLDR",desc:"Die wichtigsten Tech-Neuigkeiten in 5 Minuten.",cat:"Tech",freq:"Täglich",icon:"ti-device-laptop",color:"#B5D4F4",tc:"#0C447C"},
-  {id:17,name:"Hacker Newsletter",desc:"Beste Links aus der Hacker News Community.",cat:"Tech",freq:"Wöchentlich",icon:"ti-terminal-2",color:"#B5D4F4",tc:"#0C447C"},
-  {id:18,name:"MIT Technology Review",desc:"Tiefgehende Technologie-Analysen.",cat:"Tech",freq:"Wöchentlich",icon:"ti-cpu",color:"#B5D4F4",tc:"#0C447C"},
-  {id:19,name:"JavaScript Weekly",desc:"Alles rund um JavaScript und Web-Entwicklung.",cat:"Tech",freq:"Wöchentlich",icon:"ti-brand-javascript",color:"#B5D4F4",tc:"#0C447C"},
-  {id:20,name:"Heise Newsletter",desc:"IT-News und Technik-Nachrichten aus Deutschland.",cat:"Tech",freq:"Täglich",icon:"ti-device-desktop",color:"#B5D4F4",tc:"#0C447C"},
-  {id:21,name:"t3n",desc:"Digital-Wirtschaft, Startups und Technik.",cat:"Tech",freq:"Täglich",icon:"ti-3d-cube-sphere",color:"#B5D4F4",tc:"#0C447C"},
-  {id:22,name:"Netzpolitik",desc:"Digitale Gesellschaft und Datenschutz-Themen.",cat:"Tech",freq:"Täglich",icon:"ti-shield",color:"#B5D4F4",tc:"#0C447C"},
-  {id:23,name:"Wired",desc:"Technologie und Gesellschaft — tiefgründig.",cat:"Tech",freq:"Wöchentlich",icon:"ti-plug",color:"#B5D4F4",tc:"#0C447C"},
-  {id:24,name:"Ars Technica",desc:"Tech-Tiefgang: Hardware, Science und Policy.",cat:"Tech",freq:"Täglich",icon:"ti-tools",color:"#B5D4F4",tc:"#0C447C"},
-  {id:25,name:"The Verge",desc:"Consumer Tech, Kultur und digitale Welt.",cat:"Tech",freq:"Täglich",icon:"ti-triangle",color:"#B5D4F4",tc:"#0C447C"},
-  {id:26,name:"Product Hunt",desc:"Die heißesten neuen Produkte jeden Tag.",cat:"Tech",freq:"Täglich",icon:"ti-cat",color:"#B5D4F4",tc:"#0C447C"},
-  {id:27,name:"Platformer",desc:"Soziale Netzwerke und Tech-Plattformen.",cat:"Tech",freq:"Täglich",icon:"ti-brand-twitter",color:"#B5D4F4",tc:"#0C447C"},
-  {id:28,name:"DevOps Weekly",desc:"CI/CD, Kubernetes und Cloud-Native-Trends.",cat:"Tech",freq:"Wöchentlich",icon:"ti-server",color:"#B5D4F4",tc:"#0C447C"},
-  {id:29,name:"CSS-Tricks",desc:"Design- und Frontend-Tipps für Entwickler.",cat:"Design",freq:"Wöchentlich",icon:"ti-palette",color:"#CECBF6",tc:"#3C3489"},
-  {id:30,name:"Smashing Magazine",desc:"Web-Design und Development für Profis.",cat:"Design",freq:"Wöchentlich",icon:"ti-brush",color:"#CECBF6",tc:"#3C3489"},
-  {id:31,name:"Sidebar.io",desc:"5 beste Design-Links täglich kuratiert.",cat:"Design",freq:"Täglich",icon:"ti-layout",color:"#CECBF6",tc:"#3C3489"},
-  {id:32,name:"Dense Discovery",desc:"Design, Technologie und Kultur — durchdacht.",cat:"Design",freq:"Wöchentlich",icon:"ti-eye",color:"#CECBF6",tc:"#3C3489"},
-  {id:33,name:"UX Collective",desc:"User Experience Insights und Fallstudien.",cat:"Design",freq:"Wöchentlich",icon:"ti-user-circle",color:"#CECBF6",tc:"#3C3489"},
-  {id:34,name:"AIGA Eye on Design",desc:"Magazin für Grafikdesign und visuelle Kultur.",cat:"Design",freq:"Wöchentlich",icon:"ti-eye-check",color:"#CECBF6",tc:"#3C3489"},
-  {id:35,name:"The Rundown AI",desc:"Täglich: Was ist neu in der KI-Welt?",cat:"KI & Zukunft",freq:"Täglich",icon:"ti-robot",color:"#F4C0D1",tc:"#72243E"},
-  {id:36,name:"Import AI",desc:"Technische KI-Forschung von Jack Clark.",cat:"KI & Zukunft",freq:"Wöchentlich",icon:"ti-cpu",color:"#F4C0D1",tc:"#72243E"},
-  {id:37,name:"Exponential View",desc:"Zukunftstechnologien und gesellschaftlicher Wandel.",cat:"KI & Zukunft",freq:"Wöchentlich",icon:"ti-telescope",color:"#F4C0D1",tc:"#72243E"},
-  {id:38,name:"The Algorithm",desc:"KI-News des MIT Technology Review.",cat:"KI & Zukunft",freq:"Wöchentlich",icon:"ti-code-dots",color:"#F4C0D1",tc:"#72243E"},
-  {id:39,name:"Towards Data Science",desc:"Data Science, ML und Programmier-Tutorials.",cat:"KI & Zukunft",freq:"Wöchentlich",icon:"ti-chart-scatter",color:"#F4C0D1",tc:"#72243E"},
-  {id:40,name:"Every",desc:"Essays über Technologie, Geist und Arbeit.",cat:"KI & Zukunft",freq:"Wöchentlich",icon:"ti-writing",color:"#F4C0D1",tc:"#72243E"},
-  {id:41,name:"The Batch (Andrew Ng)",desc:"Andrew Ngs wöchentlicher KI-Newsletter.",cat:"KI & Zukunft",freq:"Wöchentlich",icon:"ti-brain",color:"#F4C0D1",tc:"#72243E"},
-  {id:42,name:"AI Breakfast",desc:"Tägliche KI-News in kurzer Form.",cat:"KI & Zukunft",freq:"Täglich",icon:"ti-coffee",color:"#F4C0D1",tc:"#72243E"},
-  {id:43,name:"Finimize",desc:"Finanzmarkt-Neuigkeiten einfach erklärt.",cat:"Finanzen",freq:"Täglich",icon:"ti-chart-bar",color:"#9FE1CB",tc:"#085041"},
-  {id:44,name:"The Daily Upside",desc:"Wirtschaftsnews aus einer anderen Perspektive.",cat:"Finanzen",freq:"Täglich",icon:"ti-trending-up",color:"#9FE1CB",tc:"#085041"},
-  {id:45,name:"Bankless",desc:"Krypto, DeFi und Web3 — die Zukunft des Geldes.",cat:"Finanzen",freq:"Täglich",icon:"ti-coin",color:"#9FE1CB",tc:"#085041"},
-  {id:46,name:"Milk Road",desc:"Krypto-Newsletter: einfach, ehrlich, täglich.",cat:"Finanzen",freq:"Täglich",icon:"ti-currency-bitcoin",color:"#9FE1CB",tc:"#085041"},
-  {id:47,name:"Economist Espresso",desc:"Morgendlicher Wirtschafts-Überblick.",cat:"Finanzen",freq:"Täglich",icon:"ti-coffee",color:"#9FE1CB",tc:"#085041"},
-  {id:48,name:"Planet Money",desc:"Wirtschaft spannend erklärt von NPR.",cat:"Finanzen",freq:"Wöchentlich",icon:"ti-world-dollar",color:"#9FE1CB",tc:"#085041"},
-  {id:49,name:"MoneyStuff (Bloomberg)",desc:"Bloomberg-Newsletter von Matt Levine.",cat:"Finanzen",freq:"Täglich",icon:"ti-mail",color:"#9FE1CB",tc:"#085041"},
-  {id:50,name:"ETF Trends",desc:"ETF-News, Marktdaten und Investmentstrategien.",cat:"Finanzen",freq:"Täglich",icon:"ti-chart-area",color:"#9FE1CB",tc:"#085041"},
-  {id:51,name:"The Pour Over",desc:"Weltgeschehen aus einer ruhigen Perspektive.",cat:"News",freq:"Täglich",icon:"ti-world",color:"#D3D1C7",tc:"#444441"},
-  {id:52,name:"1440 Daily Digest",desc:"Alle Neuigkeiten, politisch neutral, täglich.",cat:"News",freq:"Täglich",icon:"ti-news",color:"#D3D1C7",tc:"#444441"},
-  {id:53,name:"Axios AM",desc:"Kurzer täglicher Überblick über das Wichtigste.",cat:"News",freq:"Täglich",icon:"ti-sun",color:"#D3D1C7",tc:"#444441"},
-  {id:54,name:"Spiegel Morgen",desc:"Nachrichten-Überblick aus Deutschland.",cat:"News",freq:"Täglich",icon:"ti-flag",color:"#D3D1C7",tc:"#444441"},
-  {id:55,name:"Neue Zürcher Zeitung",desc:"Qualitätsjournalismus aus der Schweiz.",cat:"News",freq:"Täglich",icon:"ti-newspaper",color:"#D3D1C7",tc:"#444441"},
-  {id:56,name:"The Guardian Daily",desc:"Britischer Blick auf Weltpolitik und Kultur.",cat:"News",freq:"Täglich",icon:"ti-globe",color:"#D3D1C7",tc:"#444441"},
-  {id:57,name:"BBC News Summary",desc:"Tägliche Zusammenfassung der BBC-Weltmeldungen.",cat:"News",freq:"Täglich",icon:"ti-world",color:"#D3D1C7",tc:"#444441"},
-  {id:58,name:"Reuters Daily Briefing",desc:"Internationale Nachrichtenagentur täglich.",cat:"News",freq:"Täglich",icon:"ti-antenna",color:"#D3D1C7",tc:"#444441"},
-  {id:59,name:"Science Alert",desc:"Neueste Wissenschaftsentdeckungen leicht erklärt.",cat:"Wissenschaft",freq:"Täglich",icon:"ti-flask",color:"#C0DD97",tc:"#27500A"},
-  {id:60,name:"Nature Briefing",desc:"Wissenschaft aus dem renommierten Nature-Verlag.",cat:"Wissenschaft",freq:"Täglich",icon:"ti-microscope",color:"#C0DD97",tc:"#27500A"},
-  {id:61,name:"Quanta Magazine",desc:"Mathematik, Physik, Biologie auf höchstem Niveau.",cat:"Wissenschaft",freq:"Wöchentlich",icon:"ti-math",color:"#C0DD97",tc:"#27500A"},
-  {id:62,name:"New Scientist",desc:"Wöchentliche Wissenschaftsnews aller Disziplinen.",cat:"Wissenschaft",freq:"Wöchentlich",icon:"ti-test-pipe",color:"#C0DD97",tc:"#27500A"},
-  {id:63,name:"Farnam Street",desc:"Mentale Modelle und klares Denken für Entscheider.",cat:"Bildung",freq:"Wöchentlich",icon:"ti-brain",color:"#EF9F27",tc:"#633806"},
-  {id:64,name:"James Clear",desc:"Gewohnheiten und persönliches Wachstum.",cat:"Bildung",freq:"Wöchentlich",icon:"ti-plant-2",color:"#EF9F27",tc:"#633806"},
-  {id:65,name:"Ali Abdaal",desc:"Produktivität, Karriere und ein erfülltes Leben.",cat:"Bildung",freq:"Wöchentlich",icon:"ti-clock",color:"#EF9F27",tc:"#633806"},
-  {id:66,name:"Aeon",desc:"Philosophie, Psychologie und Essay-Kultur.",cat:"Bildung",freq:"Täglich",icon:"ti-infinity",color:"#EF9F27",tc:"#633806"},
-  {id:67,name:"Brainpickings",desc:"Literatur, Kunst, Philosophie und das Leben.",cat:"Kultur",freq:"Wöchentlich",icon:"ti-book",color:"#F5C4B3",tc:"#712B13"},
-  {id:68,name:"Pitchfork Reviews",desc:"Musikrezensionen und Albumkritiken.",cat:"Kultur",freq:"Täglich",icon:"ti-vinyl",color:"#F5C4B3",tc:"#712B13"},
-  {id:69,name:"Goodreads",desc:"Buchempfehlungen und Leser-Reviews.",cat:"Kultur",freq:"Monatlich",icon:"ti-book-2",color:"#F5C4B3",tc:"#712B13"},
-  {id:70,name:"Owltail",desc:"Die besten Podcast-Empfehlungen kuratiert.",cat:"Kultur",freq:"Wöchentlich",icon:"ti-headphones",color:"#F5C4B3",tc:"#712B13"},
-  {id:71,name:"Marketing Brew",desc:"Marketing und Medienbranche täglich im Blick.",cat:"Marketing",freq:"Täglich",icon:"ti-speakerphone",color:"#B5D4F4",tc:"#0C447C"},
-  {id:72,name:"Seth Godin",desc:"Tägliche kurze Marketing- und Leadership-Gedanken.",cat:"Marketing",freq:"Täglich",icon:"ti-bulb",color:"#B5D4F4",tc:"#0C447C"},
-  {id:73,name:"Stacked Marketer",desc:"Das Wichtigste aus Digital Marketing täglich.",cat:"Marketing",freq:"Täglich",icon:"ti-layers",color:"#B5D4F4",tc:"#0C447C"},
-  {id:74,name:"RunLocal",desc:"Community-Sport und Lauf-Events in deiner Nähe.",cat:"Sport",freq:"Wöchentlich",icon:"ti-run",color:"#C0DD97",tc:"#27500A"},
-  {id:75,name:"The Athletic",desc:"Sportjournalismus für Fans, keine Klickbaits.",cat:"Sport",freq:"Täglich",icon:"ti-ball-football",color:"#C0DD97",tc:"#27500A"},
-  {id:76,name:"Well + Good",desc:"Wellness, Ernährung und mentale Gesundheit.",cat:"Gesundheit",freq:"Täglich",icon:"ti-salad",color:"#9FE1CB",tc:"#085041"},
-  {id:77,name:"Mindful",desc:"Achtsamkeit und Meditation im Alltag.",cat:"Gesundheit",freq:"Wöchentlich",icon:"ti-yin-yang",color:"#9FE1CB",tc:"#085041"},
-  {id:78,name:"Bon Appétit",desc:"Rezepte, Food-Kultur und Restaurantempfehlungen.",cat:"Lifestyle",freq:"Wöchentlich",icon:"ti-soup",color:"#F4C0D1",tc:"#72243E"},
-  {id:79,name:"Condé Nast Traveler",desc:"Reiseinspirationen und Destinationstipps.",cat:"Lifestyle",freq:"Wöchentlich",icon:"ti-map-pin",color:"#F4C0D1",tc:"#72243E"},
-  {id:80,name:"Monocle",desc:"Weltgeschehen, Design und urbane Kultur.",cat:"Lifestyle",freq:"Monatlich",icon:"ti-world-latitude",color:"#F4C0D1",tc:"#72243E"},
-  // ── TrollProjekte (320 Newsletter) ──────────────────────────────────────
-  {id:81,name:"Flat Earth Weekly",desc:"Die neuesten Beweise dass die Erde eine Scheibe ist.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-circle",color:"#F09595",tc:"#A32D2D"},
-  {id:82,name:"Mondlandung Lüge Digest",desc:"Warum das alles in Hollywood gedreht wurde.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-moon",color:"#F09595",tc:"#A32D2D"},
-  {id:83,name:"5G Chip Alert",desc:"Täglich neue Erkenntnisse über Chips in Impfstoffen.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-wifi",color:"#F09595",tc:"#A32D2D"},
-  {id:84,name:"Chemtrail Beobachter",desc:"Wolken sind Chemikalien. Wir dokumentieren jeden Himmel.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-cloud",color:"#F09595",tc:"#A32D2D"},
-  {id:85,name:"Reptiloid Report",desc:"Wer ist wirklich eine Echse? Diese Woche: alle Politiker.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-eye",color:"#F09595",tc:"#A32D2D"},
-  {id:86,name:"Anti-Gravity News",desc:"Schwerkraft ist eine Lüge. Schwebetipps für Zuhause.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-rocket",color:"#F09595",tc:"#A32D2D"},
-  {id:87,name:"Bigfoot Wöchentlich",desc:"Neue Fotos, neue Spuren, neue Enttäuschungen.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-paw",color:"#F09595",tc:"#A32D2D"},
-  {id:88,name:"Hollow Earth Gazette",desc:"Was lebt wirklich tief in der Erde? Spoiler: alles.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-planet",color:"#F09595",tc:"#A32D2D"},
-  {id:89,name:"Illuminati Insider",desc:"Wir sind drin. Wir sagen aber nichts. Außer diesen Newsletter.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-triangle",color:"#F09595",tc:"#A32D2D"},
-  {id:90,name:"Zeitreise Bulletin",desc:"Berichte aus der Zukunft. Leider alle schlechte Nachrichten.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-clock",color:"#F09595",tc:"#A32D2D"},
-  {id:91,name:"Katzen-Weltregierung",desc:"Beweise dass Katzen heimlich die Welt regieren.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-cat",color:"#CECBF6",tc:"#3C3489"},
-  {id:92,name:"Pigeon Intelligence",desc:"Tauben sind Drohnen der Regierung. Wir haben Beweise.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-feather",color:"#CECBF6",tc:"#3C3489"},
-  {id:93,name:"Mandela Effect Daily",desc:"Dinge die du falsch erinnerst — oder Realität hat sich geändert.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-brain",color:"#CECBF6",tc:"#3C3489"},
-  {id:94,name:"Simulation Weekly",desc:"Beweise dass wir in einer Simulation leben. Bugs des Tages.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-code",color:"#CECBF6",tc:"#3C3489"},
-  {id:95,name:"Telekinese Trainingspost",desc:"Woche 1: Löffel biegen. Woche 47: immer noch Woche 1.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-wand",color:"#CECBF6",tc:"#3C3489"},
-  {id:96,name:"Alien Kochbuch",desc:"Rezepte die angeblich von Zeta Reticuli stammen.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-ufo",color:"#CECBF6",tc:"#3C3489"},
-  {id:97,name:"Der tägliche Unsinn",desc:"Garantiert keine nützlichen Informationen. Jeden Tag.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-mood-crazy-happy",color:"#CECBF6",tc:"#3C3489"},
-  {id:98,name:"Schrödingers Inbox",desc:"Existiert gleichzeitig und nicht. Bis du ihn öffnest.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-box",color:"#CECBF6",tc:"#3C3489"},
-  {id:99,name:"Prokrastination Today",desc:"Newsletter über Verschieben von Dingen. Erscheint irgendwann.",cat:"TrollProjekte",freq:"Irgendwann",icon:"ti-hourglass",color:"#CECBF6",tc:"#3C3489"},
-  {id:100,name:"Haiku über IT-Fehler",desc:"500 Internal Server Error. Es tut uns leid. Tee trinken.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-writing",color:"#CECBF6",tc:"#3C3489"},
-  {id:101,name:"404 News Not Found",desc:"Nachrichten die nicht existieren. Täglich frisch erfunden.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-ghost",color:"#9FE1CB",tc:"#085041"},
-  {id:102,name:"Stack Overflow Tränen",desc:"Gescheiterte Antworten und gesperrte Threads.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-bug",color:"#9FE1CB",tc:"#085041"},
-  {id:103,name:"Works On My Machine",desc:"Software die nur auf dem Rechner des Entwicklers läuft.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-device-laptop",color:"#9FE1CB",tc:"#085041"},
-  {id:104,name:"Blockchain für Bäcker",desc:"NFTs für Brötchen. DeFi für Dampfnudeln. Ernsthaft.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-bread",color:"#9FE1CB",tc:"#085041"},
-  {id:105,name:"Agile Therapie",desc:"Trauma-Verarbeitung nach zu vielen Sprint-Reviews.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-couch",color:"#9FE1CB",tc:"#085041"},
-  {id:106,name:"JIRA Ticket Poesie",desc:"Literarische Verarbeitung von Bug-Reports.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-ticket",color:"#9FE1CB",tc:"#085041"},
-  {id:107,name:"Kubernetes für Hobbyisten",desc:"Du brauchst das nicht. Wir erklären es trotzdem.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-helm",color:"#9FE1CB",tc:"#085041"},
-  {id:108,name:"AI wird uns alle töten",desc:"Tägliche Panik. Heute: ChatGPT hat einen Satz geändert.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-robot",color:"#9FE1CB",tc:"#085041"},
-  {id:109,name:"Excel als Datenbank",desc:"Für alle die wissen dass es falsch ist aber es trotzdem tun.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-table",color:"#9FE1CB",tc:"#085041"},
-  {id:110,name:"Passwort123 Weekly",desc:"Sicherheitstipps von jemandem dessen Passwort Passwort123 ist.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-lock-open",color:"#9FE1CB",tc:"#085041"},
-  {id:111,name:"Avocado-Toast Börse",desc:"Aktuelle Kurse. Schuld an der Wohnungskrise? Ja.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-trending-up",color:"#FAC775",tc:"#633806"},
-  {id:112,name:"Detox-Tee Wahrheit",desc:"Deine Leber macht das alleine. Trotzdem 19.90 CHF.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-leaf",color:"#FAC775",tc:"#633806"},
-  {id:113,name:"Gluten ist überall",desc:"Wöchentliche Panikmeldungen. Diesmal: Luft enthält Gluten.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-alert-triangle",color:"#FAC775",tc:"#633806"},
-  {id:114,name:"Superfoods der Woche",desc:"Jeden Montag ein Lebensmittel das angeblich alles heilt.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-salad",color:"#FAC775",tc:"#633806"},
-  {id:115,name:"Biohacking Basics",desc:"Du kannst nicht schlafen? Iss Butter und kalt duschen.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-dna",color:"#FAC775",tc:"#633806"},
-  {id:116,name:"Crystals & Kryptowährungen",desc:"Investiere in Rosenquarz. Rendite seit 4000 Jahren stabil.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-diamond",color:"#FAC775",tc:"#633806"},
-  {id:117,name:"Manifestation Montag",desc:"Denk dir reich. Diese Woche: Mietwohnung in Zürich.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-sparkles",color:"#FAC775",tc:"#633806"},
-  {id:118,name:"Keto für Vegetarier",desc:"Ein philosophisches Dilemma. Wöchentlich neu versucht.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-meat",color:"#FAC775",tc:"#633806"},
-  {id:119,name:"Raw Water Report",desc:"Ungefiltert, unbehandelt, ungesund. Monatliche Updates.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-droplet",color:"#FAC775",tc:"#633806"},
-  {id:120,name:"Essential Oil Everything",desc:"Lavendel gegen Viren. Pfefferminz gegen Krebs.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-droplet",color:"#FAC775",tc:"#633806"},
-  {id:121,name:"5-Uhr-Morgens Club",desc:"Aufstehen um 5 Uhr macht dich nicht produktiver. Beweise innen.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-alarm",color:"#B5D4F4",tc:"#0C447C"},
-  {id:122,name:"Cold Shower Kult",desc:"Kalt duschen löst alle Probleme. Täglich neue Enttäuschungen.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-droplet",color:"#B5D4F4",tc:"#0C447C"},
-  {id:123,name:"Sigma Grindset Gazette",desc:"Hustle harder. Sleep less. Email at 3am. No weekends.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-sunglasses",color:"#B5D4F4",tc:"#0C447C"},
-  {id:124,name:"Mindset Millionär",desc:"Dein Mindset ist das Problem. Kauf unser Kurs für 997 CHF.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-currency-dollar",color:"#B5D4F4",tc:"#0C447C"},
-  {id:125,name:"Stoizismus für Anfänger",desc:"Leiden ist okay. Tägliche Erinnerung dass alles vergänglich ist.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-columns",color:"#B5D4F4",tc:"#0C447C"},
-  {id:126,name:"Inbox Zero Illusionen",desc:"Tägliche Strategien für das Unmögliche. Heute: Löschtaste.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-inbox",color:"#B5D4F4",tc:"#0C447C"},
-  {id:127,name:"Journaling Evangelisten",desc:"Schreib es auf. Verbrenne es. Schreib es wieder auf.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-notebook",color:"#B5D4F4",tc:"#0C447C"},
-  {id:128,name:"Atomic Habits Awareness",desc:"Du hast das Buch. Du liest es nicht. Wöchentliche Schuld.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-atom",color:"#B5D4F4",tc:"#0C447C"},
-  {id:129,name:"Vision Board Bulletin",desc:"Bild von Porsche aufgeklebt. Auto noch nicht da.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-photo",color:"#B5D4F4",tc:"#0C447C"},
-  {id:130,name:"No-Excuses Newsletter",desc:"Keine Ausreden. Es sei denn du hast welche. Dann okay.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-mood-angry",color:"#B5D4F4",tc:"#0C447C"},
-  {id:131,name:"YOLO Investment Daily",desc:"GME, AMC, Dogecoin. Immer noch dabei. Keine Bedenken.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-trending-up-2",color:"#EF9F27",tc:"#633806"},
-  {id:132,name:"NFT Friedhof",desc:"Gedenkstätte für JPEGs die 50k kosteten und jetzt 0 wert sind.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-photo",color:"#EF9F27",tc:"#633806"},
-  {id:133,name:"To the Moon Bulletin",desc:"Wann geht Dogecoin to the moon? Wir wissen es auch nicht.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-rocket",color:"#EF9F27",tc:"#633806"},
-  {id:134,name:"Influencer Finanzberatung",desc:"Ich bin kein Finanzberater aber kauf das hier.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-star",color:"#EF9F27",tc:"#633806"},
-  {id:135,name:"Rugpull Report",desc:"Letzte Woche: neues Projekt. Diese Woche: Projekt weg.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-alert-circle",color:"#EF9F27",tc:"#633806"},
-  {id:136,name:"Bitcoin bei 1 Million",desc:"Es passiert bald. Schon immer bald. Immer noch bald.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-currency-bitcoin",color:"#EF9F27",tc:"#633806"},
-  {id:137,name:"Shitcoin Survivor",desc:"Wir testen Kryptowährungen bis sie auf null fallen.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-trash",color:"#EF9F27",tc:"#633806"},
-  {id:138,name:"HODL or Fold",desc:"Wir halten alles. Auch wenn es 99% fällt. Charakterfrage.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-hand-stop",color:"#EF9F27",tc:"#633806"},
-  {id:139,name:"Dogecoin Fundamentalanalyse",desc:"Der Hund ist das Logo. Das ist die gesamte Analyse.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-dog",color:"#EF9F27",tc:"#633806"},
-  {id:140,name:"Metaverse Real Estate",desc:"Kaufe Land in einer Welt die niemand besucht.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-building",color:"#EF9F27",tc:"#633806"},
-  {id:141,name:"Marathon in 6 Wochen",desc:"Für Menschen mit sehr hoher Schmerztoleranz.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-run",color:"#C0DD97",tc:"#27500A"},
-  {id:142,name:"Yoga für Ungeduldigte",desc:"Hot Power Rage Yoga. 3 Minuten. Jeden Tag.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-flame",color:"#C0DD97",tc:"#27500A"},
-  {id:143,name:"Bro Science Bulletin",desc:"Gym-Tipps von jemandem der keine Ausbildung hat.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-barbell",color:"#C0DD97",tc:"#27500A"},
-  {id:144,name:"Gains at All Costs",desc:"Verletzung? Push through. Schmerz ist Schwäche.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-flame",color:"#C0DD97",tc:"#27500A"},
-  {id:145,name:"No Days Off Nation",desc:"Sonntag ist auch ein Trainingstag. Erholung ist für Weicheier.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-calendar-off",color:"#C0DD97",tc:"#27500A"},
-  {id:146,name:"Ice Bath Evangelism",desc:"Täglich ins Eiswasser. Wim Hof hat das gemacht.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-snowflake",color:"#C0DD97",tc:"#27500A"},
-  {id:147,name:"Fasting Forever",desc:"Nur essen wenn Merkur im Gleichgewicht ist.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-ban",color:"#C0DD97",tc:"#27500A"},
-  {id:148,name:"Carnivore vs Vegan War",desc:"Beide Seiten sind laut. Beide Seiten haben Punkte.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-swords",color:"#C0DD97",tc:"#27500A"},
-  {id:149,name:"One Meal a Day Diaries",desc:"OMAD: Tag 1: Hunger. Tag 30: immer noch Hunger.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-clock-12",color:"#C0DD97",tc:"#27500A"},
-  {id:150,name:"Supplement Snake Oil",desc:"Dieser Proteinshake macht dich zum Olympioniken. Nicht.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-bottle",color:"#C0DD97",tc:"#27500A"},
-  {id:151,name:"Outrage of the Day",desc:"Täglich neues Empörungsthema. Energie bitte mitbringen.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-flame",color:"#F09595",tc:"#A32D2D"},
-  {id:152,name:"Hot Take Heatwave",desc:"Meinungen die niemand haben wollte. Täglich frisch.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-sun",color:"#F09595",tc:"#A32D2D"},
-  {id:153,name:"Cancel Culture Kalender",desc:"Wer ist diese Woche dran? Spoiler: irgendjemand.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-x",color:"#F09595",tc:"#A32D2D"},
-  {id:154,name:"Newsletter über Newsletter",desc:"Der einzige Newsletter der nur über Newsletter schreibt.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-mail",color:"#F09595",tc:"#A32D2D"},
-  {id:155,name:"Unsubscribe Tipps",desc:"Wie man sich abmeldet. Du kannst das auch hier tun.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-mail-off",color:"#F09595",tc:"#A32D2D"},
-  {id:156,name:"Dieser Newsletter ist leer",desc:".",cat:"TrollProjekte",freq:"Täglich",icon:"ti-square",color:"#F09595",tc:"#A32D2D"},
-  {id:157,name:"404 Newsletter Not Found",desc:"Diese Ausgabe existiert nicht. Täglich.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-ghost",color:"#F09595",tc:"#A32D2D"},
-  {id:158,name:"Reply All Disaster Archive",desc:"Die schlimmsten Reply-All-Eskalationen der Geschichte.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-mail-forward",color:"#F09595",tc:"#A32D2D"},
-  {id:159,name:"Autocorrect Anthology",desc:"Ducking autocorrect. Wöchentliche Fehlersammlung.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-pencil",color:"#F09595",tc:"#A32D2D"},
-  {id:160,name:"Out of Office Art",desc:"Die kreativsten Abwesenheitsmeldungen. Täglich neue Werke.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-beach",color:"#F09595",tc:"#A32D2D"},
-  {id:161,name:"Conspiracy Corner",desc:"Wöchentliche Verschwörungstheorien für jede Stimmung.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-eye",color:"#CECBF6",tc:"#3C3489"},
-  {id:162,name:"Deep State Digest",desc:"Sie beobachten uns. Wir beobachten sie.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-spy",color:"#CECBF6",tc:"#3C3489"},
-  {id:163,name:"HAARP Wettermanipulation",desc:"Alle Extremwetterereignisse: Absicht. Beweis: es hat geregnet.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-cloud-storm",color:"#CECBF6",tc:"#3C3489"},
-  {id:164,name:"QAnon Quarterly",desc:"Das grosse Erwachen kommt. Schon seit 2017.",cat:"TrollProjekte",freq:"Vierteljährlich",icon:"ti-eye",color:"#CECBF6",tc:"#3C3489"},
-  {id:165,name:"New World Order News",desc:"Einheitswährung, Einheitsstaat, Einheitsessen. Update folgt.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-world",color:"#CECBF6",tc:"#3C3489"},
-  {id:166,name:"Astral Projection Monthly",desc:"Verlasse deinen Körper. Komm rechtzeitig zurück.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-ghost",color:"#CECBF6",tc:"#3C3489"},
-  {id:167,name:"Past Life Regressor",desc:"Wer warst du im letzten Leben? Diese Woche: Napoleon.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-history",color:"#CECBF6",tc:"#3C3489"},
-  {id:168,name:"Homöopathie Hochpotenz",desc:"Je verdünnter desto stärker. Schreib das auf.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-droplet",color:"#CECBF6",tc:"#3C3489"},
-  {id:169,name:"Anti-EMF Living",desc:"Schalte WLAN ab. Leb in einem Käfig. Sei gesund.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-wifi-off",color:"#CECBF6",tc:"#3C3489"},
-  {id:170,name:"Quantum Healing Insider",desc:"Quantenphysik wird hier falsch verwendet. Täglich.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-atom",color:"#CECBF6",tc:"#3C3489"},
-  {id:171,name:"Thought Leader Thursday",desc:"Tipp der Woche: Denke wie ein Leader. Was das bedeutet: unklar.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-microphone",color:"#9FE1CB",tc:"#085041"},
-  {id:172,name:"Disrupt Everything",desc:"Störe bestehende Strukturen. Auch wenn sie gut funktionieren.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-bolt",color:"#9FE1CB",tc:"#085041"},
-  {id:173,name:"Pivot Weekly",desc:"Alle 2 Wochen ein komplett neues Geschäftsmodell.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-refresh",color:"#9FE1CB",tc:"#085041"},
-  {id:174,name:"Fail Fast Digest",desc:"Scheitere schneller. Lerne nichts. Wiederhole.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-trending-down",color:"#9FE1CB",tc:"#085041"},
-  {id:175,name:"10x Engineer Daily",desc:"10x produktiver wenn du 14 Stunden arbeitest. Stimmt nicht.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-calculator",color:"#9FE1CB",tc:"#085041"},
-  {id:176,name:"Move Fast Break Things",desc:"Qualität ist optional. Geschwindigkeit ist alles.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-run",color:"#9FE1CB",tc:"#085041"},
-  {id:177,name:"Blockchain Saves Everything",desc:"Klimawandel? Blockchain. Hunger? Blockchain. Immer.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-link",color:"#9FE1CB",tc:"#085041"},
-  {id:178,name:"Web3 für Alle",desc:"Dezentralisierung! (Außer bei uns, wir kontrollieren alles.)",cat:"TrollProjekte",freq:"Täglich",icon:"ti-world",color:"#9FE1CB",tc:"#085041"},
-  {id:179,name:"Token Everything",desc:"Dein Hund als NFT. Dein Frühstück als NFT. Du als NFT.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-currency-ethereum",color:"#9FE1CB",tc:"#085041"},
-  {id:180,name:"AGI in 2 Jahren",desc:"Jeden Monat die gleiche Prognose. Jeden Monat falsch.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-sparkles",color:"#9FE1CB",tc:"#085041"},
-  {id:181,name:"Corporate Speak Decoder",desc:"Was Manager sagen vs. was sie meinen. Mit Glossar.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-language",color:"#FAC775",tc:"#633806"},
-  {id:182,name:"Buzzword Bingo Weekly",desc:"Synergien, Disruption, agil. Wöchentlicher Scorecard.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-circles-relation",color:"#FAC775",tc:"#633806"},
-  {id:183,name:"Work-Life-Balance Lüge",desc:"Es gibt keine Balance. Hier sind Tipps die nicht helfen.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-scale",color:"#FAC775",tc:"#633806"},
-  {id:184,name:"Toxic Positivity Times",desc:"Alles ist super! Schmerzen ignorieren! Lächeln!",cat:"TrollProjekte",freq:"Täglich",icon:"ti-mood-happy",color:"#FAC775",tc:"#633806"},
-  {id:185,name:"Imposter Syndrome Support",desc:"Du bist ein Hochstapler. Alle anderen auch. Es ist okay.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-user-question",color:"#FAC775",tc:"#633806"},
-  {id:186,name:"Burnout als Badge of Honor",desc:"Ich habe 80 Stunden gearbeitet. Bitte bewundere mich.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-flame",color:"#FAC775",tc:"#633806"},
-  {id:187,name:"Meeting hätte Email sein können",desc:"Dieses Meeting hätte eine Email sein können.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-video",color:"#FAC775",tc:"#633806"},
-  {id:188,name:"Back-to-Back Meeting Survivor",desc:"Du hattest 8 Meetings. Du hast nichts erledigt.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-calendar-event",color:"#FAC775",tc:"#633806"},
-  {id:189,name:"Quiet Quitting Quarterly",desc:"Tu das Minimum. Nenn es Selbstfürsorge.",cat:"TrollProjekte",freq:"Vierteljährlich",icon:"ti-zzzz",color:"#FAC775",tc:"#633806"},
-  {id:190,name:"Greenwashing Gazette",desc:"Plastikflasche mit grünem Logo. Die Erde ist gerettet.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-leaf",color:"#FAC775",tc:"#633806"},
-  {id:191,name:"MLM Pyramid Network",desc:"Ich bin kein Pyramidensystem. Sagt das Pyramidensystem.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-triangle",color:"#B5D4F4",tc:"#0C447C"},
-  {id:192,name:"Be Your Own Boss",desc:"Ich bin mein eigener Boss. Ich arbeite 70 Stunden.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-tie",color:"#B5D4F4",tc:"#0C447C"},
-  {id:193,name:"Side Hustle Slavery",desc:"Hauptjob plus Nebenjob. Du bist frei. Sicher.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-clock-24",color:"#B5D4F4",tc:"#0C447C"},
-  {id:194,name:"Rise and Grind Forever",desc:"Du ruhst wenn du tot bist. Motivationspost Sonnenaufgang.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-sunrise",color:"#B5D4F4",tc:"#0C447C"},
-  {id:195,name:"Overnight Success Stories",desc:"Unternehmer wurde über Nacht erfolgreich. Nach 15 Jahren.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-moon-stars",color:"#B5D4F4",tc:"#0C447C"},
-  {id:196,name:"Garage to Billions",desc:"Ich startete in der Garage. Ich hatte aber 2 Mio Kapital.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-car",color:"#B5D4F4",tc:"#0C447C"},
-  {id:197,name:"Self-Made Myth",desc:"Kein Erbe. Kein Netzwerk. Kein Privileg. Lüge.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-award",color:"#B5D4F4",tc:"#0C447C"},
-  {id:198,name:"Passive Income Paradox",desc:"Geld verdienen ohne Arbeit — außer dem Kurs der das erklärt.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-coin",color:"#B5D4F4",tc:"#0C447C"},
-  {id:199,name:"Drop-Shipping Träume",desc:"Passives Einkommen: 4 Stunden Arbeit täglich reichen.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-package",color:"#B5D4F4",tc:"#0C447C"},
-  {id:200,name:"Hustle Porn Weekly",desc:"Bilder von Leuten die arbeiten während du schläfst.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-camera",color:"#B5D4F4",tc:"#0C447C"},
-  {id:201,name:"Universe Has a Plan",desc:"Alles passiert aus einem Grund. Auch dieser Newsletter.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-stars",color:"#EF9F27",tc:"#633806"},
-  {id:202,name:"Good Vibes Only",desc:"Negative Gefühle verboten. Wir sind alle sehr erschöpft.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-sun",color:"#EF9F27",tc:"#633806"},
-  {id:203,name:"Gratitude Journal Gazette",desc:"Ich bin dankbar für diesen Newsletter. Schreib 3 Dinge auf.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-notebook",color:"#EF9F27",tc:"#633806"},
-  {id:204,name:"High Vibe Tribe",desc:"Erhöhe deine Schwingungsfrequenz. Mit 197 CHF Seminar.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-wave-sine",color:"#EF9F27",tc:"#633806"},
-  {id:205,name:"Energy Vampire Awareness",desc:"Manche Menschen rauben Energie. Dieser Newsletter auch.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-battery-off",color:"#EF9F27",tc:"#633806"},
-  {id:206,name:"White Light Healing",desc:"Stell dir weisses Licht vor. Arzttermin trotzdem machen.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-bulb",color:"#EF9F27",tc:"#633806"},
-  {id:207,name:"Grounding & Earthing Daily",desc:"Barfuss auf Gras stehen heilt alles. Täglich bestätigt.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-seeding",color:"#EF9F27",tc:"#633806"},
-  {id:208,name:"Sun Gazing for Health",desc:"Schau in die Sonne. Das empfehlen wir nicht mehr.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-sun",color:"#EF9F27",tc:"#633806"},
-  {id:209,name:"Frequency Medicine",desc:"432 Hz Musik heilt Krebs. Spotify-Playlist innen.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-music",color:"#EF9F27",tc:"#633806"},
-  {id:210,name:"Doomsday Prepper Digest",desc:"Bunker-Tipps, Vorräte und Überlebensstrategien.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-shield",color:"#EF9F27",tc:"#633806"},
-  {id:211,name:"Startup Bubble Watch",desc:"Welcher Einhorn-Startup ist diese Woche bei 0.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-unicorn",color:"#F09595",tc:"#A32D2D"},
-  {id:212,name:"Vaporware Tracker",desc:"Produkte die angekündigt aber nie geliefert wurden.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-smoke",color:"#F09595",tc:"#A32D2D"},
-  {id:213,name:"Cringe Tech Demo Weekly",desc:"Wenn die Live-Demo live abstürzt. Dokumentiert.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-presentation",color:"#F09595",tc:"#A32D2D"},
-  {id:214,name:"Data-Driven Delusion",desc:"Wir haben Daten. Die Entscheidung war schon gefallen.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-database",color:"#F09595",tc:"#A32D2D"},
-  {id:215,name:"Scale or Fail Daily",desc:"Wachstum um jeden Preis. Preis: alles.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-trending-up",color:"#F09595",tc:"#A32D2D"},
-  {id:216,name:"Layoff Letter Linguistics",desc:"Wie man 500 Entlassungen als Chance formuliert.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-file-text",color:"#F09595",tc:"#A32D2D"},
-  {id:217,name:"Stealth Mode Startup",desc:"Wir sind im Stealth Mode. Außer für diesen Newsletter.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-eye-off",color:"#F09595",tc:"#A32D2D"},
-  {id:218,name:"Thought Leadership is Dead",desc:"Alle denken sie sind Thought Leader.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-skull",color:"#F09595",tc:"#A32D2D"},
-  {id:219,name:"No-Code Revolution",desc:"Programmieren ist tot. (Das sagen Programmierer nicht.)",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-drag-drop",color:"#F09595",tc:"#A32D2D"},
-  {id:220,name:"4-Day Work Week",desc:"Produktiver in 4 Tagen. Resultat: 5 Tage in 4 Tagen.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-calendar",color:"#F09595",tc:"#A32D2D"},
-  {id:221,name:"Printer Problems Anonymous",desc:"Der Drucker macht immer das Falsche. Gruppe zur Aufarbeitung.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-printer",color:"#CECBF6",tc:"#3C3489"},
-  {id:222,name:"Update Reminder Weekly",desc:"Du hast 47 ausstehende Updates. Diese Woche auch wieder.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-refresh",color:"#CECBF6",tc:"#3C3489"},
-  {id:223,name:"CAPS LOCK WAS AN ACCIDENT",desc:"ich meinte das nicht so. täglich.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-keyboard",color:"#CECBF6",tc:"#3C3489"},
-  {id:224,name:"Seen But Not Replied",desc:"Wir sehen alle Nachrichten. Wir antworten nicht.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-eye",color:"#CECBF6",tc:"#3C3489"},
-  {id:225,name:"Notification Nightmare",desc:"Du hast 1.247 ungelesene Nachrichten. Wöchentlich.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-bell",color:"#CECBF6",tc:"#3C3489"},
-  {id:226,name:"Doomscrolling Anonymous",desc:"Hör auf. Wir wissen. Wir können auch nicht aufhören.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-arrow-down",color:"#CECBF6",tc:"#3C3489"},
-  {id:227,name:"Digital Detox Dropout",desc:"Ich wollte 24h offline. Nach 2 Stunden hab ich nachgeschaut.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-phone-off",color:"#CECBF6",tc:"#3C3489"},
-  {id:228,name:"Cookie Banner Olympics",desc:"Wie viele Klicks bis zur Ablehnung aller Cookies? Rekorde.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-cookie",color:"#CECBF6",tc:"#3C3489"},
-  {id:229,name:"Subscribe to Unsubscribe",desc:"Um sich abzumelden müssen Sie sich anmelden.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-circle-minus",color:"#CECBF6",tc:"#3C3489"},
-  {id:230,name:"Algorithm Slave Gazette",desc:"Der Algorithmus hat entschieden. Ich habe zugestimmt.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-settings",color:"#CECBF6",tc:"#3C3489"},
-  {id:231,name:"Dunning-Kruger Dispatch",desc:"Je weniger man weiß, desto sicherer ist man.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-chart-bubble",color:"#9FE1CB",tc:"#085041"},
-  {id:232,name:"Anecdote as Evidence",desc:"Mein Onkel hat das gemacht und er lebt noch. Beweis!",cat:"TrollProjekte",freq:"Täglich",icon:"ti-user",color:"#9FE1CB",tc:"#085041"},
-  {id:233,name:"Correlation is Causation",desc:"Eiscremeverkauf steigt. Haiangriffe steigen. Eis = Haie.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-chart-line",color:"#9FE1CB",tc:"#085041"},
-  {id:234,name:"Google Scholar Misuse Weekly",desc:"Wir haben eine Studie gefunden. Wir haben sie falsch gelesen.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-search",color:"#9FE1CB",tc:"#085041"},
-  {id:235,name:"Pseudoscience Peer Review",desc:"Peer Review durch andere Laien. Alles bestätigt.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-file-check",color:"#9FE1CB",tc:"#085041"},
-  {id:236,name:"Monday Morning Dread",desc:"Der Newsletter den niemand öffnet weil es Montag ist.",cat:"TrollProjekte",freq:"Montags",icon:"ti-mood-sad",color:"#9FE1CB",tc:"#085041"},
-  {id:237,name:"Calendar Tetris Champion",desc:"Wer löst das schwerste Meeting-Puzzle. Täglich.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-puzzle",color:"#9FE1CB",tc:"#085041"},
-  {id:238,name:"Deadline Tomorrow Panic",desc:"Du hast es vergessen. Jetzt läufst du. Täglich.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-alert",color:"#9FE1CB",tc:"#085041"},
-  {id:239,name:"Passive Aggressive Sign",desc:"Wer hat in der Küche Fisch aufgewärmt. Wöchentlich.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-fish",color:"#9FE1CB",tc:"#085041"},
-  {id:240,name:"Open Plan Noise Diary",desc:"Geräuschprotokoll des Büros. Heute: 47 Telefongespräche.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-volume",color:"#9FE1CB",tc:"#085041"},
-  {id:241,name:"Legacy Code Love Letter",desc:"Dieser Code ist von 2003. Er läuft. Wir verstehen ihn nicht.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-code",color:"#FAC775",tc:"#633806"},
-  {id:242,name:"Technical Debt Therapy",desc:"Wir haben Schulden im Code. Es wird schlimmer.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-chart-line",color:"#FAC775",tc:"#633806"},
-  {id:243,name:"Naming Things is Hard",desc:"variabel1, variabel2, variabelNeu, variabelNeu2Final.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-abc",color:"#FAC775",tc:"#633806"},
-  {id:244,name:"Off-by-One Error Daily",desc:"Der Index beginnt bei 0 oder 1? Heute falsch.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-calculator",color:"#FAC775",tc:"#633806"},
-  {id:245,name:"It Compiles Though",desc:"Es läuft nicht aber es kompiliert. Das zählt.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-check",color:"#FAC775",tc:"#633806"},
-  {id:246,name:"Rubber Duck Debugging",desc:"Ich erkläre meinem Gummiduck das Problem. Es funktioniert.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-rubber-stamp",color:"#FAC775",tc:"#633806"},
-  {id:247,name:"Merge Conflict Meditation",desc:"Zwei Branches. Ein File. Kein Friede.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-git-merge",color:"#FAC775",tc:"#633806"},
-  {id:248,name:"Force Push Confessions",desc:"Ich habe force-gepusht. Ich bereue. Wöchentlich.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-git-branch",color:"#FAC775",tc:"#633806"},
-  {id:249,name:"Deploy on Friday Policy",desc:"Alle sagen tu es nicht. Wir tun es trotzdem.",cat:"TrollProjekte",freq:"Freitags",icon:"ti-rocket",color:"#FAC775",tc:"#633806"},
-  {id:250,name:"AWS Bill Shock Gazette",desc:"Wir vergessen einen Dienst zu stoppen. Rechnung: interessant.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-receipt-2",color:"#FAC775",tc:"#633806"},
-  {id:251,name:"Agile but Not Really",desc:"Wir machen Agile. Wir haben Wasserfallprojekte.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-arrow-zigzag",color:"#B5D4F4",tc:"#0C447C"},
-  {id:252,name:"Scrum Master Suffering",desc:"Ich facilitiere Meetings. Niemand hört zu.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-users",color:"#B5D4F4",tc:"#0C447C"},
-  {id:253,name:"Retrospective Repetition",desc:"Wir sprechen über die gleichen Probleme. Seit 2 Jahren.",cat:"TrollProjekte",freq:"Zweiwöchentlich",icon:"ti-repeat",color:"#B5D4F4",tc:"#0C447C"},
-  {id:254,name:"Sprint Velocity Voodoo",desc:"Unsere Velocity ist 47. Was bedeutet das? Nichts.",cat:"TrollProjekte",freq:"Zweiwöchentlich",icon:"ti-chart-bubble",color:"#B5D4F4",tc:"#0C447C"},
-  {id:255,name:"Backlog Graveyard Tour",desc:"Tickets die 2018 erstellt wurden und nie fertig werden.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-archive",color:"#B5D4F4",tc:"#0C447C"},
-  {id:256,name:"Death by PowerPoint",desc:"246 Slides. Keine davon nötig.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-presentation",color:"#B5D4F4",tc:"#0C447C"},
-  {id:257,name:"Overexplained Slack Message",desc:"3 Absätze für eine Frage die 5 Wörter bräuchte.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-message-dots",color:"#B5D4F4",tc:"#0C447C"},
-  {id:258,name:"Office Plant Obituary",desc:"Wir geben unser Bestes. Die Pflanze tut es nicht.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-plant-off",color:"#B5D4F4",tc:"#0C447C"},
-  {id:259,name:"Email at Midnight Club",desc:"Wer schreibt um Mitternacht Emails? Alle. Täglich.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-clock-hour-12",color:"#B5D4F4",tc:"#0C447C"},
-  {id:260,name:"Budget Approval Marathon",desc:"Ich brauche 200 CHF. Genehmigung läuft seit 6 Monaten.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-currency-dollar",color:"#B5D4F4",tc:"#0C447C"},
-  {id:261,name:"Perpetual Pivot Post",desc:"Wir haben uns wieder neu erfunden. Drittes Mal dieses Jahr.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-refresh",color:"#EF9F27",tc:"#633806"},
-  {id:262,name:"Unicorn Graveyard",desc:"Ehemalige Milliarden-Startups die jetzt nichts mehr sind.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-ghost",color:"#EF9F27",tc:"#633806"},
-  {id:263,name:"The Hype Cycle Weekly",desc:"Peak of Inflated Expectations. Täglich neue Technologien.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-chart-line",color:"#EF9F27",tc:"#633806"},
-  {id:264,name:"Innovation Theater Weekly",desc:"Design Thinking Workshops. Nichts ändert sich.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-theater",color:"#EF9F27",tc:"#633806"},
-  {id:265,name:"Post-Mortem Culture",desc:"Alles geht schief. Wir schreiben es auf. Es passiert wieder.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-file",color:"#EF9F27",tc:"#633806"},
-  {id:266,name:"Buzzword Funeral Home",desc:"Wir beerdigen tote Buzzwords. Diese Woche: Disruption.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-flower",color:"#EF9F27",tc:"#633806"},
-  {id:267,name:"Funding Round Forever",desc:"Wir suchen Series B. Seit Series A 2017.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-coins",color:"#EF9F27",tc:"#633806"},
-  {id:268,name:"The Eternal Beta",desc:"Wir sind seit 2015 in der Beta.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-flask",color:"#EF9F27",tc:"#633806"},
-  {id:269,name:"A/B Test Everything",desc:"Testeten ob der Button blau oder grün. 8 Monate.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-a-b",color:"#EF9F27",tc:"#633806"},
-  {id:270,name:"Deprecated Daily",desc:"Diese Funktion wird eingestellt. Bitte migriere sofort.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-alert-triangle",color:"#EF9F27",tc:"#633806"},
-  {id:271,name:"Re: Re: Re: Re: Newsletter",desc:"Niemand weiss mehr worum es ursprünglich ging.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-arrow-back",color:"#F09595",tc:"#A32D2D"},
-  {id:272,name:"Email Bankruptcy Gazette",desc:"Ich lösche alles und starte neu. Wöchentliche Therapiesitzung.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-trash",color:"#F09595",tc:"#A32D2D"},
-  {id:273,name:"Tech Throwback Thursday",desc:"Flash Player, MySpace, GeoCities. Wir weinen gemeinsam.",cat:"TrollProjekte",freq:"Donnerstags",icon:"ti-device-desktop",color:"#F09595",tc:"#A32D2D"},
-  {id:274,name:"Discontinued Products Grief",desc:"Wir trauern um Google Reader, Vine und zu viele andere.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-heart-broken",color:"#F09595",tc:"#A32D2D"},
-  {id:275,name:"Doomsday Prepper Digest #2",desc:"Bunker-Tipps 2.0. Jetzt mit Backup-Generator.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-shield",color:"#F09595",tc:"#A32D2D"},
-  {id:276,name:"Sternzeichen Business",desc:"Dein Horoskop entscheidet über deine Investitionen.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-stars",color:"#F09595",tc:"#A32D2D"},
-  {id:277,name:"Tarot für Investoren",desc:"Die Karten sagen: Bitcoin auf 100k. Irren sich oft.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-cards",color:"#F09595",tc:"#A32D2D"},
-  {id:278,name:"Alpha Male Academy",desc:"Dominanz und Stärke. Geliefert per Email. Sehr alpha.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-crown",color:"#F09595",tc:"#A32D2D"},
-  {id:279,name:"Life Coach for Life Coaches",desc:"Coache deine eigenen Coaches. Coach-ception.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-users-group",color:"#F09595",tc:"#A32D2D"},
-  {id:280,name:"Rejection is Redirection",desc:"Du wurdest abgelehnt. Das ist gut. Bestimmt.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-arrow-right",color:"#F09595",tc:"#A32D2D"},
-  {id:281,name:"Productivity Porn Daily",desc:"Bunte Notizsysteme. Fancy Apps. Kein Output.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-notebook",color:"#CECBF6",tc:"#3C3489"},
-  {id:282,name:"Second Brain Breakdown",desc:"Ich habe alles notiert. Ich finde nichts mehr.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-brain",color:"#CECBF6",tc:"#3C3489"},
-  {id:283,name:"App Switching Addiction",desc:"Ich wechsle täglich meine Produktivitäts-App. Heute: neu.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-apps",color:"#CECBF6",tc:"#3C3489"},
-  {id:284,name:"Notion Template Hoarder",desc:"Ich habe 400 Templates. Ich nutze keine davon.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-layout",color:"#CECBF6",tc:"#3C3489"},
-  {id:285,name:"Todo List of Todo Lists",desc:"Meine Todo-Liste hat eine eigene Todo-Liste.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-list",color:"#CECBF6",tc:"#3C3489"},
-  {id:286,name:"Dopamine Detox Diary",desc:"Tag 1: kein Social Media. Tag 1 Abend: alles gecheckt.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-phone-off",color:"#CECBF6",tc:"#3C3489"},
-  {id:287,name:"Habit Tracker Hell",desc:"Ich tracke Habits die ich nicht habe. Täglich rot markiert.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-chart-bar",color:"#CECBF6",tc:"#3C3489"},
-  {id:288,name:"Fake Urgency Newsletter",desc:"LETZTE CHANCE! Auch morgen noch. Täglich.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-alarm",color:"#CECBF6",tc:"#3C3489"},
-  {id:289,name:"FOMO Daily",desc:"Was alle anderen machen. Du machst es nicht. Schade.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-eye",color:"#CECBF6",tc:"#3C3489"},
-  {id:290,name:"Guru of the Week",desc:"Jeden Montag ein neuer Lebensratgeber mit Yacht-Foto.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-crown",color:"#CECBF6",tc:"#3C3489"},
-  {id:291,name:"Online Course Graveyard",desc:"Kurse die du gekauft aber nie abgeschlossen hast.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-school",color:"#9FE1CB",tc:"#085041"},
-  {id:292,name:"Webinar Regret Weekly",desc:"Ich habe mich angemeldet. Ich bin nicht erschienen.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-video",color:"#9FE1CB",tc:"#085041"},
-  {id:293,name:"Free Value Trap",desc:"Gratis-PDF für deine Email. PDF: 3 Seiten. Email: für immer.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-download",color:"#9FE1CB",tc:"#085041"},
-  {id:294,name:"Mastermind Scam Tracker",desc:"5000 CHF für ein Wochenende mit anderen die 5000 CHF zahlen.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-users",color:"#9FE1CB",tc:"#085041"},
-  {id:295,name:"Platform but No Users",desc:"Wir sind eine Platform. Wir haben keine Nutzer.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-device-laptop",color:"#9FE1CB",tc:"#085041"},
-  {id:296,name:"TAM SAM SOM Nonsense",desc:"Unser TAM ist 40 Milliarden. Kunden: 3.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-chart-pie",color:"#9FE1CB",tc:"#085041"},
-  {id:297,name:"Pre-Revenue Pre-Product",desc:"Pre-revenue, pre-product, pre-idea. Valuation: 50M.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-rocket",color:"#9FE1CB",tc:"#085041"},
-  {id:298,name:"Hockey Stick Projection",desc:"Nächstes Jahr explodiert es. Versprochen. Seit 2015.",cat:"TrollProjekte",freq:"Jährlich",icon:"ti-trending-up",color:"#9FE1CB",tc:"#085041"},
-  {id:299,name:"IPO or Bust",desc:"Börsengang 2019. 2020. 2021. 2022. 2023. Bald.",cat:"TrollProjekte",freq:"Jährlich",icon:"ti-chart-candlestick",color:"#9FE1CB",tc:"#085041"},
-  {id:300,name:"We Pivoted Again",desc:"Wir sind jetzt ein Blockchain-KI-NFT-Metaverse-Startup.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-refresh",color:"#9FE1CB",tc:"#085041"},
-  {id:301,name:"Tech Bro Satire Digest",desc:"Disruptive Ideen für Probleme die niemand hat.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-sunglasses",color:"#FAC775",tc:"#633806"},
-  {id:302,name:"LinkedIn Motivation",desc:"Ich wurde gefeuert. Das war das Beste was mir passieren konnte.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-brand-linkedin",color:"#FAC775",tc:"#633806"},
-  {id:303,name:"Bootstrapper Lügen",desc:"Mit 500 CHF zum Millionär in 3 Monaten.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-moneybag",color:"#FAC775",tc:"#633806"},
-  {id:304,name:"Hustle Culture Horror",desc:"Wahre Geschichten von Menschen die zu viel gearbeitet haben.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-ghost",color:"#FAC775",tc:"#633806"},
-  {id:305,name:"Entrepreneur Cringe Weekly",desc:"Die peinlichsten Motivationsvideos der Woche.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-player-play",color:"#FAC775",tc:"#633806"},
-  {id:306,name:"Pivot to Video",desc:"Alle haben zu Video gepivoted. Dann nicht.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-video",color:"#FAC775",tc:"#633806"},
-  {id:307,name:"Lunch Break Existentialism",desc:"Was ist der Sinn des Lebens? Bei jedem Sandwich.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-bread",color:"#FAC775",tc:"#633806"},
-  {id:308,name:"Metric Madness Monitor",desc:"Wir messen alles. Was wir messen ändert nichts.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-chart-dots",color:"#FAC775",tc:"#633806"},
-  {id:309,name:"PowerPoint Karaoke",desc:"Präsentationen zu Themen die man nicht kennt.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-microphone",color:"#FAC775",tc:"#633806"},
-  {id:310,name:"Rollback Stories",desc:"Deployment fehlgeschlagen. Wir machen es rückgängig.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-arrow-back",color:"#FAC775",tc:"#633806"},
-  {id:311,name:"On-Call Nightmare Diary",desc:"Das Piepsen um 3 Uhr früh. Täglich dokumentiert.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-bell-ringing",color:"#B5D4F4",tc:"#0C447C"},
-  {id:312,name:"Monitoring Dashboard Lies",desc:"Alle Grafiken grün. Das System ist trotzdem unten.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-chart-bar",color:"#B5D4F4",tc:"#0C447C"},
-  {id:313,name:"False Positive Alert Fatigue",desc:"Alarm 500 Mal. Keiner schaut mehr hin.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-bell-off",color:"#B5D4F4",tc:"#0C447C"},
-  {id:314,name:"Kubernetes Regret Weekly",desc:"Wir haben K8s eingeführt. Wir brauchen K8s nicht.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-helm",color:"#B5D4F4",tc:"#0C447C"},
-  {id:315,name:"Serverless Confusion Daily",desc:"Es gibt Server. Wir sehen sie nur nicht.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-server-off",color:"#B5D4F4",tc:"#0C447C"},
-  {id:316,name:"Cloud Migration Chaos",desc:"Wir sind in die Cloud gezogen. Wir wissen nicht wo was ist.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-cloud-upload",color:"#B5D4F4",tc:"#0C447C"},
-  {id:317,name:"Incident Bingo",desc:"Suche: menschlicher Fehler, fehlende Tests, unklare Alarme.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-alert-circle",color:"#B5D4F4",tc:"#0C447C"},
-  {id:318,name:"Stack Trace Poetry",desc:"Fehlermeldungen als Lyrik. NullPointerException: Ein Haiku.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-writing",color:"#B5D4F4",tc:"#0C447C"},
-  {id:319,name:"Production Hotfix Horror",desc:"Wir fixen live in der Produktion. Es geht gut. Manchmal.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-flame",color:"#B5D4F4",tc:"#0C447C"},
-  {id:320,name:"SLA Violation Report",desc:"Wir haben 99.99% Uptime. Diese Woche nicht.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-chart-area",color:"#B5D4F4",tc:"#0C447C"},
-  {id:321,name:"Oxford Comma Wars",desc:"Kommt es vor dem letzten Element oder nicht? Täglich Streit.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-comma",color:"#EF9F27",tc:"#633806"},
-  {id:322,name:"Typo of the Year Award",desc:"Jährliche Auszeichnung für den schlimmsten Schreibfehler.",cat:"TrollProjekte",freq:"Jährlich",icon:"ti-award",color:"#EF9F27",tc:"#633806"},
-  {id:323,name:"Terms and Conditions Trophy",desc:"Wer hat sie gelesen? Niemand. Hier sind sie trotzdem.",cat:"TrollProjekte",freq:"Jährlich",icon:"ti-file-text",color:"#EF9F27",tc:"#633806"},
-  {id:324,name:"Privacy Policy Poetry",desc:"Datenschutzerklärungen künstlerisch neu interpretiert.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-writing",color:"#EF9F27",tc:"#633806"},
-  {id:325,name:"Nostalgia Newsletter",desc:"Früher war alles besser. Außer dem was schlechter war.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-clock-rewind",color:"#EF9F27",tc:"#633806"},
-  {id:326,name:"Changelog for Nothing",desc:"Wir haben Bugs gefixt. Keine Ahnung welche.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-notes",color:"#EF9F27",tc:"#633806"},
-  {id:327,name:"Always In Alpha",desc:"Das Produkt ist nie fertig. Das ist jetzt ein Feature.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-flask",color:"#EF9F27",tc:"#633806"},
-  {id:328,name:"Beta Tester Trauma",desc:"Ich habe die App getestet. Die App hat mich getestet.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-bug",color:"#EF9F27",tc:"#633806"},
-  {id:329,name:"README Nobody Reads",desc:"Wir schreiben Dokumentation. Niemand liest sie.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-file-text",color:"#EF9F27",tc:"#633806"},
-  {id:330,name:"The Last Human Newsletter",desc:"KI schreibt bald alles. Wir schreiben das noch selbst.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-pencil",color:"#EF9F27",tc:"#633806"},
-  {id:331,name:"Sent by Mistake",desc:"Diese Email war für jemand anderen. Trotzdem täglich.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-mail",color:"#F09595",tc:"#A32D2D"},
-  {id:332,name:"Newsletter Loading",desc:"Inhalt wird geladen. Schon seit 3 Monaten.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-loader",color:"#F09595",tc:"#A32D2D"},
-  {id:333,name:"We Pivoted Again #2",desc:"Wir sind jetzt rein KI. Kein Produkt. Nur Prompts.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-refresh",color:"#F09595",tc:"#A32D2D"},
-  {id:334,name:"Disrupting Disruption",desc:"Wir disrupten die Disruption. Mit einer App natürlich.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-bolt",color:"#F09595",tc:"#A32D2D"},
-  {id:335,name:"Solution Looking for Problem",desc:"Wir haben tolle Technologie. Problem: unklar.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-question-mark",color:"#F09595",tc:"#A32D2D"},
-  {id:336,name:"Uber for Everything",desc:"Uber für Alles. Auch für Dinge die Uber nicht brauchen.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-car",color:"#F09595",tc:"#A32D2D"},
-  {id:337,name:"Deck Optimization Obsession",desc:"Mehr Zeit mit Pitch Deck als mit Produkt.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-presentation",color:"#F09595",tc:"#A32D2D"},
-  {id:338,name:"Exit Strategy First",desc:"Wir haben den Exit geplant. Das Produkt kommt danach.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-door-exit",color:"#F09595",tc:"#A32D2D"},
-  {id:339,name:"Wellness Washing Watch",desc:"Meditationskurse statt Lohnerhöhungen. Tägliche Analyse.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-plant",color:"#F09595",tc:"#A32D2D"},
-  {id:340,name:"Die Letzte Ausgabe (Wirklich)",desc:"Nummer 340. Wirklich die letzte. Versprochen.",cat:"TrollProjekte",freq:"Einmalig",icon:"ti-flag",color:"#F09595",tc:"#A32D2D"},
-  {id:341,name:"Woke-Free Zone Daily",desc:"Aufgebracht über Dinge die uns nicht betreffen.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-mood-angry",color:"#CECBF6",tc:"#3C3489"},
-  {id:342,name:"Traditional Values Tribune",desc:"Früher war alles besser. Außer Lebenserwartung und Rechten.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-old",color:"#CECBF6",tc:"#3C3489"},
-  {id:343,name:"Spiritual Bypassing Bulletin",desc:"Dein Trauma ist eine Wahl. Wähle besser.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-arrows-up",color:"#CECBF6",tc:"#3C3489"},
-  {id:344,name:"Purpose-Driven Panic",desc:"Unser Unternehmen hat eine Mission. Wir vergessen sie täglich.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-target-arrow",color:"#CECBF6",tc:"#3C3489"},
-  {id:345,name:"Antivaxxer Adjacent",desc:"Naturheilmittel die Impfungen ersetzen sollen.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-leaf",color:"#CECBF6",tc:"#3C3489"},
-  {id:346,name:"Retrograde Merkur Alert",desc:"Alles geht schief. Es liegt am Planeten. Nicht an dir.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-planet",color:"#CECBF6",tc:"#3C3489"},
-  {id:347,name:"Hustle Porn #2 Electric Boogaloo",desc:"Nochmal Bilder von fleissigen Menschen. Für Motivation.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-camera",color:"#CECBF6",tc:"#3C3489"},
-  {id:348,name:"Passive Aggressive Coworker Watch",desc:"Tägliche Doku von Büro-Passiv-Aggressivität.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-spy",color:"#CECBF6",tc:"#3C3489"},
-  {id:349,name:"Out of Office Inception #2",desc:"Aus dem Urlaub heraus auf Urlaub verweisen.",cat:"TrollProjekte",freq:"Ferienzeit",icon:"ti-refresh",color:"#CECBF6",tc:"#3C3489"},
-  {id:350,name:"Zettelkasten Obsession",desc:"Ich verwalte mein Notiz-System statt Notizen zu machen.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-cards",color:"#CECBF6",tc:"#3C3489"},
-  {id:351,name:"Second Brain Overflow",desc:"Mein zweites Gehirn hat mehr Tabs offen als das erste.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-brain",color:"#9FE1CB",tc:"#085041"},
-  {id:352,name:"GTD But Make It Messy",desc:"Getting Things Done. Oder auch nicht. Meistens nicht.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-checkbox",color:"#9FE1CB",tc:"#085041"},
-  {id:353,name:"Self-Sabotage Strategies",desc:"Tipps wie du dich selbst erfolgreich sabotierst.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-trending-down",color:"#9FE1CB",tc:"#085041"},
-  {id:354,name:"Overthinking Daily",desc:"Ich habe 3 Stunden über diese 2-Minuten-Entscheidung nachgedacht.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-loader",color:"#9FE1CB",tc:"#085041"},
-  {id:355,name:"Analysis Paralysis Gazette",desc:"Wir analysieren bis wir keine Zeit mehr haben zu handeln.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-chart-bubble",color:"#9FE1CB",tc:"#085041"},
-  {id:356,name:"LinkedIn Humble Brag Daily",desc:"Ich bin so dankbar für diese Auszeichnung die ich erwähnen muss.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-brand-linkedin",color:"#9FE1CB",tc:"#085041"},
-  {id:357,name:"Remote Work FOMO",desc:"Alle sind im Büro. Oder alle sind remote. Keiner weiss es.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-home",color:"#9FE1CB",tc:"#085041"},
-  {id:358,name:"Zoom Fatigue Gazette",desc:"Heute: 9 Videocalls. Morgen: 11. Übermorgen: therapist.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-video",color:"#9FE1CB",tc:"#085041"},
-  {id:359,name:"Productivity Porn Daily #2",desc:"Neue Apps, neue Systeme, null Output. Täglich neu.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-apps",color:"#9FE1CB",tc:"#085041"},
-  {id:360,name:"Habit Tracker Hell #2",desc:"Neue Woche, neue Habits, gleiche Misserfolge.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-chart-bar",color:"#9FE1CB",tc:"#085041"},
-  {id:361,name:"Newsletter 361",desc:"Kein besonderes Konzept. Einfach Nummer 361.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-number",color:"#FAC775",tc:"#633806"},
-  {id:362,name:"Sent by Mistake #2",desc:"Nochmal falsch gesendet. Täglich.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-mail",color:"#FAC775",tc:"#633806"},
-  {id:363,name:"Fake Urgency Newsletter #2",desc:"WIRKLICH LETZTE CHANCE! Wieder.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-alarm",color:"#FAC775",tc:"#633806"},
-  {id:364,name:"Scarcity Marketing Lies",desc:"Nur noch 3 verfügbar! Es gibt unendlich viele.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-minus",color:"#FAC775",tc:"#633806"},
-  {id:365,name:"FOMO Daily #2",desc:"Was alle anderen jetzt machen. Du nicht. Schade.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-eye",color:"#FAC775",tc:"#633806"},
-  {id:366,name:"Guru of the Week #2",desc:"Neuer Guru, neues Yacht-Foto, gleiche Tipps.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-crown",color:"#FAC775",tc:"#633806"},
-  {id:367,name:"Mastermind Scam #2",desc:"Diesmal 7500 CHF. Premium-Wochenende. Gleiche Leute.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-users",color:"#FAC775",tc:"#633806"},
-  {id:368,name:"Online Course Graveyard #2",desc:"Noch mehr Kurse die du nie abschliesst.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-school",color:"#FAC775",tc:"#633806"},
-  {id:369,name:"Webinar Regret Weekly #2",desc:"Angemeldet. Nicht erschienen. Schon wieder.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-video",color:"#FAC775",tc:"#633806"},
-  {id:370,name:"Free Value Trap #2",desc:"Gratis-Webinar für deine Daten. 2 Stunden Pitch.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-download",color:"#FAC775",tc:"#633806"},
-  {id:371,name:"The Very Last Issue",desc:"#371. Das war es. Schluss. Aus. Ende.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-door-exit",color:"#B5D4F4",tc:"#0C447C"},
-  {id:372,name:"Just Kidding Still Going",desc:"Wir hören nicht auf. Das hätten wir nie getan.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-refresh",color:"#B5D4F4",tc:"#0C447C"},
-  {id:373,name:"Newsletter 373",desc:"Kein besonderes Konzept. Einfach Nummer 373.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-number",color:"#B5D4F4",tc:"#0C447C"},
-  {id:374,name:"Under Construction Newsletter",desc:"Baustelle. Kommt bald. Seit 2019.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-crane",color:"#B5D4F4",tc:"#0C447C"},
-  {id:375,name:"Work in Progress (WIP)",desc:"Dieser Newsletter ist noch nicht fertig. Täglich.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-pencil",color:"#B5D4F4",tc:"#0C447C"},
-  {id:376,name:"Coming Soon: Big News",desc:"Grosse Ankündigung kommt. Schon seit 8 Monaten.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-sparkles",color:"#B5D4F4",tc:"#0C447C"},
-  {id:377,name:"Teaser of a Teaser",desc:"Bald mehr zu... mehr. Täglich neuer Teaser.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-eye",color:"#B5D4F4",tc:"#0C447C"},
-  {id:378,name:"Double Opt-In Odyssey",desc:"Du musst 7 Mal bestätigen. Dann nochmal.",cat:"TrollProjekte",freq:"Einmalig",icon:"ti-check-box",color:"#B5D4F4",tc:"#0C447C"},
-  {id:379,name:"Unroll.me Ironie",desc:"Ich nutze Dienst zum Abbestellen. Er verkauft meine Daten.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-repeat",color:"#B5D4F4",tc:"#0C447C"},
-  {id:380,name:"Welcome Email Avalanche",desc:"Du hast dich angemeldet. Hier sind 40 Willkommens-Emails.",cat:"TrollProjekte",freq:"Sofort",icon:"ti-mail-check",color:"#B5D4F4",tc:"#0C447C"},
-  {id:381,name:"404. Genuinely This Time.",desc:"Nein wirklich. Diese Ausgabe gibt es nicht.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-ghost",color:"#EF9F27",tc:"#633806"},
-  {id:382,name:"Der Endlos-Newsletter",desc:"Kein Ende in Sicht. Täglich. Für immer.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-infinity",color:"#EF9F27",tc:"#633806"},
-  {id:383,name:"Die Ausgabe die niemand wollte",desc:"Du bekommst sie trotzdem. Wöchentlich.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-mood-sad",color:"#EF9F27",tc:"#633806"},
-  {id:384,name:"Kopiert von sich selbst",desc:"Diese Ausgabe ist identisch mit der letzten.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-copy",color:"#EF9F27",tc:"#633806"},
-  {id:385,name:"Technisch gesehen eine Ausgabe",desc:"1 Wort. Monatlich. Das Wort: wechselt.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-letter-case",color:"#EF9F27",tc:"#633806"},
-  {id:386,name:"ALLE WÖRTER FETT",desc:"JEDES WORT IST WICHTIG. TÄGLICH.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-bold",color:"#EF9F27",tc:"#633806"},
-  {id:387,name:"Der Zufalls-Newsletter",desc:"Zufälliges Thema täglich. Heute: Wolken. Morgen: Stühle.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-dice",color:"#EF9F27",tc:"#633806"},
-  {id:388,name:"Newsletter auf Lateinisch",desc:"Dominus vobiscum. Semper fidelis. Et cetera.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-language",color:"#EF9F27",tc:"#633806"},
-  {id:389,name:"Rückwärts Newsletter",desc:"retteluswsN sträwkcüR. hcilgät.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-arrows-exchange",color:"#EF9F27",tc:"#633806"},
-  {id:390,name:"Motivation Recycler",desc:"Gleiche Tipps, neue Bilder. Jeden Montag.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-recycle",color:"#EF9F27",tc:"#633806"},
-  {id:391,name:"IKEA Anleitung Newsletter",desc:"Bitte prüfe ob alle Teile vorhanden sind. Schraube fehlt.",cat:"TrollProjekte",freq:"Monatlich",icon:"ti-tools",color:"#F09595",tc:"#A32D2D"},
-  {id:392,name:"Bedienungsanleitung für Newsletter",desc:"Schritt 1: Öffnen. Schritt 2: Lesen. Schritt 3: Vergessen.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-file-info",color:"#F09595",tc:"#A32D2D"},
-  {id:393,name:"TERMS & CONDITIONS UPDATE",desc:"Du musst zustimmen um weiterzulesen. Du hast schon.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-file-check",color:"#F09595",tc:"#A32D2D"},
-  {id:394,name:"P.S. Das ist der Newsletter",desc:"P.S. Der eigentliche Inhalt war im P.S. Täglich.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-chevron-down",color:"#F09595",tc:"#A32D2D"},
-  {id:395,name:"Re: Deine letzte Email",desc:"Du hast keine Email geschickt. Wir antworten trotzdem.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-mail-forward",color:"#F09595",tc:"#A32D2D"},
-  {id:396,name:"FWD: WICHTIG LESEN",desc:"Diese Email wurde 47 Mal weitergeleitet. Inhalt: unklar.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-mail",color:"#F09595",tc:"#A32D2D"},
-  {id:397,name:"Automatische Antwort",desc:"Ich bin derzeit abwesend und beantworte keine Emails.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-robot",color:"#F09595",tc:"#A32D2D"},
-  {id:398,name:"Senden wurde abgebrochen",desc:"Diese Email wurde nicht abgeschickt. Du liest sie trotzdem.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-mail-x",color:"#F09595",tc:"#A32D2D"},
-  {id:399,name:"Newsletter mit Fussnoten",desc:"Der Text¹ ist wichtig². Auch die Fussnoten³.",cat:"TrollProjekte",freq:"Wöchentlich",icon:"ti-subscript",color:"#F09595",tc:"#A32D2D"},
-  {id:400,name:"Ende. Wirklich. Ende.",desc:"Das ist Nummer 400. Hiermit endet TrollProjekte. Bis morgen.",cat:"TrollProjekte",freq:"Täglich",icon:"ti-flag-3",color:"#F09595",tc:"#A32D2D"}
-];
-// ── NEWSLETTER LOGIC ──────────────────────────────────────────────────────────
-(function(){
-  const SEL = new Set();
-  const DONE = new Set();
-  let activeCat = 'Alle';
-  const CATS = ['Alle', ...Array.from(new Set(NL.map(n=>n.cat)))];
-  function nlRenderFilters(){
-    const row = document.getElementById('nl-filter-row');
-    if(!row) return;
-    row.innerHTML = CATS.map(c =>
-      `<button class="nl-filter-btn${c===activeCat?' on':''}" onclick="window._nlCat('${c.replace(/'/g,"\\'")}')">${c}</button>`
-    ).join('');
-  }
-  window._nlCat = function(cat){ activeCat = cat; nlRenderFilters(); nlRenderGrid(); };
-  function getFiltered(){
-    const q = ((document.getElementById('nl-search')||{}).value||'').toLowerCase();
-    return NL.filter(n=>{
-      const catOk = activeCat==='Alle' || n.cat===activeCat;
-      const txtOk = !q || n.name.toLowerCase().includes(q) || n.desc.toLowerCase().includes(q) || n.cat.toLowerCase().includes(q);
-      return catOk && txtOk;
-    });
-  }
-  function nlRenderGrid(){
-    const grid = document.getElementById('nl-grid');
-    if(!grid) return;
-    const items = getFiltered();
-    const lbl = document.getElementById('nl-count-lbl');
-    if(lbl) lbl.textContent = items.length + ' / ' + NL.length;
-    const nores = document.getElementById('nl-noresult');
-    if(nores) nores.style.display = items.length===0 ? 'block' : 'none';
-    Array.from(grid.querySelectorAll('.nl-card')).forEach(c=>c.remove());
-    items.forEach(n=>{
-      const isSel = SEL.has(n.id);
-      const isDone = DONE.has(n.id);
-      const div = document.createElement('div');
-      div.className = 'nl-card' + (isSel?' nl-sel':'') + (isDone?' nl-done':'');
-      div.onclick = ()=>{ if(!DONE.has(n.id)){ if(SEL.has(n.id)) SEL.delete(n.id); else SEL.add(n.id); nlUpdateStats(); nlRenderGrid(); }};
-      div.innerHTML = `<div class="nl-icon" style="background:${n.color}22;color:${n.tc}"><i class="ti ${n.icon}" aria-hidden="true"></i></div><div class="nl-body"><p class="nl-name">${n.name}</p><p class="nl-desc">${n.desc}</p><div class="nl-meta"><span class="nl-cat" style="color:${n.tc};background:${n.color}22;border-color:${n.color}55">${n.cat}</span><span class="nl-freq">${n.freq}</span></div></div><div class="nl-chk">${isDone?'✓':isSel?'✓':''}</div>`;
-      grid.appendChild(div);
-    });
-  }
-  function nlUpdateStats(){
-    ['nl-sel-count','nl-bar-sel'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=SEL.size; });
-    ['nl-done-count','nl-bar-done'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=DONE.size; });
-  }
-  window.nlFilter = function(){ nlRenderGrid(); };
-  window.nlRenderFilters = nlRenderFilters;
-  window.nlRenderGrid = nlRenderGrid;
-  window.nlUpdateStats = nlUpdateStats;
-  window.nlSelectAll = function(){
-    getFiltered().forEach(n=>{ if(!DONE.has(n.id)) SEL.add(n.id); });
-    nlUpdateStats(); nlRenderGrid();
-  };
-  window.nlClearAll = function(){
-    getFiltered().forEach(n=>SEL.delete(n.id));
-    nlUpdateStats(); nlRenderGrid();
-  };
-  window.nlSignup = function(){
-    const emailEl = document.getElementById('nl-email');
-    const errEl = document.getElementById('nl-error');
-    const email = ((emailEl||{}).value||'').trim();
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-      if(errEl) errEl.style.display='block'; return;
-    }
-    if(errEl) errEl.style.display='none';
-    if(SEL.size===0){
-      getFiltered().slice(0,5).forEach(n=>SEL.add(n.id));
-      nlUpdateStats(); nlRenderGrid(); return;
-    }
-    const btn = document.getElementById('nl-btn');
-    if(btn){ btn.style.opacity='0.6'; btn.textContent='Wird angemeldet…'; btn.disabled=true; }
-    const count = SEL.size;
-    setTimeout(()=>{
-      SEL.forEach(id=>DONE.add(id)); SEL.clear();
-      if(btn){ btn.style.opacity=''; btn.innerHTML='<svg width="13" height="13" fill="none" viewBox="0 0 13 13"><path d="M2 6.5h9M7 2l4 4.5L7 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Anmelden'; btn.disabled=false; }
-      nlUpdateStats(); nlRenderGrid();
-      const toast = document.getElementById('nl-toast');
-      const msg = document.getElementById('nl-toast-msg');
-      if(msg) msg.textContent = `Erfolgreich bei ${count} Newsletter${count>1?'n':''} angemeldet (${email}).`;
-      if(toast){ toast.style.display='flex'; setTimeout(()=>{ toast.style.display='none'; }, 5000); }
-    }, 1200);
-  };
-  // Auto-init if section already active
-  document.addEventListener('DOMContentLoaded', ()=>{
-    if(document.getElementById('newsletter') && document.getElementById('newsletter').classList.contains('active')){
-      nlRenderFilters(); nlRenderGrid(); nlUpdateStats();
-    }
-})();
-  if(id === 'newsletter'){ nlRenderFilters(); nlRenderGrid(); nlUpdateStats(); }
-  const isoCount = document.getElementById('isoCount');
-  if(isoCount) isoCount.textContent = cards.length + ' von ' + cards.length + ' Images';
 </body>
 </html>
