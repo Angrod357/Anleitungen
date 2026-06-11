@@ -369,9 +369,13 @@ tr:hover td{background:rgba(124,58,237,0.04);}
       <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><rect x="1" y="1" width="13" height="5" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="13" height="5" rx="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="3.5" r=".9" fill="currentColor"/><circle cx="12" cy="11.5" r=".9" fill="currentColor"/></svg>
       Windows Server Setup
     </div>
-    <div class="nav-item active" onclick="show('plex',this)">
+    <div class="nav-item" onclick="show('plex',this)">
       <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.2"></circle><path d="M6 5l4 2.5L6 10V5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"></path></svg>
       Plex-Server einrichten
+    </div>
+    <div class="nav-item" onclick="show('ruview',this)">
+      <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M7.5 1C4.5 1 2 3.5 2 6.5c0 2.2 1.3 4.1 3.2 5l.3 2.5h4l.3-2.5C11.7 10.6 13 8.7 13 6.5 13 3.5 10.5 1 7.5 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M5.5 6.5h4M7.5 4.5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      RuView installieren
     </div>
     <div class="sidebar-divider"></div>
     <div class="sidebar-label">Rollen</div>
@@ -449,8 +453,14 @@ tr:hover td{background:rgba(124,58,237,0.04);}
       <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M1 4a1 1 0 011-1h3l1.5 2H13a1 1 0 011 1v6a1 1 0 01-1 1H2a1 1 0 01-1-1V4z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
       04 · Dateisystem &amp; Ordner</div>
     <div class="sidebar-divider"></div>
+    <div class="sidebar-label">Lernziele</div>
+    <div class="nav-item" onclick="show('m263',this)">
+      <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><rect x="1" y="1" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 5h7M4 8h5M4 11h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Modul 263
+    </div>
+    <div class="sidebar-divider"></div>
     <div class="sidebar-label" style="color:var(--red);opacity:0.8;">TrollProjekte</div>
-    <div class="nav-item active" onclick="show('newsletter',this)">
+    <div class="nav-item" onclick="show('newsletter',this)">
       <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M2 3h11a1 1 0 011 1v7a1 1 0 01-1 1H2a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2"></path><path d="M1 6h13M5 9h5M5 11h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path></svg>
       Newsletter
     </div>
@@ -4751,6 +4761,704 @@ date</div>
 
     </div><!-- /skript-dateisystem -->
 
+
+    <!-- ══════════════════════════════════
+         SECTION: RUVIEW
+    ══════════════════════════════════ -->
+    <div id="ruview" class="section">
+      <div class="sec-eyebrow">Anleitung · Software</div>
+      <div class="sec-title">RuView <span>Desktop installieren</span></div>
+      <div class="sec-sub">WiFi-basierte Personen- und Bewegungserkennung — Installation der Desktop-App (v0.4.1) auf Windows 10/11.</div>
+
+      <!-- WHAT IS RUVIEW -->
+      <div class="phase">
+        <div class="phase-header">
+          <div class="phase-num">Übersicht</div>
+          <div class="phase-title">Was ist RuView?</div>
+          <span class="badge b-info">Info</span>
+        </div>
+        <div class="card"><div class="card-inner">
+          <p style="font-size:13px;color:var(--text);line-height:1.75;margin-bottom:10px">
+            RuView ist ein Edge-AI-System, das gewöhnliche WLAN-Signale in Echtzeit-Raumsensordaten umwandelt — ohne Kamera, ohne Wearable, ohne Cloud-Anbindung. Es analysiert Störungen im WiFi Channel State Information (CSI), die durch Bewegungen von Personen entstehen, und kann daraus Körperpositionen, Atemfrequenz, Herzrate und Anwesenheit ableiten.
+          </p>
+          <div class="tbl-wrap"><table>
+            <tr><th>Eigenschaft</th><th>Wert</th></tr>
+            <tr><td>Aktuelle Desktop-Version</td><td class="td-mono">v0.4.1</td></tr>
+            <tr><td>Unterstützte Plattformen</td><td>Windows 10/11 (64-bit), macOS 11.0+</td></tr>
+            <tr><td>Installer-Typ (Windows)</td><td class="td-mono">.msi / .exe</td></tr>
+            <tr><td>GitHub-Repository</td><td><a href="https://github.com/ruvnet/RuView" target="_blank" style="color:var(--purple2);text-decoration:none;">github.com/ruvnet/RuView</a></td></tr>
+            <tr><td>Releases-Seite</td><td><a href="https://github.com/ruvnet/RuView/releases" target="_blank" style="color:var(--purple2);text-decoration:none;">github.com/ruvnet/RuView/releases</a></td></tr>
+          </table></div>
+          <div class="note n-info" style="margin-top:8px"><div class="note-icon">📡</div><div>
+            RuView benötigt einen <strong>ESP32-S3</strong>-Sensor, der CSI-Daten per UDP an den Rechner sendet. Die Desktop-App ist das Visualisierungsfrontend — sie zeigt Posedaten, Vitalzeichen und Anwesenheitsstatus in Echtzeit an.
+          </div></div>
+        </div></div>
+      </div>
+
+      <!-- SYSTEMVORAUSSETZUNGEN -->
+      <div class="phase">
+        <div class="phase-header">
+          <div class="phase-num">Voraussetzungen</div>
+          <div class="phase-title">Systemanforderungen prüfen</div>
+          <span class="badge b-info">Theorie</span>
+        </div>
+        <div class="card"><div class="card-inner">
+          <div class="tbl-wrap"><table>
+            <tr><th>Komponente</th><th>Minimum</th><th>Empfohlen</th></tr>
+            <tr><td>Betriebssystem</td><td>Windows 10 (Build 1803+)</td><td class="ok">Windows 11 (64-bit)</td></tr>
+            <tr><td>Architektur</td><td colspan="2" class="ok">x64 (Pflicht)</td></tr>
+            <tr><td>WebView2 Runtime</td><td colspan="2">Auf modernen Windows vorinstalliert — sonst separat herunterladen</td></tr>
+            <tr><td>Arbeitsspeicher</td><td>4 GB RAM</td><td class="ok">8 GB RAM</td></tr>
+            <tr><td>Internetverbindung</td><td colspan="2">Nur für Download und optionale Updates</td></tr>
+          </table></div>
+          <div class="note n-warn"><div class="note-icon">⚠️</div><div>
+            Falls WebView2 fehlt (seltener Fall bei älteren Windows-10-Versionen): <a href="https://developer.microsoft.com/en-us/microsoft-edge/webview2/" target="_blank" style="color:var(--yellow);text-decoration:none;">developer.microsoft.com → Microsoft Edge WebView2</a> → <strong>Evergreen Bootstrapper</strong> herunterladen und ausführen.
+          </div></div>
+        </div></div>
+      </div>
+
+      <!-- SCHRITT 1: DOWNLOAD -->
+      <div class="phase">
+        <div class="phase-header">
+          <div class="phase-num">Schritt 01</div>
+          <div class="phase-title">Installer herunterladen</div>
+          <span class="badge b-gui">GUI</span>
+        </div>
+        <div class="card"><div class="card-inner">
+          <div class="steps">
+            <div class="step">
+              <div class="step-n">1</div>
+              <div class="step-body">Browser öffnen und die offizielle Releases-Seite aufrufen:<br>
+                <a href="https://github.com/ruvnet/RuView/releases/tag/desktop-v0.4.1" target="_blank" style="color:var(--purple2);font-family:var(--mono);font-size:11.5px;word-break:break-all;">https://github.com/ruvnet/RuView/releases/tag/desktop-v0.4.1</a>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-n">2</div>
+              <div class="step-body">Nach unten scrollen bis zum Abschnitt <strong>Assets</strong>.</div>
+            </div>
+            <div class="step">
+              <div class="step-n">3</div>
+              <div class="step-body">Die Datei <code>RuView-Desktop-[version]-windows-x64.msi</code> anklicken (oder die <code>.exe</code>-Variante) — der Download startet automatisch.</div>
+            </div>
+            <div class="step">
+              <div class="step-n">4</div>
+              <div class="step-body">Warten bis der Download abgeschlossen ist. Die Datei befindet sich danach im Ordner <code>Downloads</code>.</div>
+            </div>
+          </div>
+          <div class="note n-info" style="margin-top:8px"><div class="note-icon">💡</div><div>
+            Für die aktuellste Version immer die allgemeine Releases-Seite besuchen: <a href="https://github.com/ruvnet/RuView/releases" target="_blank" style="color:var(--purple2);font-family:var(--mono);font-size:11px;">github.com/ruvnet/RuView/releases</a>
+          </div></div>
+        </div></div>
+      </div>
+
+      <!-- SCHRITT 2: INSTALLATION -->
+      <div class="phase">
+        <div class="phase-header">
+          <div class="phase-num">Schritt 02</div>
+          <div class="phase-title">Installation durchführen</div>
+          <span class="badge b-gui">GUI</span>
+        </div>
+        <div class="card"><div class="card-inner">
+          <div class="steps">
+            <div class="step">
+              <div class="step-n">1</div>
+              <div class="step-body">Heruntergeladene <code>.msi</code>-Datei mit <strong>Doppelklick</strong> öffnen. Falls Windows SmartScreen erscheint: <strong>Weitere Informationen → Trotzdem ausführen</strong> anklicken.</div>
+            </div>
+            <div class="step">
+              <div class="step-n">2</div>
+              <div class="step-body">Im Setup-Wizard: <strong>Next</strong> anklicken. Installationspfad kann auf Standard belassen werden (<code>C:\Program Files\RuView Desktop\</code>).</div>
+            </div>
+            <div class="step">
+              <div class="step-n">3</div>
+              <div class="step-body">Auf <strong>Install</strong> klicken. Falls eine UAC-Meldung erscheint: mit <strong>Ja</strong> bestätigen.</div>
+            </div>
+            <div class="step">
+              <div class="step-n">4</div>
+              <div class="step-body">Installation abwarten (ca. 30–60 Sekunden). Danach <strong>Finish</strong> anklicken.</div>
+            </div>
+          </div>
+          <div class="note n-warn"><div class="note-icon">⚠️</div><div>
+            Windows SmartScreen blockiert manchmal unbekannte Installer. Das ist normal bei Open-Source-Software ohne teures Code-Signing-Zertifikat. <strong>Weitere Informationen → Trotzdem ausführen</strong> ist der korrekte Weg.
+          </div></div>
+        </div></div>
+      </div>
+
+      <!-- SCHRITT 3: STARTEN -->
+      <div class="phase">
+        <div class="phase-header">
+          <div class="phase-num">Schritt 03</div>
+          <div class="phase-title">App starten &amp; ersten Start abschliessen</div>
+          <span class="badge b-gui">GUI</span>
+        </div>
+        <div class="card"><div class="card-inner">
+          <div class="steps">
+            <div class="step">
+              <div class="step-n">1</div>
+              <div class="step-body"><strong>Startmenü</strong> öffnen → <code>RuView</code> eintippen → <strong>RuView Desktop</strong> anklicken.</div>
+            </div>
+            <div class="step">
+              <div class="step-n">2</div>
+              <div class="step-body">Die App öffnet sich mit einem Tauri/WebView2-Fenster. Beim ersten Start wird kurz geladen — das ist normal.</div>
+            </div>
+            <div class="step">
+              <div class="step-n">3</div>
+              <div class="step-body">Im Dashboard unter <strong>Source</strong> den Eingabemodus wählen: <code>ESP32</code> für Hardware-Sensor oder <code>Simulation</code> zum Testen ohne Hardware.</div>
+            </div>
+            <div class="step">
+              <div class="step-n">4</div>
+              <div class="step-body">Modus <strong>Simulation</strong> aktivieren → auf <strong>Start</strong> klicken → die Pose-Visualisierung sollte sofort mit Demo-Daten erscheinen. ✅</div>
+            </div>
+          </div>
+          <div class="note n-ok"><div class="note-icon">✅</div><div>
+            <strong>Prüfen:</strong> Im Dashboard erscheinen animierte Skeleton-Punkte oder Vital-Graphen? Dann läuft RuView Desktop korrekt.
+          </div></div>
+        </div></div>
+      </div>
+
+      <!-- SCHRITT 4: ESP32 VERBINDEN (optional) -->
+      <div class="phase">
+        <div class="phase-header">
+          <div class="phase-num">Schritt 04</div>
+          <div class="phase-title">ESP32-Sensor verbinden <span style="font-weight:400;color:var(--muted)">(optional – für echte Daten)</span></div>
+          <span class="badge b-cmd">Hardware</span>
+        </div>
+        <div class="card"><div class="card-inner">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Nur nötig wenn du echte WiFi-CSI-Daten erfassen willst — nicht für den Simulations-Modus.</p>
+          <div class="steps">
+            <div class="step">
+              <div class="step-n">1</div>
+              <div class="step-body">ESP32-S3-Board per USB an den Computer anschliessen.</div>
+            </div>
+            <div class="step">
+              <div class="step-n">2</div>
+              <div class="step-body">Firmware flashen: auf der Releases-Seite die passende Firmware-Binary (<code>esp32-csi-node.bin</code>) herunterladen. Im Releases-Bereich oder im Repo-Ordner <code>/firmware</code> zu finden.</div>
+            </div>
+            <div class="step">
+              <div class="step-n">3</div>
+              <div class="step-body">In RuView Desktop: Source auf <code>ESP32</code> stellen → UDP-Port <code>5005</code> (Standard) → <strong>Connect</strong>.</div>
+            </div>
+            <div class="step">
+              <div class="step-n">4</div>
+              <div class="step-body">Sicherstellen, dass ESP32 und PC im <strong>selben WLAN</strong> sind und keine Firewall UDP-Port 5005 blockiert.</div>
+            </div>
+          </div>
+          <div class="note n-info"><div class="note-icon">📌</div><div>
+            ESP32-S3-Boards sind für ca. 9–15 CHF auf Amazon oder AliExpress erhältlich. Modell: <strong>ESP32-S3 DevKitC-1</strong> oder ähnlich.
+          </div></div>
+        </div></div>
+      </div>
+
+      <!-- LINKS -->
+      <div class="phase">
+        <div class="phase-header">
+          <div class="phase-num">Links</div>
+          <div class="phase-title">Offizielle Ressourcen</div>
+          <span class="badge b-info">Referenz</span>
+        </div>
+        <div class="card"><div class="card-inner">
+          <div class="tbl-wrap"><table>
+            <tr><th>Ressource</th><th>URL</th></tr>
+            <tr>
+              <td>GitHub Repository</td>
+              <td><a href="https://github.com/ruvnet/RuView" target="_blank" style="color:var(--purple2);font-family:var(--mono);font-size:11.5px;">github.com/ruvnet/RuView</a></td>
+            </tr>
+            <tr>
+              <td>Releases &amp; Installer Download</td>
+              <td><a href="https://github.com/ruvnet/RuView/releases" target="_blank" style="color:var(--purple2);font-family:var(--mono);font-size:11.5px;">github.com/ruvnet/RuView/releases</a></td>
+            </tr>
+            <tr>
+              <td>Aktuellster Release (v0.4.1)</td>
+              <td><a href="https://github.com/ruvnet/RuView/releases/tag/desktop-v0.4.1" target="_blank" style="color:var(--purple2);font-family:var(--mono);font-size:11.5px;">releases/tag/desktop-v0.4.1</a></td>
+            </tr>
+            <tr>
+              <td>User Guide (Docs)</td>
+              <td><a href="https://github.com/ruvnet/RuView/blob/main/docs/user-guide.md" target="_blank" style="color:var(--purple2);font-family:var(--mono);font-size:11.5px;">docs/user-guide.md</a></td>
+            </tr>
+            <tr>
+              <td>WebView2 Runtime (falls nötig)</td>
+              <td><a href="https://developer.microsoft.com/en-us/microsoft-edge/webview2/" target="_blank" style="color:var(--purple2);font-family:var(--mono);font-size:11.5px;">developer.microsoft.com/webview2</a></td>
+            </tr>
+            <tr>
+              <td>SourceForge Mirror</td>
+              <td><a href="https://sourceforge.net/projects/ruview.mirror/" target="_blank" style="color:var(--purple2);font-family:var(--mono);font-size:11.5px;">sourceforge.net/projects/ruview.mirror</a></td>
+            </tr>
+          </table></div>
+        </div></div>
+      </div>
+
+    </div><!-- /ruview -->
+
+
+    <!-- ══════════════════════════════════
+         SECTION: MODUL 263
+    ══════════════════════════════════ -->
+    <div id="m263" class="section">
+      <div class="sec-eyebrow">Lernziele · Prüfungsvorbereitung</div>
+      <div class="sec-title">Modul <span>263</span></div>
+      <div class="sec-sub">Sicherheit von ICT-Benutzerendgeräten — Lernziele, Quiz, Glossar und Cheat-Sheet für die Leistungsbeurteilung.</div>
+
+      <!-- ── M263 SCOPED STYLES ── -->
+      <style>
+        /* ── M263 TABS ── */
+        .m263-tabs{display:flex;gap:4px;margin-bottom:0;border-bottom:1px solid var(--border);}
+        .m263-tab{
+          font-size:12px;font-weight:500;padding:7px 14px 9px;
+          border-radius:8px 8px 0 0;cursor:pointer;color:var(--muted);
+          border:1px solid transparent;border-bottom:none;transition:all .15s;background:none;
+        }
+        .m263-tab:hover{color:var(--text);}
+        .m263-tab.m-active{color:var(--purple2);background:var(--surface2);border-color:var(--border2);border-bottom-color:var(--surface2);}
+        .m263-panel{display:none;padding-top:1.25rem;}
+        .m263-panel.m-active{display:block;}
+
+        /* ── PROGRESS ── */
+        .m263-prog{
+          background:var(--surface);border:1px solid var(--border);border-radius:10px;
+          padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;
+        }
+        .m263-prog-track{flex:1;height:7px;background:var(--surface2);border-radius:99px;overflow:hidden;}
+        .m263-prog-fill{
+          height:100%;border-radius:99px;
+          background:linear-gradient(90deg,var(--purple3),var(--purple2));transition:width .4s ease;
+        }
+        .m263-prog-label{font-family:var(--mono);font-size:11px;color:var(--purple2);white-space:nowrap;}
+
+        /* ── SECTION CARDS (Lernziele) ── */
+        .m263-sec{
+          background:var(--surface);border:1px solid var(--border);
+          border-radius:10px;margin-bottom:10px;overflow:hidden;
+        }
+        .m263-sec-hdr{
+          display:flex;align-items:center;gap:10px;padding:12px 16px;
+          cursor:pointer;user-select:none;
+        }
+        .m263-sec-icon{width:30px;height:30px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;}
+        .m263-sec-title{font-size:13px;font-weight:600;flex:1;}
+        .m263-sec-count{font-family:var(--mono);font-size:10px;color:var(--muted);}
+        .m263-chev{color:var(--muted);transition:transform .2s;font-size:11px;}
+        .m263-sec.m263-open .m263-chev{transform:rotate(90deg);}
+        .m263-sec-body{display:none;padding:0 16px 14px;}
+        .m263-sec.m263-open .m263-sec-body{display:block;}
+        .m263-lz{list-style:none;}
+        .m263-lz li{
+          display:flex;align-items:flex-start;gap:9px;
+          padding:6px 0;border-bottom:1px solid var(--border);
+          font-size:12.5px;line-height:1.55;
+        }
+        .m263-lz li:last-child{border-bottom:none;}
+        .m263-chkbox{
+          width:17px;height:17px;border-radius:4px;flex-shrink:0;
+          border:1.5px solid var(--border2);cursor:pointer;
+          display:flex;align-items:center;justify-content:center;
+          margin-top:1px;transition:all .15s;font-size:10px;color:#fff;
+        }
+        .m263-chkbox.m263-chk{background:var(--purple3);border-color:var(--purple3);}
+
+        /* ── QUIZ ── */
+        .m263-quiz-meta{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+        .m263-qmeta{
+          background:var(--surface);border:1px solid var(--border);
+          border-radius:7px;padding:6px 12px;font-size:12px;color:var(--muted);
+        }
+        .m263-qmeta strong{color:var(--text);}
+        .m263-qcard{
+          background:var(--surface);border:1px solid var(--border);
+          border-radius:12px;padding:20px;margin-bottom:16px;
+        }
+        .m263-qtopic{
+          font-family:var(--mono);font-size:10px;color:var(--purple);
+          text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;
+        }
+        .m263-qtext{font-size:14px;font-weight:500;line-height:1.6;margin-bottom:16px;}
+        .m263-qopts{display:flex;flex-direction:column;gap:7px;}
+        .m263-qopt{
+          background:var(--surface2);border:1.5px solid var(--border);
+          border-radius:9px;padding:10px 14px;cursor:pointer;
+          font-size:12.5px;text-align:left;transition:all .15s;
+          display:flex;align-items:center;gap:9px;
+        }
+        .m263-qopt:hover{border-color:var(--purple);color:var(--purple2);}
+        .m263-qopt.m263-correct{border-color:var(--green);background:rgba(134,239,172,.08);color:var(--green);}
+        .m263-qopt.m263-wrong{border-color:var(--red);background:rgba(248,113,113,.08);color:var(--red);}
+        .m263-qopt.m263-disabled{pointer-events:none;opacity:.5;}
+        .m263-optletter{
+          width:22px;height:22px;border-radius:5px;flex-shrink:0;
+          background:var(--border);display:flex;align-items:center;justify-content:center;
+          font-family:var(--mono);font-size:10px;font-weight:600;
+        }
+        .m263-explain{
+          margin-top:12px;padding:10px 14px;
+          background:var(--surface2);border-left:3px solid var(--purple3);
+          border-radius:0 7px 7px 0;font-size:12.5px;line-height:1.6;display:none;
+        }
+        .m263-explain.m263-show{display:block;}
+        .m263-qnav{display:flex;gap:8px;align-items:center;}
+        .m263-btn{
+          padding:8px 18px;border-radius:8px;border:none;
+          font-family:var(--sans);font-size:12.5px;font-weight:500;
+          cursor:pointer;transition:all .15s;
+        }
+        .m263-btn-primary{background:var(--purple3);color:#fff;}
+        .m263-btn-primary:hover{background:var(--purple);}
+        .m263-btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+        .m263-btn-ghost:hover{border-color:var(--purple);color:var(--purple2);}
+        .m263-btn:disabled{opacity:.4;cursor:default;}
+        .m263-qcounter{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:auto;}
+        .m263-score{text-align:center;padding:32px 16px;display:none;}
+        .m263-score.m263-show{display:block;}
+        .m263-score-big{
+          font-family:var(--mono);font-size:56px;font-weight:600;
+          background:linear-gradient(135deg,var(--purple3),var(--purple2));
+          -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;
+        }
+        .m263-score-sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
+
+        /* ── GLOSSAR ── */
+        .m263-gsearch{
+          width:100%;padding:9px 14px;
+          background:var(--surface);border:1.5px solid var(--border);
+          border-radius:9px;color:var(--text);font-family:var(--sans);font-size:13px;
+          margin-bottom:14px;outline:none;
+        }
+        .m263-gsearch:focus{border-color:var(--purple);}
+        .m263-ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
+        .m263-gitem{
+          background:var(--surface);border:1px solid var(--border);
+          border-radius:10px;padding:12px 14px;
+        }
+        .m263-gterm{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--purple2);margin-bottom:5px;}
+        .m263-gdef{font-size:12.5px;line-height:1.55;color:var(--text);}
+        .m263-gtag{
+          display:inline-block;margin-top:7px;
+          font-size:10px;padding:2px 7px;border-radius:99px;
+          background:var(--surface2);border:1px solid var(--border);
+          color:var(--muted);font-family:var(--mono);
+        }
+
+        /* ── CHEATSHEET ── */
+        .m263-csgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+        .m263-cscard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
+        .m263-cstitle{
+          font-size:11px;font-weight:600;color:var(--purple2);
+          text-transform:uppercase;letter-spacing:.05em;margin-bottom:9px;font-family:var(--mono);
+        }
+        .m263-csrow{display:flex;gap:7px;margin-bottom:6px;font-size:12px;line-height:1.5;}
+        .m263-cskey{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--cyan);min-width:100px;flex-shrink:0;}
+        .m263-csval{color:var(--text);}
+        .m263-cssep{border:none;border-top:1px solid var(--border);margin:7px 0;}
+      </style>
+
+      <!-- ── M263 TABS ── -->
+      <div class="m263-tabs">
+        <button class="m263-tab m-active" onclick="m263Tab('lz',this)">📋 Lernziele</button>
+        <button class="m263-tab" onclick="m263Tab('quiz',this)">🧠 Quiz</button>
+        <button class="m263-tab" onclick="m263Tab('glossar',this)">📖 Glossar</button>
+        <button class="m263-tab" onclick="m263Tab('cs',this)">📄 Cheat-Sheet</button>
+      </div>
+
+      <!-- ── PANEL: LERNZIELE ── -->
+      <div class="m263-panel m-active" id="m263-panel-lz">
+        <div class="m263-prog">
+          <span style="font-size:12px;color:var(--muted)">Fortschritt</span>
+          <div class="m263-prog-track"><div class="m263-prog-fill" id="m263ProgBar" style="width:0%"></div></div>
+          <span class="m263-prog-label" id="m263ProgLabel">0 / 43</span>
+        </div>
+
+        <!-- Thema 1 -->
+        <div class="m263-sec" id="m263s0">
+          <div class="m263-sec-hdr" onclick="m263Toggle(0)">
+            <div class="m263-sec-icon" style="background:rgba(124,58,237,.15)">🔐</div>
+            <div class="m263-sec-title">Grundlagen und Schutzziele der Informationssicherheit</div>
+            <span class="m263-sec-count">7 Lernziele</span><span class="m263-chev">▶</span>
+          </div>
+          <div class="m263-sec-body"><ul class="m263-lz">
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Bit und Byte als Grundeinheiten der Datenverarbeitung erklären</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Zeichen, Daten und Informationen voneinander abgrenzen</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Die Bedeutung der Zeichenkodierung (ASCII, Unicode) für die Datensicherheit erklären</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Die Schutzziele Vertraulichkeit, Integrität und Verfügbarkeit unterscheiden</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Konkrete Sicherheitsmassnahmen den passenden Schutzzielen zuordnen</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Grundlegende technische und organisatorische Schutzmassnahmen nennen</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Den Begriff Risiko als Produkt aus Eintrittswahrscheinlichkeit und Schadensausmass erklären</span></li>
+          </ul></div>
+        </div>
+        <!-- Thema 2 -->
+        <div class="m263-sec" id="m263s1">
+          <div class="m263-sec-hdr" onclick="m263Toggle(1)">
+            <div class="m263-sec-icon" style="background:rgba(192,132,252,.15)">⚖️</div>
+            <div class="m263-sec-title">Rechtliche Grundlagen und Datenschutz</div>
+            <span class="m263-sec-count">4 Lernziele</span><span class="m263-chev">▶</span>
+          </div>
+          <div class="m263-sec-body"><ul class="m263-lz">
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Den Zweck des schweizerischen Datenschutzgesetzes (DSG) erklären</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Zentrale Grundsätze der Datenverarbeitung nach DSG nennen</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Den Schutzbedarf personenbezogener Daten begründen</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Den Unterschied zwischen Datenschutz (rechtlich) und Datensicherheit (technisch) erläutern</span></li>
+          </ul></div>
+        </div>
+        <!-- Thema 3 -->
+        <div class="m263-sec" id="m263s2">
+          <div class="m263-sec-hdr" onclick="m263Toggle(2)">
+            <div class="m263-sec-icon" style="background:rgba(251,146,60,.15)">⚠️</div>
+            <div class="m263-sec-title">Bedrohungen, Schwachstellen und Risikobewertung</div>
+            <span class="m263-sec-count">6 Lernziele</span><span class="m263-chev">▶</span>
+          </div>
+          <div class="m263-sec-body"><ul class="m263-lz">
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Schwachstellen, Bedrohungen und Gefahren voneinander abgrenzen</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Wichtige Quellen für Sicherheitsinformationen und deren Inhalte einordnen (CERT, Heise Security, Threat Intelligence Feeds)</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Den Zweck des CVSS-Scores zur Schwachstellenbewertung erklären</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Die CVSS-Faktoren Ausnutzbarkeit (Exploitability) und Auswirkung (Impact) unterscheiden</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Sicherheitslücken anhand ihrer Kritikalität priorisieren</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Den Zweck von Patch-Management erklären und den Prozess beschreiben</span></li>
+          </ul></div>
+        </div>
+        <!-- Thema 4 -->
+        <div class="m263-sec" id="m263s3">
+          <div class="m263-sec-hdr" onclick="m263Toggle(3)">
+            <div class="m263-sec-icon" style="background:rgba(56,189,248,.15)">💻</div>
+            <div class="m263-sec-title">Sicherheit von ICT-Endgeräten und Härtung</div>
+            <span class="m263-sec-count">7 Lernziele</span><span class="m263-chev">▶</span>
+          </div>
+          <div class="m263-sec-body"><ul class="m263-lz">
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Gerätetypen (Stationär, Mobil, IoT, Peripherie) und ihre typischen Sicherheitsrisiken unterscheiden</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Typische Schwachstellen von ICT-Endgeräten identifizieren</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Unsichere Passwörter und Konfigurationen als Risiko erkennen</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Geeignete Schutzmassnahmen für erkannte Schwachstellen ableiten</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Die Risikoreduktion einer Schutzmassnahme begründen</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Sicherheitsaspekte von IoT-Geräten beschreiben</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>MFA (Mehrfaktor-Authentisierung) erklären und deren Beitrag zur Endgerätesicherheit begründen</span></li>
+          </ul></div>
+        </div>
+        <!-- Thema 5 -->
+        <div class="m263-sec" id="m263s4">
+          <div class="m263-sec-hdr" onclick="m263Toggle(4)">
+            <div class="m263-sec-icon" style="background:rgba(74,222,128,.15)">🔍</div>
+            <div class="m263-sec-title">Netzwerk- und Konfigurationsprüfung</div>
+            <span class="m263-sec-count">6 Lernziele</span><span class="m263-chev">▶</span>
+          </div>
+          <div class="m263-sec-body"><ul class="m263-lz">
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Den Zweck eines Port-Scans (nmap) für die Sicherheitsprüfung erklären</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Die Ausgabe eines Port-Scans interpretieren</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Offene Ports den dahinterliegenden Diensten zuordnen (FTP 21, SSH 22, Telnet 23, SMTP 25, DNS 53, HTTP 80, POP3 110, IMAP 143, HTTPS 443, SMB 445, RDP 3389)</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Sicherheitsrisiken durch unnötig offene Ports ableiten</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Risiken ungesicherter WLAN-Verbindungen einordnen</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Den Prozess der Auswertung (Port ermitteln → Dienst zuordnen → Risiko bewerten) anwenden</span></li>
+          </ul></div>
+        </div>
+        <!-- Thema 6 -->
+        <div class="m263-sec" id="m263s5">
+          <div class="m263-sec-hdr" onclick="m263Toggle(5)">
+            <div class="m263-sec-icon" style="background:rgba(124,58,237,.15)">🛡️</div>
+            <div class="m263-sec-title">Sicherheitsframeworks und Monitoring</div>
+            <span class="m263-sec-count">6 Lernziele</span><span class="m263-chev">▶</span>
+          </div>
+          <div class="m263-sec-body"><ul class="m263-lz">
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Die sechs Funktionen des NIST Cybersecurity Frameworks benennen (Govern, Identify, Protect, Detect, Respond, Recover)</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Schutzmassnahmen den Funktionen des Frameworks zuordnen</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Den Zweck eines SIEM-Systems beschreiben</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Zentrale Funktionen eines SIEM-Systems erläutern (Sammlung, Normalisierung, Korrelation, Alarmierung, Reporting)</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Den Beitrag von Monitoring zur Endgerätesicherheit begründen</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Erklären, wie ein SIEM die Reaktionszeit bei Vorfällen verkürzt</span></li>
+          </ul></div>
+        </div>
+        <!-- Thema 7 -->
+        <div class="m263-sec" id="m263s6">
+          <div class="m263-sec-hdr" onclick="m263Toggle(6)">
+            <div class="m263-sec-icon" style="background:rgba(248,113,113,.15)">🚨</div>
+            <div class="m263-sec-title">Sicherheitsvorfälle erkennen und behandeln</div>
+            <span class="m263-sec-count">7 Lernziele</span><span class="m263-chev">▶</span>
+          </div>
+          <div class="m263-sec-body"><ul class="m263-lz">
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Anzeichen eines kompromittierten Endgeräts erkennen (hohe CPU/Netzwerklast, unbekannte Prozesse, unbekannte Software)</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Phishing-Versuche als Bedrohung einordnen und typische Merkmale nennen</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Sofortmassnahmen zur Eindämmung eines Vorfalls ableiten (Isolieren, Sichern, Melden, Bereinigen)</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Ein gefährdetes Endgerät isolieren</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Den Wiederanlaufprozess nach einem Vorfall beschreiben (prüfen, updaten, testen, ans Netz nehmen)</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Präventive Massnahmen gegen künftige Angriffe ableiten</span></li>
+            <li><div class="m263-chkbox" onclick="m263Check(this)"></div><span>Den Wert von Dokumentation und Erkenntnissen nach einem Sicherheitsvorfall begründen</span></li>
+          </ul></div>
+        </div>
+      </div><!-- /panel-lz -->
+
+      <!-- ── PANEL: QUIZ ── -->
+      <div class="m263-panel" id="m263-panel-quiz">
+        <div class="m263-quiz-meta">
+          <div class="m263-qmeta">Fragen: <strong id="m263qTotal">18</strong></div>
+          <div class="m263-qmeta">Richtig: <strong id="m263qCorrect" style="color:var(--green)">0</strong></div>
+          <div class="m263-qmeta">Falsch: <strong id="m263qWrong" style="color:var(--red)">0</strong></div>
+          <div style="margin-left:auto"><button class="m263-btn m263-btn-ghost" onclick="m263ResetQuiz()">↺ Neu starten</button></div>
+        </div>
+        <div id="m263QuizArea">
+          <div class="m263-qcard">
+            <div class="m263-qtopic" id="m263qTopic"></div>
+            <div class="m263-qtext" id="m263qText"></div>
+            <div class="m263-qopts" id="m263qOpts"></div>
+            <div class="m263-explain" id="m263qExplain"></div>
+          </div>
+          <div class="m263-qnav">
+            <button class="m263-btn m263-btn-primary" id="m263btnNext" onclick="m263Next()" disabled>Nächste Frage →</button>
+            <span class="m263-qcounter" id="m263qCounter"></span>
+          </div>
+        </div>
+        <div class="m263-score" id="m263ScoreScreen">
+          <div class="m263-score-big" id="m263ScorePct"></div>
+          <div class="m263-score-sub" id="m263ScoreText"></div>
+          <button class="m263-btn m263-btn-primary" onclick="m263ResetQuiz()">Quiz wiederholen</button>
+        </div>
+      </div><!-- /panel-quiz -->
+
+      <!-- ── PANEL: GLOSSAR ── -->
+      <div class="m263-panel" id="m263-panel-glossar">
+        <input class="m263-gsearch" id="m263GSearch" type="text" placeholder="Begriff suchen …" oninput="m263FilterGlossar()">
+        <div class="m263-ggrid" id="m263GGrid"></div>
+      </div>
+
+      <!-- ── PANEL: CHEAT-SHEET ── -->
+      <div class="m263-panel" id="m263-panel-cs">
+        <div class="m263-csgrid">
+
+          <div class="m263-cscard">
+            <div class="m263-cstitle">CIA-Schutzziele</div>
+            <div class="m263-csrow"><span class="m263-cskey">Vertraulichkeit</span><span class="m263-csval">Nur Berechtigte lesen Daten · verletzt durch Abhören, Datendiebstahl</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Integrität</span><span class="m263-csval">Daten unverändert und korrekt · verletzt durch Manipulation</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Verfügbarkeit</span><span class="m263-csval">System erreichbar wenn nötig · verletzt durch Ausfall, Ransomware</span></div>
+            <hr class="m263-cssep">
+            <div class="m263-csrow"><span class="m263-cskey">Bit</span><span class="m263-csval">Kleinste Einheit, Wert 0 oder 1</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Byte</span><span class="m263-csval">8 Bit, speichert ein Zeichen</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">ASCII</span><span class="m263-csval">7 Bit, 128 Zeichen, 1 Byte</span></div>
+          </div>
+
+          <div class="m263-cscard">
+            <div class="m263-cstitle">Begriffshierarchie &amp; Risiko</div>
+            <div class="m263-csrow"><span class="m263-cskey">Zeichen</span><span class="m263-csval">Einzelnes Symbol aus einem Zeichenvorrat</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Daten</span><span class="m263-csval">Strukturierte Zeichen ohne Bedeutungskontext</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Information</span><span class="m263-csval">Daten mit Kontext und Bedeutung</span></div>
+            <hr class="m263-cssep">
+            <div class="m263-csrow"><span class="m263-cskey">Schutzobjekt</span><span class="m263-csval">Was geschützt wird (Gerät, Daten, Dienst)</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Schwachstelle</span><span class="m263-csval">Schwäche, die ausgenutzt werden kann</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Bedrohung</span><span class="m263-csval">Mögliches Ereignis, das Schaden verursacht</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Gefahr</span><span class="m263-csval">Konkrete Bedrohung trifft Schwachstelle</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Risiko</span><span class="m263-csval">Wahrscheinlichkeit × Schadensausmass</span></div>
+          </div>
+
+          <div class="m263-cscard">
+            <div class="m263-cstitle">CVSS Score</div>
+            <div class="m263-csrow"><span class="m263-cskey">0.0</span><span class="m263-csval">None</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">0.1 – 3.9</span><span class="m263-csval">Low</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">4.0 – 6.9</span><span class="m263-csval">Medium</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">7.0 – 8.9</span><span class="m263-csval">High</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">9.0 – 10.0</span><span class="m263-csval">Critical → sofort patchen!</span></div>
+            <hr class="m263-cssep">
+            <div class="m263-csrow"><span class="m263-cskey">Exploitability</span><span class="m263-csval">Attack Vector, Complexity, Privileges, User Interaction</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Impact</span><span class="m263-csval">Vertraulichkeit, Integrität, Verfügbarkeit (None/Low/High)</span></div>
+          </div>
+
+          <div class="m263-cscard">
+            <div class="m263-cstitle">NIST CSF — 6 Funktionen</div>
+            <div class="m263-csrow"><span class="m263-cskey">Govern</span><span class="m263-csval">Strategie, Rollen und Richtlinien festlegen</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Identify</span><span class="m263-csval">Werte, Risiken und Schwachstellen erkennen</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Protect</span><span class="m263-csval">Schutzmassnahmen umsetzen (Härtung, Schulung)</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Detect</span><span class="m263-csval">Anomalien erkennen (SIEM, Logs, IDS)</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Respond</span><span class="m263-csval">Incident Response, Schaden begrenzen</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Recover</span><span class="m263-csval">Wiederherstellung, aus Vorfall lernen</span></div>
+          </div>
+
+          <div class="m263-cscard">
+            <div class="m263-cstitle">Port-Referenz (vollständig)</div>
+            <div class="m263-csrow"><span class="m263-cskey">21 FTP</span><span class="m263-csval">Dateiübertragung unverschlüsselt ⚠️</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">22 SSH</span><span class="m263-csval">Verschlüsselter Fernzugang</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">23 Telnet</span><span class="m263-csval">Fernzugang unverschlüsselt ⚠️</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">25 SMTP</span><span class="m263-csval">Mailversand — Missbrauch für Spam ⚠️</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">53 DNS</span><span class="m263-csval">Namensauflösung — Manipulation möglich ⚠️</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">80 HTTP</span><span class="m263-csval">Webserver unverschlüsselt ⚠️</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">110 POP3</span><span class="m263-csval">Mailabruf unverschlüsselt ⚠️</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">143 IMAP</span><span class="m263-csval">Mailabruf unverschlüsselt ⚠️</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">443 HTTPS</span><span class="m263-csval">Verschlüsseltes Web ✓</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">445 SMB</span><span class="m263-csval">Windows-Freigabe — Malware-Verbreitung ⚠️</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">3389 RDP</span><span class="m263-csval">Remote Desktop — Angriffsziel ⚠️</span></div>
+          </div>
+
+          <div class="m263-cscard">
+            <div class="m263-cstitle">Datenschutz vs. Datensicherheit</div>
+            <div class="m263-csrow"><span class="m263-cskey">Datenschutz</span><span class="m263-csval">Rechtlicher Schutz von Personendaten</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Leitfrage</span><span class="m263-csval">Welche Daten dürfen wie bearbeitet werden?</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Mittel</span><span class="m263-csval">Gesetze, Richtlinien, Einwilligung</span></div>
+            <hr class="m263-cssep">
+            <div class="m263-csrow"><span class="m263-cskey">Datensicherheit</span><span class="m263-csval">Technischer Schutz aller Daten</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Leitfrage</span><span class="m263-csval">Wie werden Daten vor Verlust und Zugriff geschützt?</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Mittel</span><span class="m263-csval">Verschlüsselung, Zugriffskontrolle, Backup</span></div>
+          </div>
+
+          <div class="m263-cscard">
+            <div class="m263-cstitle">DSG Grundsätze (CH)</div>
+            <div class="m263-csrow"><span class="m263-cskey">Rechtmässigkeit</span><span class="m263-csval">Gesetzliche Grundlage nötig</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Transparenz</span><span class="m263-csval">Bearbeitung für Betroffene erkennbar</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Zweckbindung</span><span class="m263-csval">Nutzung nur für definierten Zweck</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Verhältnismässigkeit</span><span class="m263-csval">Nur nötige Daten erheben</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Richtigkeit</span><span class="m263-csval">Daten aktuell und korrekt halten</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Datensicherheit</span><span class="m263-csval">Angemessener technischer &amp; org. Schutz</span></div>
+          </div>
+
+          <div class="m263-cscard">
+            <div class="m263-cstitle">Endgeräte-Gerätetypen</div>
+            <div class="m263-csrow"><span class="m263-cskey">Stationär</span><span class="m263-csval">Desktop-PC, Workstation — fest im Netz</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Mobil</span><span class="m263-csval">Notebook, Smartphone, Tablet — Verlust- / Diebstahlrisiko, Fremdnetze</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">IoT</span><span class="m263-csval">Sensoren, Kameras, Thermostate — schwache Standardkonfiguration</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Peripherie</span><span class="m263-csval">Drucker, USB, Docking — häufig übersehene Angriffsfläche</span></div>
+          </div>
+
+          <div class="m263-cscard">
+            <div class="m263-cstitle">Endgeräte-Härtung</div>
+            <div class="m263-csrow"><span class="m263-cskey">Schwache Passwörter</span><span class="m263-csval">Passwortrichtlinie + MFA</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Veraltetes OS</span><span class="m263-csval">Patch- &amp; Update-Management</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Ungesichertes WLAN</span><span class="m263-csval">WPA2/WPA3, kein offenes Netz</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Offene Ports</span><span class="m263-csval">Ungenutzte Dienste deaktivieren + Firewall</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Fehlender Schutz</span><span class="m263-csval">Virenschutz und Firewall aktuell halten</span></div>
+            <hr class="m263-cssep">
+            <div class="m263-csrow"><span class="m263-cskey">MFA</span><span class="m263-csval">Wissen (Passwort) + Besitz (Token) + Biometrie</span></div>
+          </div>
+
+          <div class="m263-cscard">
+            <div class="m263-cstitle">SIEM-System</div>
+            <div class="m263-csrow"><span class="m263-cskey">Zweck</span><span class="m263-csval">Zentrale Sammlung &amp; Korrelation von Log-Daten</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Sammlung</span><span class="m263-csval">Protokolle aus vielen Geräten normalisiert</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Korrelation</span><span class="m263-csval">Verknüpft Ereignisse zu Angriffsmustern</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Alarmierung</span><span class="m263-csval">Meldet Auffälligkeiten zeitnah</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Reporting</span><span class="m263-csval">Unterstützt Analyse und Nachweis</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Beispiele</span><span class="m263-csval">Splunk, Microsoft Sentinel, IBM QRadar</span></div>
+          </div>
+
+          <div class="m263-cscard">
+            <div class="m263-cstitle">Incident Response &amp; Wiederanlauf</div>
+            <div class="m263-csrow"><span class="m263-cskey">1. Isolieren</span><span class="m263-csval">Netzwerk trennen, WLAN aus</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">2. Sichern</span><span class="m263-csval">Logs und Beweise vor Änderungen sichern</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">3. Melden</span><span class="m263-csval">Vorfall dokumentieren und eskalieren</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">4. Bereinigen</span><span class="m263-csval">Malware entfernen, Passwörter ändern</span></div>
+            <hr class="m263-cssep">
+            <div class="m263-csrow"><span class="m263-cskey">Wiederanlauf</span><span class="m263-csval">Prüfen → Updates → Testen → ans Netz</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">Dokumentation</span><span class="m263-csval">Ablauf und Erkenntnisse festhalten, Massnahmen anpassen</span></div>
+          </div>
+
+          <div class="m263-cscard">
+            <div class="m263-cstitle">Abkürzungsverzeichnis</div>
+            <div class="m263-csrow"><span class="m263-cskey">ASCII</span><span class="m263-csval">American Standard Code for Information Interchange</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">CERT</span><span class="m263-csval">Computer Emergency Response Team</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">CIA</span><span class="m263-csval">Confidentiality, Integrity, Availability</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">CVSS</span><span class="m263-csval">Common Vulnerability Scoring System</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">DSG</span><span class="m263-csval">Datenschutzgesetz (Schweiz)</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">IoT</span><span class="m263-csval">Internet of Things</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">MFA</span><span class="m263-csval">Mehrfaktor-Authentisierung</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">NIST CSF</span><span class="m263-csval">National Institute of Standards and Technology — Cybersecurity Framework</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">SIEM</span><span class="m263-csval">Security Information and Event Management</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">SMB</span><span class="m263-csval">Server Message Block (Datei-/Druckerfreigabe)</span></div>
+            <div class="m263-csrow"><span class="m263-cskey">WPA2/WPA3</span><span class="m263-csval">Wi-Fi Protected Access — WLAN-Verschlüsselung</span></div>
+          </div>
+
+        </div>
+      </div><!-- /panel-cs -->
+
+    </div><!-- /m263 -->
+
+
   </main>
 </div><!-- /shell -->
 
@@ -4843,6 +5551,198 @@ function cmdFilter() {
   });
   document.getElementById('cmdNone').style.display = vis === 0 ? 'block' : 'none';
   document.getElementById('cmdCount').textContent = vis + ' von ' + cards.length + ' Befehlen';
+}
+
+// ══════════════════════════════════
+// MODUL 263 – Logic
+// ══════════════════════════════════
+
+// ── TABS ──
+function m263Tab(id, btn) {
+  document.querySelectorAll('#m263 .m263-panel').forEach(p => p.classList.remove('m-active'));
+  document.querySelectorAll('#m263 .m263-tab').forEach(t => t.classList.remove('m-active'));
+  document.getElementById('m263-panel-'+id).classList.add('m-active');
+  btn.classList.add('m-active');
+  if (id === 'quiz' && !m263QuizStarted) m263InitQuiz();
+  if (id === 'glossar') m263RenderGlossar();
+}
+
+// ── LERNZIELE / CHECKBOXEN ──
+const M263_TOTAL = 43;
+function m263Toggle(idx) {
+  document.getElementById('m263s'+idx).classList.toggle('m263-open');
+}
+function m263Check(el) {
+  el.classList.toggle('m263-chk');
+  el.textContent = el.classList.contains('m263-chk') ? '✓' : '';
+  m263UpdateProgress();
+}
+function m263UpdateProgress() {
+  const done = document.querySelectorAll('#m263 .m263-chkbox.m263-chk').length;
+  const pct = Math.round(done / M263_TOTAL * 100);
+  document.getElementById('m263ProgBar').style.width = pct + '%';
+  document.getElementById('m263ProgLabel').textContent = done + ' / ' + M263_TOTAL;
+}
+
+// ── QUIZ DATA ──
+const m263Questions = [
+  { topic:"Grundlagen & Schutzziele", q:"Welches Schutzziel stellt sicher, dass Daten nur von autorisierten Personen gelesen werden können?", opts:["Verfügbarkeit","Integrität","Vertraulichkeit","Authentizität"], correct:2, explain:"Vertraulichkeit (Confidentiality) bedeutet, dass Informationen nur für Berechtigte zugänglich sind. Typische Massnahmen: Verschlüsselung und Zugriffssteuerung." },
+  { topic:"Grundlagen & Schutzziele", q:"Ein Hashwert wird eingesetzt, um die __________ von Daten zu prüfen.", opts:["Verfügbarkeit","Integrität","Vertraulichkeit","Authentifizierung"], correct:1, explain:"Hashing prüft die Integrität: Selbst eine winzige Änderung am Inhalt erzeugt einen völlig anderen Hash – Manipulation wird sofort erkennbar." },
+  { topic:"Grundlagen & Schutzziele", q:"Was ist der Unterschied zwischen 'Daten' und 'Informationen'?", opts:["Informationen sind immer digital, Daten analog","Daten sind Fakten ohne Kontext; Informationen sind Daten mit Bedeutung für den Empfänger","Es gibt keinen Unterschied, die Begriffe sind synonym","Daten sind grösser als Informationen"], correct:1, explain:"Daten (z. B. '36.8') sind strukturierte Zeichen ohne Kontext. Erst mit Bedeutung ('Körpertemperatur in °C') werden sie zur Information." },
+  { topic:"Rechtliche Grundlagen", q:"Was ist der Hauptzweck des schweizerischen Datenschutzgesetzes (DSG)?", opts:["Strafverfolgung von Hacker-Angriffen","Schutz der Persönlichkeitsrechte natürlicher Personen bei der Datenverarbeitung","Regulierung von Cloud-Anbietern im Ausland","Festlegung von Passwort-Mindestanforderungen"], correct:1, explain:"Das DSG schützt Personen vor missbräuchlicher Verwendung ihrer Daten und räumt ihnen Rechte (Auskunft, Berichtigung, Löschung) ein." },
+  { topic:"Rechtliche Grundlagen", q:"Welcher DSG-Grundsatz besagt, dass nur so viele Daten erhoben werden dürfen wie für den Zweck nötig?", opts:["Transparenz","Zweckbindung","Verhältnismässigkeit","Rechtmässigkeit"], correct:2, explain:"Verhältnismässigkeit (Datensparsamkeit): Es dürfen nur die minimal nötigen Daten erhoben werden – kein übermässiges Sammeln." },
+  { topic:"Bedrohungen & CVSS", q:"Was ist der Unterschied zwischen einer Schwachstelle und einer Bedrohung?", opts:["Eine Schwachstelle ist eine mögliche Angriffsmethode; eine Bedrohung ist ein technischer Fehler","Eine Schwachstelle ist ein Sicherheitsmangel im System; eine Bedrohung ist ein potenzieller Angreifer oder Ereignis das die Schwachstelle ausnutzt","Beide Begriffe bedeuten das Gleiche","Bedrohungen sind nur extern, Schwachstellen nur intern"], correct:1, explain:"Schwachstelle = technischer/organisatorischer Mangel. Bedrohung = Ereignis/Akteur, der die Schwachstelle ausnutzen könnte. Gefahr = realisierte Bedrohung." },
+  { topic:"Bedrohungen & CVSS", q:"Ein CVSS-Score von 9.3 entspricht welchem Kritikalitätslevel?", opts:["High","Medium","Critical","Low"], correct:2, explain:"CVSS 9.0–10.0 = Critical. Diese Schwachstellen sind sofort zu patchen, da sie Systeme vollständig kompromittieren können." },
+  { topic:"Bedrohungen & CVSS", q:"Welche CVSS-Metrik beschreibt, wie der Angreifer auf das Zielsystem zugreifen muss?", opts:["Impact Score","Attack Vector (AV)","Privileges Required","Scope"], correct:1, explain:"Attack Vector (AV) beschreibt den Angriffsweg: Network (aus dem Internet), Adjacent, Local oder Physical. Network = grösste Gefahr / höchster CVSS-Wert." },
+  { topic:"ICT-Endgeräte", q:"Welche Massnahme reduziert das Risiko durch unsichere Standardpasswörter am effektivsten?", opts:["Firewall aktivieren","Standard-Credentials sofort ändern und starkes, einzigartiges Passwort setzen","Antivirus installieren","WLAN deaktivieren"], correct:1, explain:"Default-Credentials sind einer der häufigsten Angriffsvektoren (besonders bei IoT). Sofortiges Ändern auf ein starkes Passwort eliminiert dieses Risiko direkt." },
+  { topic:"ICT-Endgeräte", q:"Warum sind IoT-Geräte oft besonders sicherheitskritisch?", opts:["Sie sind zu teuer für Updates","Schwache Standard-Passwörter, seltene Updates, eingeschränkte Rechenkapazität für Sicherheitsfunktionen","Sie haben keine Netzwerkverbindung","Sie sind nur für private Nutzung gedacht"], correct:1, explain:"IoT-Geräte haben oft veraltete Firmware, schwache Credentials, keine automatischen Updates und kaum Rechenleistung für Verschlüsselung – das macht sie zu bevorzugten Angriffszielen." },
+  { topic:"Port-Scan & Netzwerk", q:"Welches Tool wird üblicherweise für Port-Scans verwendet?", opts:["Wireshark","nmap","ping","traceroute"], correct:1, explain:"nmap (Network Mapper) ist das Standardtool für Port-Scans. Es zeigt offene/geschlossene Ports, Dienste und Betriebssystemdetails." },
+  { topic:"Port-Scan & Netzwerk", q:"Port 23 ist offen. Was ist das Sicherheitsrisiko?", opts:["Kein Risiko, Port 23 ist sicher","Telnet überträgt Daten unverschlüsselt – Passwörter können im Klartext abgefangen werden","Port 23 ist nur für IoT reserviert","Es ermöglicht automatische Malware-Downloads"], correct:1, explain:"Telnet (Port 23) ist ein veraltetes Protokoll ohne Verschlüsselung. Angreifer können Credentials mit einem Sniffer abfangen. SSH (Port 22) sollte stattdessen verwendet werden." },
+  { topic:"Port-Scan & Netzwerk", q:"Warum ist ein offenes WLAN ohne Passwort ein Sicherheitsrisiko?", opts:["Es verbraucht mehr Strom","Der Datentransfer ist für jeden im Netz les- und manipulierbar (Man-in-the-Middle)","Es verlangsamt das Internet","Es ist in der Schweiz verboten"], correct:1, explain:"Ohne WPA2/WPA3-Verschlüsselung können Angreifer den gesamten Netzwerkverkehr mitlesen oder verändern (MITM-Angriff)." },
+  { topic:"NIST CSF & SIEM", q:"Welche NIST-CSF-Funktion deckt das Erkennen von Angriffen durch Log-Monitoring ab?", opts:["Identify","Protect","Detect","Respond"], correct:2, explain:"Detect umfasst alle Massnahmen zur Erkennung von Sicherheitsereignissen: Anomalieerkennung, SIEM, Intrusion Detection Systeme (IDS)." },
+  { topic:"NIST CSF & SIEM", q:"Was ist die Hauptaufgabe eines SIEM-Systems?", opts:["Virensignaturen aktualisieren","Zentrale Sammlung, Korrelation und Analyse von Sicherheitslogs aus verschiedenen Quellen","Netzwerk-Traffic verschlüsseln","Automatische Patches einspielen"], correct:1, explain:"SIEM (Security Information and Event Management) sammelt Logs zentral, korreliert Ereignisse über verschiedene Systeme und generiert Alerts bei Auffälligkeiten." },
+  { topic:"Sicherheitsvorfälle", q:"Welche Massnahme hat bei einem kompromittierten Endgerät höchste Priorität?", opts:["Antivirusscan starten","Gerät vom Netzwerk isolieren (Netzwerkkabel trennen, WLAN aus)","Alle Daten löschen","Passwort ändern"], correct:1, explain:"Isolation verhindert, dass sich Malware im Netzwerk ausbreitet oder der Angreifer weiter Zugriff hat. Danach erst: Sichern, Analysieren, Bereinigen." },
+  { topic:"Sicherheitsvorfälle", q:"Welches ist ein typisches Anzeichen für ein kompromittiertes Endgerät?", opts:["Windows Update läuft","Unbekannte Prozesse laufen im Hintergrund, ungewöhnlicher Netzwerktraffic, Gerät langsamer","Bildschirmschoner aktiviert sich","WLAN-Signal schwächer"], correct:1, explain:"Malware zeigt sich oft durch unbekannte Prozesse, erhöhte CPU/RAM-Nutzung, unerklärlichen Netzwerktraffic oder deaktivierte Sicherheitssoftware." },
+  { topic:"Sicherheitsvorfälle", q:"Woran erkennt man einen Phishing-Versuch per E-Mail?", opts:["Die E-Mail enthält ein Firmenlogo","Dringende Aufforderung, Links zu klicken, verdächtige Absenderadresse, Rechtschreibfehler, unerwartete Anhänge","Die E-Mail hat einen langen Text","Der Absender ist unbekannt"], correct:1, explain:"Phishing-Merkmale: Künstliche Dringlichkeit, falsche Absenderadressen, Links zu nicht offiziellen Domains, Anhänge mit Malware, grammatikalische Fehler." },
+  { topic:"Grundlagen", q:"Was ist der Unterschied zwischen einem Bit und einem Byte?", opts:["Ein Bit hat 8 Werte, ein Byte hat 2","Ein Bit ist die kleinste Einheit mit Wert 0 oder 1; ein Byte besteht aus 8 Bit und speichert typischerweise ein Zeichen","Ein Byte ist kleiner als ein Bit","Beide Begriffe bedeuten dasselbe"], correct:1, explain:"Bit = kleinste Einheit (0 oder 1). Byte = 8 Bit — genug, um ein Zeichen zu speichern (ASCII: 1 Byte = 128 mögliche Zeichen)." },
+  { topic:"Grundlagen", q:"Wie berechnet sich ein Risiko in der Informationssicherheit?", opts:["Anzahl Schwachstellen dividiert durch Massnahmen","Eintrittswahrscheinlichkeit multipliziert mit dem Schadensausmass","CVSS-Score plus Angriffsfläche","Bedrohungsgrad minus Schutzmassnahmen"], correct:1, explain:"Risiko = Eintrittswahrscheinlichkeit × Schadensausmass. Ein hoher CVSS-Wert allein genügt nicht — auch die Eintrittswahrscheinlichkeit muss berücksichtigt werden." },
+  { topic:"Rechtliche Grundlagen", q:"Was ist der Hauptunterschied zwischen Datenschutz und Datensicherheit?", opts:["Datenschutz ist teurer als Datensicherheit","Datenschutz ist der rechtliche Schutz von Personendaten; Datensicherheit ist der technische Schutz aller Daten","Es gibt keinen Unterschied","Datensicherheit gilt nur für Unternehmen, Datenschutz nur für Privatpersonen"], correct:1, explain:"Datenschutz fragt: Welche Daten dürfen wie bearbeitet werden? (Gesetze, DSG). Datensicherheit fragt: Wie schützen wir Daten vor Verlust und Zugriff? (Technik: Verschlüsselung, Backup)." },
+  { topic:"ICT-Endgeräte", q:"Welcher Gerätetyp gilt als besonders übersehene Angriffsfläche?", opts:["Desktop-PCs","Smartphones","Peripheriegeräte wie Drucker, USB-Geräte und Dockingstations","Server im Rechenzentrum"], correct:2, explain:"Peripheriegeräte (Drucker, USB, Docking) werden im Sicherheitskonzept oft vergessen — obwohl sie am Netz hängen und als Einfallstor dienen können." },
+  { topic:"NIST CSF & SIEM", q:"Welche Funktion wurde im aktuellen NIST Cybersecurity Framework 2.0 neu hinzugefügt?", opts:["Monitor","Govern","Audit","Control"], correct:1, explain:"Das NIST CSF 2.0 ergänzte 'Govern' als sechste Funktion. Sie deckt Strategie, Rollen und Richtlinien ab — die Steuerungsebene vor allen anderen Funktionen." },
+  { topic:"Bedrohungen & CVSS", q:"Welche externen Quellen liefern Informationen zur Bedrohungslage?", opts:["Nur interne Logfiles","CERT, Heise Security und Threat Intelligence Feeds","Nur der Softwarehersteller selbst","Soziale Medien und Foren"], correct:1, explain:"CERT = offizielle Warnungen und Handlungsempfehlungen. Heise Security = redaktionelle Meldungen. Threat Intelligence Feeds = maschinenlesbare, laufend aktualisierte Bedrohungsdaten." },
+  { topic:"Sicherheitsvorfälle", q:"Was ist nach der Bereinigung eines Sicherheitsvorfalls der korrekte Wiederanlaufprozess?", opts:["Direkt ans Netz nehmen und beobachten","System prüfen → Updates einspielen → Funktion testen → erst dann ans Netz","Formatieren und neu installieren ist immer nötig","Das Gerät dauerhaft isoliert lassen"], correct:1, explain:"Wiederanlauf: System prüfen (kein Schadcode mehr), Updates einspielen, Funktion testen — und erst nach erfolgreicher Prüfung wieder ins Netz nehmen. Erkenntnisse danach dokumentieren." },
+];
+
+let m263QIdx=0, m263QCorrect=0, m263QWrong=0, m263Shuffled=[], m263QuizStarted=false;
+
+function m263Shuffle(arr){ return [...arr].sort(()=>Math.random()-.5); }
+
+function m263InitQuiz(){
+  m263QuizStarted=true;
+  m263Shuffled=m263Shuffle(m263Questions);
+  m263QIdx=0; m263QCorrect=0; m263QWrong=0;
+  m263UpdateMeta();
+  m263RenderQ();
+}
+
+function m263RenderQ(){
+  document.getElementById('m263ScoreScreen').classList.remove('m263-show');
+  document.getElementById('m263QuizArea').style.display='';
+  const q=m263Shuffled[m263QIdx];
+  document.getElementById('m263qTopic').textContent=q.topic;
+  document.getElementById('m263qText').textContent=q.q;
+  document.getElementById('m263qExplain').classList.remove('m263-show');
+  document.getElementById('m263btnNext').disabled=true;
+  document.getElementById('m263qCounter').textContent=(m263QIdx+1)+' / '+m263Shuffled.length;
+  const letters=['A','B','C','D'];
+  const el=document.getElementById('m263qOpts');
+  el.innerHTML='';
+  const shuffOpts=q.opts.map((t,i)=>({t,i})).sort(()=>Math.random()-.5);
+  shuffOpts.forEach((o,pos)=>{
+    const btn=document.createElement('button');
+    btn.className='m263-qopt';
+    btn.innerHTML=`<span class="m263-optletter">${letters[pos]}</span>${o.t}`;
+    btn.onclick=()=>m263SelectAnswer(o.i,q.correct,q.explain,q.q,q.opts);
+    el.appendChild(btn);
+  });
+}
+
+function m263SelectAnswer(chosen,correct,explain,qText,allOpts){
+  document.querySelectorAll('#m263qOpts .m263-qopt').forEach(btn=>{
+    const label=btn.textContent.replace(/^[A-D]/,'').trim();
+    const origIdx=allOpts.indexOf(label);
+    if(origIdx===chosen) btn.classList.add(chosen===correct?'m263-correct':'m263-wrong');
+    if(origIdx===correct && chosen!==correct) btn.classList.add('m263-correct');
+    btn.classList.add('m263-disabled');
+  });
+  if(chosen===correct) m263QCorrect++; else m263QWrong++;
+  m263UpdateMeta();
+  const ex=document.getElementById('m263qExplain');
+  ex.textContent='💡 '+explain;
+  ex.classList.add('m263-show');
+  document.getElementById('m263btnNext').disabled=false;
+}
+
+function m263Next(){
+  m263QIdx++;
+  if(m263QIdx>=m263Shuffled.length){ m263ShowScore(); return; }
+  m263RenderQ();
+}
+
+function m263ShowScore(){
+  document.getElementById('m263QuizArea').style.display='none';
+  const pct=Math.round(m263QCorrect/m263Shuffled.length*100);
+  document.getElementById('m263ScorePct').textContent=pct+'%';
+  document.getElementById('m263ScoreText').textContent=
+    m263QCorrect+' von '+m263Shuffled.length+' richtig — '+
+    (pct>=80?'🎉 Sehr gut! Bereit für die LB.':pct>=60?'👍 Gut, aber nochmals üben.':'📚 Mehr lernen empfohlen.');
+  document.getElementById('m263ScoreScreen').classList.add('m263-show');
+}
+
+function m263ResetQuiz(){
+  document.getElementById('m263ScoreScreen').classList.remove('m263-show');
+  document.getElementById('m263QuizArea').style.display='';
+  m263InitQuiz();
+}
+
+function m263UpdateMeta(){
+  document.getElementById('m263qTotal').textContent=m263Shuffled.length;
+  document.getElementById('m263qCorrect').textContent=m263QCorrect;
+  document.getElementById('m263qWrong').textContent=m263QWrong;
+}
+
+// ── GLOSSAR ──
+const m263GlossarData=[
+  {term:"Vertraulichkeit",def:"Daten dürfen nur berechtigten Personen zugänglich sein. Verletzt durch Datendiebstahl, Abhören.",tag:"CIA"},
+  {term:"Integrität",def:"Daten dürfen nicht unbemerkt verändert werden. Massnahme: Hashing (z. B. SHA-256).",tag:"CIA"},
+  {term:"Verfügbarkeit",def:"Systeme und Daten müssen bei Bedarf erreichbar sein. Verletzt durch Ausfall, Ransomware.",tag:"CIA"},
+  {term:"Bit",def:"Kleinste Einheit der Datenverarbeitung, Wert 0 oder 1.",tag:"Grundlagen"},
+  {term:"Byte",def:"8 Bit — übliche Einheit zum Speichern eines Zeichens.",tag:"Grundlagen"},
+  {term:"ASCII",def:"7-Bit-Zeichenkodierung, 128 Zeichen, gespeichert in 1 Byte.",tag:"Grundlagen"},
+  {term:"Risiko",def:"Eintrittswahrscheinlichkeit eines Schadens multipliziert mit dem Schadensausmass.",tag:"Grundlagen"},
+  {term:"Schutzobjekt",def:"Was geschützt werden soll: Gerät, Daten oder Dienst.",tag:"Grundlagen"},
+  {term:"Schwachstelle",def:"Ein Sicherheitsmangel in einem System, der ausgenutzt werden kann.",tag:"Schwachstellen"},
+  {term:"Bedrohung",def:"Ein potenzielles Ereignis oder Akteur, der eine Schwachstelle ausnutzen könnte.",tag:"Schwachstellen"},
+  {term:"Gefahr",def:"Konkrete Bedrohung, die auf eine vorhandene Schwachstelle trifft.",tag:"Schwachstellen"},
+  {term:"CVSS",def:"Common Vulnerability Scoring System — standardisierter Score 0–10 zur Schwachstellenbewertung.",tag:"Schwachstellen"},
+  {term:"CERT",def:"Computer Emergency Response Team — stellt offizielle Warnungen und Handlungsempfehlungen bereit.",tag:"Informationsquellen"},
+  {term:"Threat Intelligence Feed",def:"Maschinenlesbare, laufend aktualisierte Bedrohungsdaten (z. B. bösartige IPs, Signaturen).",tag:"Informationsquellen"},
+  {term:"Patch-Management",def:"Geregelter Prozess zum Prüfen, Testen, Ausrollen und Kontrollieren von Sicherheitsupdates.",tag:"Härtung"},
+  {term:"MFA",def:"Mehrfaktor-Authentisierung: Kombination aus Wissen (Passwort), Besitz (Token) und Biometrie.",tag:"Härtung"},
+  {term:"DSG",def:"Schweizer Datenschutzgesetz — schützt Persönlichkeitsrechte bei der Datenverarbeitung.",tag:"Recht"},
+  {term:"Datenschutz",def:"Rechtlicher Schutz von Personendaten. Leitfrage: Welche Daten dürfen wie bearbeitet werden?",tag:"Recht"},
+  {term:"Datensicherheit",def:"Technischer Schutz aller Daten. Mittel: Verschlüsselung, Zugriffskontrolle, Backup.",tag:"Recht"},
+  {term:"Phishing",def:"Täuschungsangriff per E-Mail/Web, um Zugangsdaten zu stehlen. Merkmale: Dringlichkeit, falsche Absender.",tag:"Angriffe"},
+  {term:"Man-in-the-Middle",def:"Angriff, bei dem ein Dritter die Kommunikation zwischen zwei Parteien abfängt (z. B. offenes WLAN).",tag:"Angriffe"},
+  {term:"SIEM",def:"Security Information and Event Management — zentrale Log-Sammlung, Korrelation, Alarmierung.",tag:"Monitoring"},
+  {term:"NIST CSF",def:"Framework mit 6 Funktionen: Govern, Identify, Protect, Detect, Respond, Recover.",tag:"Framework"},
+  {term:"Port-Scan",def:"Prüfung, welche Ports auf einem System offen sind. Werkzeug: nmap.",tag:"Netzwerk"},
+  {term:"Telnet",def:"Veraltetes Protokoll (Port 23) — überträgt Daten unverschlüsselt. Ersatz: SSH.",tag:"Netzwerk"},
+  {term:"SSH",def:"Secure Shell (Port 22) — verschlüsselte Alternative zu Telnet für Remote-Verbindungen.",tag:"Netzwerk"},
+  {term:"WPA2/WPA3",def:"WLAN-Verschlüsselungsstandards. WPA3 ist aktuell sicherer.",tag:"Netzwerk"},
+  {term:"SMB",def:"Server Message Block (Port 445) — Windows-Datei- und Druckerfreigabe. Bekanntes Angriffsziel.",tag:"Netzwerk"},
+  {term:"IoT",def:"Internet of Things — vernetzte Alltagsgeräte mit schwachen Sicherheitsmechanismen (Default-Passwörter, fehlende Updates).",tag:"Endgeräte"},
+  {term:"Incident Response",def:"Strukturiertes Vorgehen: Isolieren → Sichern → Melden → Bereinigen → Wiederanlauf.",tag:"Vorfälle"},
+  {term:"Hashing",def:"Einwegfunktion (z. B. SHA-256) zur Prüfung der Datenintegrität.",tag:"Kryptographie"},
+];
+
+function m263RenderGlossar(filter=''){
+  const grid=document.getElementById('m263GGrid');
+  const f=filter.toLowerCase();
+  const items=m263GlossarData.filter(g=>
+    g.term.toLowerCase().includes(f)||g.def.toLowerCase().includes(f)||g.tag.toLowerCase().includes(f)
+  );
+  grid.innerHTML=items.map(g=>`
+    <div class="m263-gitem">
+      <div class="m263-gterm">${g.term}</div>
+      <div class="m263-gdef">${g.def}</div>
+      <span class="m263-gtag">${g.tag}</span>
+    </div>
+  `).join('');
+}
+
+function m263FilterGlossar(){
+  m263RenderGlossar(document.getElementById('m263GSearch').value);
 }
 </script>
 </body>
