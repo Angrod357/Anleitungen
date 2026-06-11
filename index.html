@@ -464,6 +464,10 @@ tr:hover td{background:rgba(124,58,237,0.04);}
       <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M2 3h11a1 1 0 011 1v7a1 1 0 01-1 1H2a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2"></path><path d="M1 6h13M5 9h5M5 11h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path></svg>
       Newsletter
     </div>
+    <div class="nav-item" onclick="show('adressen',this)">
+      <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><circle cx="7.5" cy="6" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M7.5 1C4.46 1 2 3.46 2 6.5c0 3.5 5.5 7.5 5.5 7.5S13 10 13 6.5C13 3.46 10.54 1 7.5 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+      Adressen
+    </div>
     <div class="sidebar-divider"></div>
 
 
@@ -5459,6 +5463,291 @@ date</div>
     </div><!-- /m263 -->
 
 
+    <!-- ══════════════════════════════════
+         SECTION: ADRESSEN
+    ══════════════════════════════════ -->
+    <div id="adressen" class="section">
+      <div class="sec-eyebrow">TrollProjekt · Recherche</div>
+      <div class="sec-title">Schweizer <span>Firmen-Adressen</span></div>
+      <div class="sec-sub">Informatik-Firmen in der Schweiz finden — Handelsregister, Branchenverzeichnisse und mehr, direkt durchsuchbar.</div>
+
+      <style>
+        /* ── ADRESSEN STYLES ── */
+        .adr-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;}
+        @media(max-width:650px){.adr-grid{grid-template-columns:1fr;}}
+
+        .adr-filter-card{
+          background:var(--surface);border:1px solid var(--border);
+          border-radius:10px;padding:1.1rem 1.2rem;
+        }
+        .adr-filter-label{
+          font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+          text-transform:uppercase;color:var(--muted);margin-bottom:7px;display:block;
+        }
+        .adr-select{
+          width:100%;padding:8px 11px;
+          background:var(--surface2);border:1px solid var(--border2);
+          border-radius:8px;color:var(--text);font-family:var(--sans);font-size:13px;
+          outline:none;cursor:pointer;transition:border-color .17s;
+          appearance:none;
+          background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238878aa' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+          background-repeat:no-repeat;background-position:right 10px center;
+          padding-right:30px;
+        }
+        .adr-select:focus{border-color:var(--purple);}
+        .adr-select option{background:var(--surface2);}
+
+        .adr-search-row{
+          display:flex;gap:8px;margin-bottom:1.25rem;align-items:stretch;
+        }
+        .adr-search-input{
+          flex:1;padding:9px 13px;
+          background:var(--surface);border:1.5px solid var(--border2);
+          border-radius:9px;color:var(--text);font-family:var(--sans);font-size:13px;
+          outline:none;transition:border-color .17s;
+        }
+        .adr-search-input:focus{border-color:var(--purple);}
+        .adr-search-input::placeholder{color:var(--muted);}
+        .adr-search-btn{
+          padding:9px 16px;border-radius:9px;border:none;cursor:pointer;
+          font-family:var(--sans);font-size:12.5px;font-weight:500;
+          background:var(--purple3);color:#fff;transition:background .17s;
+          white-space:nowrap;
+        }
+        .adr-search-btn:hover{background:var(--purple);}
+
+        /* Source cards */
+        .adr-sources{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-bottom:1.5rem;}
+        .adr-source{
+          background:var(--surface);border:1.5px solid var(--border);
+          border-radius:10px;padding:13px 14px;cursor:pointer;
+          transition:all .17s;display:flex;flex-direction:column;gap:5px;
+          position:relative;
+        }
+        .adr-source:hover{border-color:var(--border2);background:var(--surface2);}
+        .adr-source.adr-active{border-color:var(--purple);background:rgba(124,58,237,.08);}
+        .adr-source-name{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px;}
+        .adr-source-desc{font-size:11.5px;color:var(--muted);line-height:1.5;}
+        .adr-source-tag{
+          font-family:var(--mono);font-size:9.5px;padding:2px 7px;border-radius:4px;
+          border:1px solid;width:fit-content;margin-top:2px;
+        }
+        .adr-tag-reg{color:#93c5fd;background:rgba(147,197,253,.08);border-color:rgba(147,197,253,.25);}
+        .adr-tag-tel{color:var(--green);background:rgba(134,239,172,.08);border-color:rgba(134,239,172,.25);}
+        .adr-tag-it{color:var(--purple2);background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.25);}
+        .adr-tag-ext{color:var(--yellow);background:rgba(253,230,138,.08);border-color:rgba(253,230,138,.25);}
+        .adr-source-iframe{
+          position:absolute;top:8px;right:10px;
+          font-size:9px;color:var(--muted);font-family:var(--mono);
+        }
+
+        /* Launch buttons */
+        .adr-launch-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.25rem;}
+        .adr-launch-btn{
+          display:inline-flex;align-items:center;gap:6px;
+          font-family:var(--mono);font-size:11px;
+          background:rgba(124,58,237,.10);border:1px solid var(--border2);
+          color:var(--purple2);padding:6px 13px;border-radius:7px;
+          cursor:pointer;transition:all .17s;text-decoration:none;
+          white-space:nowrap;
+        }
+        .adr-launch-btn:hover{background:rgba(124,58,237,.22);border-color:var(--purple);box-shadow:0 0 10px rgba(124,58,237,.2);}
+
+        /* iFrame viewer */
+        .adr-frame-wrap{
+          background:var(--surface);border:1px solid var(--border);
+          border-radius:10px;overflow:hidden;
+        }
+        .adr-frame-bar{
+          display:flex;align-items:center;gap:10px;
+          padding:9px 14px;background:var(--surface2);border-bottom:1px solid var(--border);
+        }
+        .adr-frame-url{
+          flex:1;font-family:var(--mono);font-size:11px;color:var(--muted);
+          overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+        }
+        .adr-frame-ext{
+          display:inline-flex;align-items:center;gap:5px;
+          font-family:var(--mono);font-size:10px;color:var(--purple2);
+          background:rgba(124,58,237,.10);border:1px solid var(--border2);
+          padding:4px 10px;border-radius:6px;text-decoration:none;
+          transition:all .17s;white-space:nowrap;flex-shrink:0;
+        }
+        .adr-frame-ext:hover{background:rgba(124,58,237,.22);border-color:var(--purple);}
+        .adr-frame-note{
+          padding:10px 14px;font-size:11.5px;color:var(--muted);
+          background:rgba(253,230,138,.04);border-bottom:1px solid rgba(253,230,138,.12);
+          display:none;
+        }
+        .adr-frame-note.visible{display:block;}
+        .adr-iframe{
+          width:100%;height:560px;border:none;
+          background:#fff;display:block;
+        }
+        .adr-frame-blocked{
+          height:200px;display:flex;align-items:center;justify-content:center;
+          flex-direction:column;gap:10px;
+          font-size:13px;color:var(--muted);display:none;
+        }
+        .adr-frame-blocked.visible{display:flex;}
+
+        .adr-divider{height:1px;background:var(--border);margin:1.5rem 0;}
+        .adr-section-title{
+          font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+          text-transform:uppercase;color:var(--muted);margin-bottom:10px;
+        }
+      </style>
+
+      <!-- ── FILTER ROW ── -->
+      <div class="adr-grid">
+        <div class="adr-filter-card">
+          <span class="adr-filter-label">🗺 Kanton</span>
+          <select class="adr-select" id="adrKanton">
+            <option value="">Alle Kantone</option>
+            <option value="AG">AG – Aargau</option>
+            <option value="AI">AI – Appenzell Innerrhoden</option>
+            <option value="AR">AR – Appenzell Ausserrhoden</option>
+            <option value="BE">BE – Bern</option>
+            <option value="BL">BL – Basel-Landschaft</option>
+            <option value="BS">BS – Basel-Stadt</option>
+            <option value="FR">FR – Fribourg</option>
+            <option value="GE">GE – Genf</option>
+            <option value="GL">GL – Glarus</option>
+            <option value="GR">GR – Graubünden</option>
+            <option value="JU">JU – Jura</option>
+            <option value="LU">LU – Luzern</option>
+            <option value="NE">NE – Neuenburg</option>
+            <option value="NW">NW – Nidwalden</option>
+            <option value="OW">OW – Obwalden</option>
+            <option value="SG">SG – St. Gallen</option>
+            <option value="SH">SH – Schaffhausen</option>
+            <option value="SO">SO – Solothurn</option>
+            <option value="SZ">SZ – Schwyz</option>
+            <option value="TG">TG – Thurgau</option>
+            <option value="TI">TI – Tessin</option>
+            <option value="UR">UR – Uri</option>
+            <option value="VD">VD – Waadt</option>
+            <option value="VS">VS – Wallis</option>
+            <option value="ZG">ZG – Zug</option>
+            <option value="ZH">ZH – Zürich</option>
+          </select>
+        </div>
+        <div class="adr-filter-card">
+          <span class="adr-filter-label">🏭 Branche</span>
+          <select class="adr-select" id="adrBranche">
+            <option value="informatik">Informatik / IT</option>
+            <option value="software">Softwareentwicklung</option>
+            <option value="netzwerk">Netzwerk / Telekommunikation</option>
+            <option value="cybersecurity">Cybersecurity</option>
+            <option value="cloud">Cloud / Hosting</option>
+            <option value="hardware">Hardware / Elektronik</option>
+            <option value="beratung">IT-Beratung / Consulting</option>
+            <option value="druck">Druck / Medien</option>
+            <option value="handel">Gross- und Detailhandel</option>
+            <option value="finanzen">Finanzen / Versicherung</option>
+            <option value="industrie">Industrie / Produktion</option>
+            <option value="gesundheit">Gesundheit / Pharma</option>
+            <option value="bildung">Bildung / Schulen</option>
+            <option value="bau">Bau / Architektur</option>
+            <option value="transport">Transport / Logistik</option>
+            <option value="gastro">Gastgewerbe / Tourismus</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ── SUCHFELD ── -->
+      <div class="adr-search-row">
+        <input class="adr-search-input" id="adrSearchInput" type="text" placeholder="Firmenname, PLZ oder Stichwort …" onkeydown="if(event.key==='Enter') adrLaunchAll()">
+        <button class="adr-search-btn" onclick="adrLaunchAll()">🔍 Alle durchsuchen</button>
+      </div>
+
+      <!-- ── QUELLEN ── -->
+      <div class="adr-section-title">Quelle auswählen — Klick öffnet im Viewer unten</div>
+      <div class="adr-sources" id="adrSources">
+
+        <div class="adr-source" onclick="adrOpen('zefix')" id="adr-zefix">
+          <div class="adr-source-name">🏛 Zefix</div>
+          <div class="adr-source-desc">Offizielles Handelsregister CH — alle eingetragenen Firmen mit Rechtsform und Adresse</div>
+          <span class="adr-source-tag adr-tag-reg">Handelsregister</span>
+          <span class="adr-source-iframe">⬜ iFrame</span>
+        </div>
+
+        <div class="adr-source" onclick="adrOpen('telsearch')" id="adr-telsearch">
+          <div class="adr-source-name">📞 Tel-Search</div>
+          <div class="adr-source-desc">Schweizer Telefonbuch-Suche mit Firmen, Adressen und Telefonnummern</div>
+          <span class="adr-source-tag adr-tag-tel">Verzeichnis</span>
+          <span class="adr-source-iframe">⬜ iFrame</span>
+        </div>
+
+        <div class="adr-source" onclick="adrOpen('local')" id="adr-local">
+          <div class="adr-source-name">📍 Local.ch</div>
+          <div class="adr-source-desc">Branchensuche mit Karte, PLZ-Filter und Kontaktdaten</div>
+          <span class="adr-source-tag adr-tag-tel">Verzeichnis</span>
+          <span class="adr-source-iframe">⬜ iFrame</span>
+        </div>
+
+        <div class="adr-source" onclick="adrOpen('moneyhouse')" id="adr-moneyhouse">
+          <div class="adr-source-name">💼 Moneyhouse</div>
+          <div class="adr-source-desc">Firmenprofile, Bilanzdaten, Verwaltungsräte und Handelsregisterauszüge</div>
+          <span class="adr-source-tag adr-tag-reg">Firmeninfo</span>
+        </div>
+
+        <div class="adr-source" onclick="adrOpen('swissict')" id="adr-swissict">
+          <div class="adr-source-name">💻 SwissICT</div>
+          <div class="adr-source-desc">Mitgliederverzeichnis des grössten Schweizer ICT-Berufsverbands</div>
+          <span class="adr-source-tag adr-tag-it">IT-spezifisch</span>
+        </div>
+
+        <div class="adr-source" onclick="adrOpen('ictbb')" id="adr-ictbb">
+          <div class="adr-source-name">🎓 ICT-Berufsbildung</div>
+          <div class="adr-source-desc">Lehrbetriebe Informatik CH — offizielle Liste aller Lehrfirmen nach Kanton</div>
+          <span class="adr-source-tag adr-tag-it">Lehrfirmen</span>
+          <span class="adr-source-iframe">⬜ iFrame</span>
+        </div>
+
+        <div class="adr-source" onclick="adrOpen('linkedin')" id="adr-linkedin">
+          <div class="adr-source-name">🔗 LinkedIn</div>
+          <div class="adr-source-desc">Firmenprofile, Grösse, offene Stellen und Mitarbeiter für IT-Firmen CH</div>
+          <span class="adr-source-tag adr-tag-ext">Extern</span>
+        </div>
+
+        <div class="adr-source" onclick="adrOpen('jobs')" id="adr-jobs">
+          <div class="adr-source-name">📋 jobs.ch</div>
+          <div class="adr-source-desc">Firmensuche über Stellenanzeigen — wer sucht IT-Fachkräfte in welchem Kanton?</div>
+          <span class="adr-source-tag adr-tag-ext">Stellenmarkt</span>
+        </div>
+
+      </div>
+
+      <!-- ── QUICK LAUNCH ── -->
+      <div class="adr-section-title">Quick-Launch — direkt im neuen Tab öffnen</div>
+      <div class="adr-launch-row" id="adrLaunchRow">
+        <!-- populated by JS -->
+      </div>
+
+      <div class="adr-divider"></div>
+
+      <!-- ── IFRAME VIEWER ── -->
+      <div class="adr-section-title">Viewer</div>
+      <div class="adr-frame-wrap">
+        <div class="adr-frame-bar">
+          <span style="font-size:13px;color:var(--muted)" id="adrFrameLabel">— Quelle auswählen —</span>
+          <span class="adr-frame-url" id="adrFrameUrl"></span>
+          <a class="adr-frame-ext" id="adrFrameExtLink" href="#" target="_blank" style="display:none">↗ Im Tab öffnen</a>
+        </div>
+        <div class="adr-frame-note" id="adrFrameNote">
+          ⚠️ Diese Seite blockiert iFrames (X-Frame-Options). Der Link wurde im neuen Tab geöffnet.
+        </div>
+        <iframe class="adr-iframe" id="adrIframe" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+      </div>
+
+      <div class="note n-info" style="margin-top:12px"><div class="note-icon">💡</div><div style="font-size:12.5px">
+        <strong>Tipp:</strong> Viele Seiten blockieren iFrames aus Sicherheitsgründen — dann einfach <strong>↗ Im Tab öffnen</strong> nutzen. Die Suche wird mit deinen gewählten Filtern vorausgefüllt.
+      </div></div>
+
+    </div><!-- /adressen -->
+
+
   </main>
 </div><!-- /shell -->
 
@@ -5744,6 +6033,197 @@ function m263RenderGlossar(filter=''){
 function m263FilterGlossar(){
   m263RenderGlossar(document.getElementById('m263GSearch').value);
 }
+
+// ══════════════════════════════════
+// ADRESSEN – Logic
+// ══════════════════════════════════
+
+const adrSources = {
+  zefix: {
+    name: 'Zefix',
+    label: 'Handelsregister (zefix.ch)',
+    buildUrl: (q, kanton, branche) => {
+      const base = 'https://www.zefix.ch/de/search/entity/list';
+      const params = new URLSearchParams();
+      if (q) params.set('name', q);
+      if (kanton) params.set('canton', kanton);
+      return base + (params.toString() ? '?' + params.toString() : '');
+    },
+    iframe: true,
+  },
+  telsearch: {
+    name: 'Tel-Search',
+    label: 'Tel-Search (tel.search.ch)',
+    buildUrl: (q, kanton, branche) => {
+      const term = [q, brancheLabel(branche), kanton ? kantonLabel(kanton) : ''].filter(Boolean).join(' ');
+      return 'https://tel.search.ch/api/?was=' + encodeURIComponent(term || 'informatik') + (kanton ? '&wo=' + encodeURIComponent(kantonLabel(kanton)) : '');
+    },
+    iframe: true,
+  },
+  local: {
+    name: 'Local.ch',
+    label: 'Local.ch',
+    buildUrl: (q, kanton, branche) => {
+      const term = encodeURIComponent([q || brancheLabel(branche)].filter(Boolean).join(' ') || 'informatik');
+      const loc  = kanton ? encodeURIComponent(kantonLabel(kanton)) : 'Schweiz';
+      return `https://www.local.ch/de/q/${term}/${loc}`;
+    },
+    iframe: true,
+  },
+  moneyhouse: {
+    name: 'Moneyhouse',
+    label: 'Moneyhouse',
+    buildUrl: (q, kanton, branche) => {
+      const params = new URLSearchParams();
+      if (q) params.set('q', q);
+      else params.set('q', brancheLabel(branche));
+      if (kanton) params.set('canton', kanton);
+      return 'https://www.moneyhouse.ch/de/companies?' + params.toString();
+    },
+    iframe: false,
+  },
+  swissict: {
+    name: 'SwissICT',
+    label: 'SwissICT Mitglieder',
+    buildUrl: (q, kanton, branche) => 'https://www.swissict.ch/community/mitglieder/',
+    iframe: false,
+  },
+  ictbb: {
+    name: 'ICT-Berufsbildung',
+    label: 'Lehrbetriebe ICT-Berufsbildung',
+    buildUrl: (q, kanton, branche) => {
+      const base = 'https://www.ict-berufsbildung.ch/lehrbetriebsuche';
+      return kanton ? base + '?canton=' + kanton : base;
+    },
+    iframe: true,
+  },
+  linkedin: {
+    name: 'LinkedIn',
+    label: 'LinkedIn Firmensuche',
+    buildUrl: (q, kanton, branche) => {
+      const term = encodeURIComponent([q || brancheLabel(branche), 'Schweiz'].filter(Boolean).join(' '));
+      return `https://www.linkedin.com/search/results/companies/?keywords=${term}`;
+    },
+    iframe: false,
+  },
+  jobs: {
+    name: 'jobs.ch',
+    label: 'jobs.ch Firmensuche',
+    buildUrl: (q, kanton, branche) => {
+      const term = encodeURIComponent(q || brancheLabel(branche) || 'informatik');
+      return `https://www.jobs.ch/de/stellenangebote/?term=${term}` + (kanton ? `&location=${encodeURIComponent(kantonLabel(kanton))}` : '');
+    },
+    iframe: false,
+  },
+};
+
+const kantonMap = {
+  AG:'Aargau',AI:'Appenzell Innerrhoden',AR:'Appenzell Ausserrhoden',BE:'Bern',
+  BL:'Basel-Landschaft',BS:'Basel-Stadt',FR:'Fribourg',GE:'Genf',GL:'Glarus',
+  GR:'Graubünden',JU:'Jura',LU:'Luzern',NE:'Neuenburg',NW:'Nidwalden',
+  OW:'Obwalden',SG:'St. Gallen',SH:'Schaffhausen',SO:'Solothurn',SZ:'Schwyz',
+  TG:'Thurgau',TI:'Tessin',UR:'Uri',VD:'Waadt',VS:'Wallis',ZG:'Zug',ZH:'Zürich'
+};
+const brancheMap = {
+  informatik:'Informatik',software:'Softwareentwicklung',netzwerk:'Netzwerk Telekommunikation',
+  cybersecurity:'Cybersecurity',cloud:'Cloud Hosting',hardware:'Hardware Elektronik',
+  beratung:'IT Beratung',druck:'Druck Medien',handel:'Handel',finanzen:'Finanzen',
+  industrie:'Industrie',gesundheit:'Gesundheit',bildung:'Bildung',bau:'Bau',
+  transport:'Transport Logistik',gastro:'Gastgewerbe'
+};
+
+function kantonLabel(k){ return kantonMap[k] || k; }
+function brancheLabel(b){ return brancheMap[b] || b || ''; }
+
+function adrGetFilters(){
+  return {
+    q:      (document.getElementById('adrSearchInput')?.value || '').trim(),
+    kanton: document.getElementById('adrKanton')?.value || '',
+    branche:document.getElementById('adrBranche')?.value || '',
+  };
+}
+
+let adrCurrentSource = null;
+
+function adrOpen(key){
+  const src = adrSources[key];
+  if(!src) return;
+  const {q, kanton, branche} = adrGetFilters();
+  const url = src.buildUrl(q, kanton, branche);
+
+  // highlight active card
+  document.querySelectorAll('.adr-source').forEach(c => c.classList.remove('adr-active'));
+  const card = document.getElementById('adr-'+key);
+  if(card) card.classList.add('adr-active');
+
+  adrCurrentSource = key;
+  const labelEl  = document.getElementById('adrFrameLabel');
+  const urlEl    = document.getElementById('adrFrameUrl');
+  const extLink  = document.getElementById('adrFrameExtLink');
+  const noteEl   = document.getElementById('adrFrameNote');
+  const iframeEl = document.getElementById('adrIframe');
+
+  labelEl.textContent = src.label;
+  urlEl.textContent   = url;
+  extLink.href        = url;
+  extLink.style.display = 'inline-flex';
+  noteEl.classList.remove('visible');
+
+  if(src.iframe){
+    iframeEl.src = url;
+    // detect block after short delay
+    iframeEl.onload = () => {
+      try {
+        // try accessing contentDocument — throws if blocked
+        const doc = iframeEl.contentDocument;
+        if(!doc || doc.title === '') noteEl.classList.add('visible');
+      } catch(e){
+        noteEl.classList.add('visible');
+        window.open(url, '_blank');
+      }
+    };
+  } else {
+    // no iframe support — open in tab directly
+    iframeEl.src = 'about:blank';
+    noteEl.classList.add('visible');
+    document.getElementById('adrFrameNote').textContent = '↗ Diese Quelle öffnet direkt im neuen Tab.';
+    window.open(url, '_blank');
+  }
+
+  // scroll to viewer
+  setTimeout(() => document.querySelector('.adr-frame-wrap')?.scrollIntoView({behavior:'smooth', block:'nearest'}), 100);
+}
+
+function adrLaunchAll(){
+  adrUpdateLaunchButtons();
+  // open first viable source in viewer, rest in background tabs
+  const keys = Object.keys(adrSources);
+  let first = true;
+  keys.forEach(k => {
+    if(first){ adrOpen(k); first = false; }
+  });
+}
+
+function adrUpdateLaunchButtons(){
+  const row = document.getElementById('adrLaunchRow');
+  if(!row) return;
+  const {q, kanton, branche} = adrGetFilters();
+  row.innerHTML = Object.entries(adrSources).map(([key, src]) => {
+    const url = src.buildUrl(q, kanton, branche);
+    return `<a class="adr-launch-btn" href="${url}" target="_blank">↗ ${src.name}</a>`;
+  }).join('');
+}
+
+// init launch buttons when section becomes visible
+document.addEventListener('DOMContentLoaded', () => {
+  // update buttons when filters change
+  ['adrKanton','adrBranche','adrSearchInput'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('change', adrUpdateLaunchButtons);
+    if(el) el.addEventListener('input',  adrUpdateLaunchButtons);
+  });
+  adrUpdateLaunchButtons();
+});
 </script>
 </body>
 </html>
