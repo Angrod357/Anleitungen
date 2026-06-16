@@ -6835,14 +6835,46 @@ Anna,Beispiel,HR</div>
         .dg-toc-entry.dg-toc-sub a { font-weight: 400; color: #5c4d7a; font-size: 9.5pt; }
 
         @media print {
+          /* Alles ausblenden ausser dem docutool */
           body > *:not(#docutool) { display:none!important; }
-          #docutool .dg-sidebar, .dg-topbar, .dg-pages-bar { display:none!important; }
-          .dg-editor-scroll, .dg-preview-scroll { overflow:visible!important; background:transparent!important; padding:0!important; display:flex!important; }
-          .dg-a4, .dg-prev-a4, .dg-toc-a4 { box-shadow:none!important; margin:0!important; width:100%!important; page-break-after:always; }
-        }
-
-        @media print {
-          .dg-toc-a4 { box-shadow:none!important; margin:0!important; width:100%!important; page-break-after:always; }
+          /* UI-Elemente ausblenden */
+          #docutool .dg-sidebar,
+          #docutool .dg-sb-toggle,
+          #docutool .dg-topbar,
+          #docutool .dg-pages-bar,
+          #dg-toast { display:none!important; }
+          /* Layout anpassen */
+          #docutool, .dg-wrap, .dg-main-wrap, .dg-main { display:block!important; height:auto!important; overflow:visible!important; }
+          /* Editor verstecken, nur Vorschau drucken */
+          .dg-editor-scroll { display:none!important; }
+          .dg-preview-scroll {
+            display:block!important;
+            overflow:visible!important;
+            background:transparent!important;
+            padding:0!important;
+            height:auto!important;
+          }
+          /* A4 Seiten */
+          .dg-prev-a4, .dg-toc-a4 {
+            box-shadow:none!important;
+            margin:0 auto 0 auto!important;
+            width:210mm!important;
+            page-break-after: always;
+            break-after: page;
+          }
+          .dg-prev-a4::before, .dg-toc-a4::before { display:none; }
+          .dg-prev-pagesep { display:none!important; }
+          /* Sicherstellen dass Text und Code sichtbar sind */
+          .dg-prev-text, .dg-prev-cmd, .dg-prev-img, .dg-prev-caption,
+          .dg-prev-sec-title, .dg-prev-title, .dg-prev-meta,
+          .dg-toc-heading, .dg-toc-entry { color:#000!important; }
+          .dg-prev-cmd {
+            background:#f5f5f5!important;
+            border:1px solid #ccc!important;
+            color:#1a0535!important;
+          }
+          .dg-step-num { background:#7c3aed!important; color:#fff!important; -webkit-print-color-adjust:exact; }
+          * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
       </style>
 
@@ -7563,7 +7595,14 @@ function dgExport(){
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(doc.title||'anleitung')+'.json';a.click();
   dgShowToast('Als JSON exportiert!');
 }
-function dgPrint(){dgSetView('preview');setTimeout(()=>window.print(),400);}
+function dgPrint(){
+  // 1. Save current page content first
+  dgCollectCurrentPage();
+  // 2. Switch to preview so dgRenderPreview() runs with fresh data
+  dgSetView('preview');
+  // 3. Wait for DOM to update, then print
+  setTimeout(() => window.print(), 600);
+}
 
 // ── Toast ──
 function dgShowToast(msg){
