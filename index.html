@@ -478,6 +478,10 @@ tr:hover td{background:rgba(124,58,237,0.04);}
       <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><path d="M4 5l-3 2.5L4 10M11 5l3 2.5L11 10M8.5 3l-2 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       ScriptCreator
     </div>
+    <div class="nav-item" onclick="show('m122',this)">
+      <svg width="15" height="15" fill="none" viewBox="0 0 15 15"><rect x="1" y="2" width="5" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="2" width="5" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="5" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="5" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M6 4h3M6 11h3M3.5 6v3M11.5 6v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      M122 Script-Builder
+    </div>
     <div class="sidebar-divider"></div>
     <div class="sidebar-label">Lernziele</div>
     <div class="nav-item" onclick="show('m263',this)">
@@ -5501,6 +5505,166 @@ Anna,Beispiel,HR</div>
     </div><!-- /scriptcreator -->
 
 
+    <!-- ══════════════════════════════════
+         SECTION: M122 SCRIPT-BUILDER
+    ══════════════════════════════════ -->
+    <div id="m122" class="section" style="padding:0;overflow:hidden;">
+    <style>
+      #m122 { height:calc(100vh - 60px); }
+      #m122.active { display:flex; flex-direction:column; }
+      .sb-wrap { flex:1; display:flex; flex-direction:column; overflow:hidden; background:#0a0015; font-family:'IBM Plex Mono',monospace; }
+      .sb-header { display:flex; align-items:center; gap:10px; padding:9px 14px; background:rgba(20,0,45,0.95); border-bottom:1px solid rgba(168,85,247,0.2); flex-shrink:0; flex-wrap:wrap; }
+      .sb-title { font-size:13px; font-weight:700; color:#c084fc; letter-spacing:.04em; }
+      .sb-lang-sel { padding:5px 10px; background:rgba(124,58,237,0.1); border:1px solid rgba(168,85,247,0.25); border-radius:7px; color:#c084fc; font-family:'IBM Plex Mono',monospace; font-size:11px; outline:none; cursor:pointer; }
+      .sb-lang-sel option { background:#1a0030; }
+      .sb-hbtn { padding:5px 12px; border-radius:7px; border:1px solid rgba(168,85,247,0.25); background:rgba(124,58,237,0.1); color:rgba(192,132,252,0.7); font-size:11px; cursor:pointer; transition:all .2s; font-family:'IBM Plex Mono',monospace; }
+      .sb-hbtn:hover { border-color:#a855f7; color:#c084fc; }
+      .sb-hbtn.sb-run { background:linear-gradient(135deg,#7c3aed,#6d28d9); border:none; color:#fff; font-weight:700; box-shadow:0 0 14px rgba(124,58,237,0.4); }
+      .sb-hbtn.sb-run:hover { box-shadow:0 0 22px rgba(168,85,247,0.6); }
+      .sb-status { font-size:10px; color:rgba(168,85,247,0.4); margin-left:auto; }
+      .sb-body { flex:1; display:flex; overflow:hidden; }
+
+      /* Palette */
+      .sb-palette { width:172px; min-width:172px; background:rgba(8,0,18,0.95); border-right:1px solid rgba(168,85,247,0.12); display:flex; flex-direction:column; overflow:hidden; flex-shrink:0; }
+      .sb-pal-hdr { padding:8px 11px; font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:rgba(168,85,247,0.35); border-bottom:1px solid rgba(168,85,247,0.08); }
+      .sb-pal-inner { flex:1; overflow-y:auto; padding:8px 7px; display:flex; flex-direction:column; gap:4px; }
+      .sb-pal-grp-lbl { font-size:8.5px; letter-spacing:.1em; text-transform:uppercase; color:rgba(168,85,247,0.25); padding:6px 4px 3px; margin-top:4px; }
+      .sb-pill { padding:7px 9px; border-radius:7px; cursor:grab; user-select:none; font-size:11px; font-weight:600; border:1px solid; transition:all .18s; display:flex; align-items:center; gap:5px; }
+      .sb-pill:hover { transform:translateX(3px); filter:brightness(1.15); }
+      .sb-pill:active { cursor:grabbing; }
+      .pc  { background:rgba(56,189,248,.07);  border-color:rgba(56,189,248,.3);  color:#38bdf8; }
+      .pv  { background:rgba(52,211,153,.07);  border-color:rgba(52,211,153,.3);  color:#34d399; }
+      .pi  { background:rgba(251,191,36,.07);  border-color:rgba(251,191,36,.3);  color:#fbbf24; }
+      .pei { background:rgba(251,146,60,.07);  border-color:rgba(251,146,60,.3);  color:#fb923c; }
+      .pel { background:rgba(248,113,113,.07); border-color:rgba(248,113,113,.3); color:#f87171; }
+      .pf  { background:rgba(167,139,250,.07); border-color:rgba(167,139,250,.3); color:#a78bfa; }
+      .pw  { background:rgba(192,132,252,.07); border-color:rgba(192,132,252,.3); color:#c084fc; }
+      .pfn { background:rgba(244,114,182,.07); border-color:rgba(244,114,182,.3); color:#f472b6; }
+      .pe  { background:rgba(134,239,172,.07); border-color:rgba(134,239,172,.3); color:#86efac; }
+      .pco { background:rgba(100,116,139,.07); border-color:rgba(100,116,139,.3); color:#94a3b8; }
+      .pp  { background:rgba(56,189,248,.07);  border-color:rgba(56,189,248,.25); color:#7dd3fc; }
+      .px  { background:rgba(248,113,113,.07); border-color:rgba(248,113,113,.25);color:#fca5a5; }
+
+      /* Canvas */
+      .sb-canvas-wrap { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+      .sb-cvs-hdr { display:flex; align-items:center; gap:8px; padding:6px 12px; background:rgba(8,0,18,0.7); border-bottom:1px solid rgba(168,85,247,0.08); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:rgba(168,85,247,0.3); }
+      .sb-canvas { flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:5px; }
+      .sb-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:rgba(168,85,247,0.15); font-size:11px; gap:7px; pointer-events:none; }
+      .sb-canvas.sb-dz-active { background:rgba(168,85,247,0.03); }
+
+      /* Canvas blocks */
+      .sb-cb { border-radius:9px; border:1.5px solid; overflow:hidden; transition:box-shadow .15s; }
+      .sb-cb.sb-cb-drag { opacity:.45; }
+      .sb-cb.sb-cb-over { box-shadow:0 0 0 2px #a855f7, 0 0 18px rgba(168,85,247,0.35); }
+      .sb-cbh { display:flex; align-items:center; gap:7px; padding:6px 9px; cursor:grab; user-select:none; border-bottom:1px solid rgba(0,0,0,0.15); }
+      .sb-cbh:active { cursor:grabbing; }
+      .sb-cbt { font-size:8.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; opacity:.7; }
+      .sb-cba { margin-left:auto; display:flex; gap:3px; }
+      .sb-cbab { background:none; border:none; cursor:pointer; font-size:11px; padding:1px 5px; border-radius:4px; opacity:.35; transition:all .15s; }
+      .sb-cbab:hover { opacity:1; background:rgba(255,255,255,.06); }
+      .sb-cbb { padding:7px 10px; }
+      .sb-inp { background:rgba(0,0,0,.35); border:1px solid rgba(168,85,247,.15); border-radius:5px; color:#e2d9f3; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:4px 7px; outline:none; width:100%; box-sizing:border-box; transition:border-color .18s; }
+      .sb-inp:focus { border-color:rgba(168,85,247,.45); }
+      .sb-inp::placeholder { color:rgba(168,85,247,.18); }
+      .sb-row { display:flex; gap:5px; align-items:center; margin-bottom:4px; font-size:10px; }
+      .sb-row:last-child { margin-bottom:0; }
+      .sb-lbl { color:rgba(168,85,247,.45); min-width:48px; font-size:9.5px; flex-shrink:0; }
+      .sb-nested { margin-left:14px; margin-top:5px; display:flex; flex-direction:column; gap:4px; min-height:26px; padding:5px 6px; border-radius:6px; border:1px dashed rgba(168,85,247,.12); }
+      .sb-nested-lbl { font-size:8px; color:rgba(168,85,247,.2); letter-spacing:.07em; margin-bottom:2px; }
+      .sb-nested-empty { font-size:9px; color:rgba(168,85,247,.18); font-style:italic; }
+      .sb-drop-line { height:3px; border-radius:3px; background:linear-gradient(90deg,transparent,#a855f7,transparent); margin:2px 0; opacity:0; transition:opacity .15s; }
+      .sb-drop-line.visible { opacity:1; }
+
+      /* Right panel */
+      .sb-right { width:320px; min-width:260px; display:flex; flex-direction:column; border-left:1px solid rgba(168,85,247,.12); flex-shrink:0; }
+      .sb-rpanel-hdr { display:flex; align-items:center; gap:7px; padding:6px 11px; background:rgba(6,0,14,.9); border-bottom:1px solid rgba(168,85,247,.08); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:rgba(168,85,247,.35); flex-shrink:0; }
+      .sb-copy-btn { margin-left:auto; padding:2px 9px; background:rgba(124,58,237,.1); border:1px solid rgba(168,85,247,.2); border-radius:5px; color:rgba(168,85,247,.6); font-size:9px; cursor:pointer; transition:all .18s; }
+      .sb-copy-btn:hover { border-color:#a855f7; color:#c084fc; }
+      pre.sb-code { flex:1; overflow:auto; padding:10px 13px; background:#03000a; font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.8; color:#d8b4fe; white-space:pre; max-height:42vh; margin:0; }
+      .sb-term-hdr { display:flex; align-items:center; gap:7px; padding:6px 11px; background:rgba(2,0,6,.95); border-top:1px solid rgba(52,211,153,.1); border-bottom:1px solid rgba(52,211,153,.06); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:rgba(52,211,153,.35); flex-shrink:0; }
+      .sb-run-btn { margin-left:auto; padding:3px 11px; background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.28); border-radius:5px; color:#34d399; font-size:9px; cursor:pointer; transition:all .18s; font-family:'IBM Plex Mono',monospace; }
+      .sb-run-btn:hover { background:rgba(52,211,153,.22); border-color:#34d399; box-shadow:0 0 10px rgba(52,211,153,.2); }
+      .sb-run-btn:disabled { opacity:.35; cursor:default; }
+      .sb-out { overflow-y:auto; padding:9px 13px; background:#010004; font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.7; white-space:pre-wrap; min-height:100px; max-height:28vh; flex:1; }
+      .sb-out .to { color:#86efac; }
+      .sb-out .te { color:#f87171; }
+      .sb-out .ts { color:rgba(168,85,247,.45); }
+      .sb-out .tp { color:#a855f7; }
+      .sb-tin-row { display:flex; align-items:center; background:#010004; border-top:1px solid rgba(52,211,153,.08); flex-shrink:0; }
+      .sb-tin-ps { padding:7px 5px 7px 11px; color:#a855f7; font-family:'IBM Plex Mono',monospace; font-size:12px; text-shadow:0 0 8px rgba(168,85,247,.6); }
+      .sb-tin { flex:1; background:transparent; border:none; outline:none; color:#d8b4fe; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:7px 4px; caret-color:#a855f7; }
+      .sb-tin::placeholder { color:rgba(168,85,247,.18); }
+    </style>
+
+    <div class="sb-wrap">
+      <div class="sb-header">
+        <span class="sb-title">M122 — Script-Builder</span>
+        <select class="sb-lang-sel" id="sb-lang" onchange="sbUpdateCode()">
+          <option value="bash">Bash / Shell</option>
+          <option value="powershell">PowerShell</option>
+          <option value="python">Python 3</option>
+          <option value="batch">Batch (.bat)</option>
+        </select>
+        <button class="sb-hbtn" onclick="sbClearCanvas()">Leeren</button>
+        <button class="sb-hbtn" onclick="sbExport()">↓ Export</button>
+        <button class="sb-hbtn sb-run" onclick="sbRun()">▶ Ausführen</button>
+        <span class="sb-status" id="sb-status">Bereit</span>
+      </div>
+
+      <div class="sb-body">
+        <!-- PALETTE -->
+        <div class="sb-palette">
+          <div class="sb-pal-hdr">Blöcke</div>
+          <div class="sb-pal-inner">
+            <div class="sb-pal-grp-lbl">Grundlagen</div>
+            <div class="sb-pill pc"  draggable="true" ondragstart="sbPilDrag(event,'cmd')"    >⌨ Befehl</div>
+            <div class="sb-pill pe"  draggable="true" ondragstart="sbPilDrag(event,'echo')"   >▶ Ausgabe</div>
+            <div class="sb-pill pv"  draggable="true" ondragstart="sbPilDrag(event,'var')"    >$ Variable</div>
+            <div class="sb-pill pco" draggable="true" ondragstart="sbPilDrag(event,'comment')"># Kommentar</div>
+            <div class="sb-pal-grp-lbl">Bedingungen</div>
+            <div class="sb-pill pi"  draggable="true" ondragstart="sbPilDrag(event,'if')"     >? If</div>
+            <div class="sb-pill pei" draggable="true" ondragstart="sbPilDrag(event,'elif')"   >? Elif / ElseIf</div>
+            <div class="sb-pill pel" draggable="true" ondragstart="sbPilDrag(event,'else')"   >◈ Else</div>
+            <div class="sb-pal-grp-lbl">Schleifen</div>
+            <div class="sb-pill pf"  draggable="true" ondragstart="sbPilDrag(event,'for')"    >↻ For</div>
+            <div class="sb-pill pw"  draggable="true" ondragstart="sbPilDrag(event,'while')"  >↺ While</div>
+            <div class="sb-pal-grp-lbl">Erweitert</div>
+            <div class="sb-pill pfn" draggable="true" ondragstart="sbPilDrag(event,'func')"   >ƒ Funktion</div>
+            <div class="sb-pill pp"  draggable="true" ondragstart="sbPilDrag(event,'pipe')"   >| Pipe</div>
+            <div class="sb-pill px"  draggable="true" ondragstart="sbPilDrag(event,'exit')"   >✕ Exit / Return</div>
+          </div>
+        </div>
+
+        <!-- CANVAS -->
+        <div class="sb-canvas-wrap">
+          <div class="sb-cvs-hdr">Canvas — Blöcke per Drag &amp; Drop anordnen &amp; verbinden</div>
+          <div class="sb-canvas" id="sb-canvas"
+            ondragover="sbCvsDragOver(event)"
+            ondrop="sbCvsDrop(event)"
+            ondragleave="sbCvsDragLeave(event)">
+            <div class="sb-empty" id="sb-empty">
+              <div style="font-size:32px">⌨</div>
+              <div>Blöcke aus der Palette hierher ziehen</div>
+              <div style="font-size:9px;opacity:.7">Verbinden · Verschieben · Bearbeiten</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="sb-right">
+          <div class="sb-rpanel-hdr">Live Code <button class="sb-copy-btn" onclick="sbCopyCode()">Kopieren</button></div>
+          <pre class="sb-code" id="sb-code"></pre>
+          <div class="sb-term-hdr">Testumgebung <button class="sb-run-btn" id="sb-run-btn" onclick="sbRun()">▶ Run</button></div>
+          <div class="sb-out" id="sb-out"><span class="ts">— Ausgabe erscheint hier —</span></div>
+          <div class="sb-tin-row">
+            <span class="sb-tin-ps">$</span>
+            <input class="sb-tin" id="sb-tin" placeholder="Befehl direkt testen…" onkeydown="sbTermKey(event)">
+          </div>
+        </div>
+      </div>
+    </div>
+    </div><!-- /m122 -->
+
 
     <div id="m263" class="section">
       <div class="sec-eyebrow">Lernziele · Prüfungsvorbereitung</div>
@@ -6219,421 +6383,533 @@ Anna,Beispiel,HR</div>
     <!-- ══════════════════════════════════
          SECTION: DOKUMENTATION (DocuTool)
     ══════════════════════════════════ -->
-    <div id="docutool" class="section" style="padding:0;overflow:hidden;">
+    <div id="docutool" class="section">
 
       <style>
-        /* ── DocuTool A4 wrapper inside the wiki section ── */
-        #docutool{height:calc(100vh - 60px);}
-        #docutool.active{display:flex;flex-direction:column;}
-        .dt-wrap{flex:1;display:flex;overflow:hidden;font-family:'IBM Plex Sans',var(--sans);}
+        /* ══ DOCUTOOL – Lila Glow Glass ══ */
+        #docutool { height: calc(100vh - 60px); }
+        #docutool.active { display: flex; flex-direction: column; }
 
-        /* SIDEBAR */
-        .dt-sidebar{
-          width:230px;min-width:230px;
-          background:var(--surface);border-right:1px solid var(--border);
-          display:flex;flex-direction:column;height:100%;overflow:hidden;
-        }
-        .dt-sidebar-hdr{padding:14px 14px 10px;border-bottom:1px solid var(--border);}
-        .dt-logo{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-        .dt-logo-icon{
-          width:28px;height:28px;border-radius:7px;
-          background:linear-gradient(135deg,var(--purple3),var(--purple2));
-          display:flex;align-items:center;justify-content:center;font-size:14px;
-          box-shadow:0 0 12px rgba(124,58,237,.4);
-        }
-        .dt-logo-text{font-size:13px;font-weight:700;letter-spacing:.02em;
-          background:linear-gradient(90deg,var(--purple2),var(--text));
-          -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-        .dt-btn-new{
-          width:100%;padding:8px 12px;border:none;border-radius:7px;cursor:pointer;
-          font-size:12px;font-weight:600;
-          background:linear-gradient(135deg,var(--purple3),var(--purple));
-          color:#fff;display:flex;align-items:center;gap:6px;justify-content:center;
-          box-shadow:0 0 16px rgba(124,58,237,.35);transition:all .2s;
-        }
-        .dt-btn-new:hover{box-shadow:0 0 24px rgba(168,85,247,.55);transform:translateY(-1px);}
-        .dt-search-wrap{padding:8px 12px;border-bottom:1px solid var(--border);position:relative;}
-        .dt-search-wrap input{
-          width:100%;padding:6px 10px 6px 28px;
-          background:var(--surface2);border:1px solid var(--border);
-          border-radius:7px;color:var(--text);font-size:12px;outline:none;
-          transition:border-color .2s;
-        }
-        .dt-search-wrap input:focus{border-color:var(--purple);}
-        .dt-search-wrap input::placeholder{color:var(--muted);}
-        .dt-search-icon{position:absolute;left:20px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;pointer-events:none;}
-        .dt-doc-list{flex:1;overflow-y:auto;padding:6px 0;}
-        .dt-doc-item{
-          padding:8px 14px;cursor:pointer;
-          border-left:3px solid transparent;transition:all .15s;
-        }
-        .dt-doc-item:hover{background:rgba(124,58,237,.08);}
-        .dt-doc-item.dt-active{background:rgba(124,58,237,.12);border-left-color:var(--purple2);}
-        .dt-doc-title{font-size:12.5px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .dt-doc-item.dt-active .dt-doc-title{color:var(--purple2);}
-        .dt-doc-meta{font-size:10.5px;color:var(--muted);margin-top:1px;}
-
-        /* MAIN AREA */
-        .dt-main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-
-        /* TOPBAR */
-        .dt-topbar{
-          display:flex;align-items:center;justify-content:space-between;
-          padding:9px 18px;border-bottom:1px solid var(--border);
-          background:var(--surface);flex-shrink:0;gap:12px;
-        }
-        .dt-view-toggle{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:7px;overflow:hidden;}
-        .dt-vbtn{
-          padding:5px 12px;background:none;border:none;
-          color:var(--muted);font-size:11.5px;font-weight:500;cursor:pointer;transition:all .15s;
-        }
-        .dt-vbtn.dt-vactive{background:var(--purple3);color:#fff;}
-        .dt-topbar-actions{display:flex;gap:6px;}
-        .dt-btn-icon{
-          padding:5px 10px;background:var(--surface2);border:1px solid var(--border);
-          border-radius:6px;color:var(--muted);cursor:pointer;font-size:11.5px;
-          transition:all .2s;display:flex;align-items:center;gap:5px;
-        }
-        .dt-btn-icon:hover{border-color:var(--purple2);color:var(--purple2);}
-        .dt-btn-save{
-          padding:5px 14px;border:none;border-radius:6px;
-          background:linear-gradient(135deg,var(--purple3),var(--purple));
-          color:#fff;font-size:11.5px;font-weight:600;cursor:pointer;transition:all .2s;
-          box-shadow:0 0 12px rgba(124,58,237,.3);
-        }
-        .dt-btn-save:hover{box-shadow:0 0 20px rgba(168,85,247,.5);}
-        .dt-status{font-size:11px;color:var(--muted);}
-
-        /* ── A4 EDITOR SCROLL ── */
-        .dt-editor-scroll{flex:1;overflow-y:auto;background:#2a2a3a;padding:24px 0;}
-        .dt-a4{
-          width:210mm;min-height:297mm;
-          margin:0 auto;
-          background:#fff;
-          box-shadow:0 4px 32px rgba(0,0,0,.5);
-          border-radius:2px;
-          padding:20mm 20mm 20mm 25mm;
-          color:#1a1a2e;
-          font-family:'IBM Plex Sans',sans-serif;
-          display:flex;flex-direction:column;gap:0;
-          position:relative;
+        .dg-wrap {
+          flex: 1; display: flex; overflow: hidden;
+          background: #0c0018;
+          font-family: 'IBM Plex Sans', sans-serif;
         }
 
-        /* A4 typography */
-        .dt-a4-title{
-          width:100%;border:none;outline:none;
-          font-size:22pt;font-weight:700;
-          color:#1a0535;border-bottom:2px solid #7c3aed;
-          padding-bottom:6px;margin-bottom:16px;
-          font-family:'IBM Plex Sans',sans-serif;
-          background:transparent;
+        /* ── Sidebar ── */
+        .dg-sidebar {
+          width: 220px; min-width: 220px; flex-shrink: 0;
+          display: flex; flex-direction: column;
+          background: rgba(20, 0, 45, 0.85);
+          border-right: 1px solid rgba(168, 85, 247, 0.2);
+          backdrop-filter: blur(12px);
+          height: 100%; overflow: hidden;
+          transition: width .25s ease, min-width .25s ease;
         }
-        .dt-a4-title::placeholder{color:#c4b5d4;}
+        .dg-sidebar.dg-sb-closed {
+          width: 0; min-width: 0;
+          border-right: none;
+        }
+        .dg-sidebar.dg-sb-closed > * { display: none; }
+        .dg-sb-toggle {
+          position: absolute; top: 50%; transform: translateY(-50%);
+          left: 0; z-index: 10;
+          width: 18px; height: 44px;
+          background: rgba(124,58,237,0.25);
+          border: 1px solid rgba(168,85,247,0.3);
+          border-left: none;
+          border-radius: 0 8px 8px 0;
+          cursor: pointer; display: flex; align-items: center; justify-content: center;
+          color: rgba(168,85,247,0.7); font-size: 11px;
+          transition: all .2s; backdrop-filter: blur(8px);
+        }
+        .dg-sb-toggle:hover { background: rgba(124,58,237,0.45); color: #c084fc; width: 22px; }
+        .dg-main-wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .dg-sb-hdr { padding: 14px 14px 10px; border-bottom: 1px solid rgba(168,85,247,0.15); }
+        .dg-logo {
+          display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+        }
+        .dg-logo-icon {
+          width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+          background: linear-gradient(135deg, #7c3aed, #a855f7);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 14px;
+          box-shadow: 0 0 14px rgba(168,85,247,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .dg-logo-text {
+          font-size: 13px; font-weight: 700; letter-spacing: .02em;
+          background: linear-gradient(90deg, #c084fc, #e2d9f3);
+          -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .dg-btn-new {
+          width: 100%; padding: 8px 12px; border: none; border-radius: 8px;
+          background: linear-gradient(135deg, #7c3aed, #6d28d9);
+          color: #fff; font-size: 12px; font-weight: 600; cursor: pointer;
+          display: flex; align-items: center; gap: 6px; justify-content: center;
+          box-shadow: 0 0 18px rgba(124,58,237,0.45), inset 0 1px 0 rgba(255,255,255,0.1);
+          transition: all .2s;
+        }
+        .dg-btn-new:hover { box-shadow: 0 0 28px rgba(168,85,247,0.65); transform: translateY(-1px); }
+        .dg-search { padding: 8px 12px; border-bottom: 1px solid rgba(168,85,247,0.1); position: relative; }
+        .dg-search input {
+          width: 100%; padding: 6px 10px 6px 28px;
+          background: rgba(124,58,237,0.08); border: 1px solid rgba(168,85,247,0.2);
+          border-radius: 7px; color: #e2d9f3; font-size: 12px; outline: none;
+          transition: border-color .2s;
+        }
+        .dg-search input:focus { border-color: rgba(168,85,247,0.5); }
+        .dg-search input::placeholder { color: rgba(168,85,247,0.35); }
+        .dg-search-ico { position:absolute; left:20px; top:50%; transform:translateY(-50%); color:rgba(168,85,247,0.4); font-size:12px; pointer-events:none; }
+        .dg-doc-list { flex: 1; overflow-y: auto; padding: 6px 0; }
+        .dg-doc-item {
+          padding: 8px 14px; cursor: pointer;
+          border-left: 3px solid transparent; transition: all .15s;
+        }
+        .dg-doc-item:hover { background: rgba(168,85,247,0.07); }
+        .dg-doc-item.dg-active {
+          background: rgba(168,85,247,0.13);
+          border-left-color: #a855f7;
+        }
+        .dg-doc-name { font-size: 12.5px; font-weight: 500; color: #e2d9f3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .dg-doc-item.dg-active .dg-doc-name { color: #c084fc; }
+        .dg-doc-meta { font-size: 10.5px; color: rgba(192,132,252,0.5); margin-top: 1px; }
 
-        /* meta strip */
-        .dt-a4-meta{
-          display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px;
-          padding-bottom:12px;border-bottom:1px solid #e8e0f5;
+        /* ── Main ── */
+        .dg-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* ── Topbar ── */
+        .dg-topbar {
+          display: flex; align-items: center; gap: 10px;
+          padding: 10px 18px;
+          background: rgba(20,0,45,0.9);
+          border-bottom: 1px solid rgba(168,85,247,0.18);
+          backdrop-filter: blur(12px); flex-shrink: 0; flex-wrap: wrap;
         }
-        .dt-a4-meta-field{display:flex;flex-direction:column;gap:3px;flex:1;min-width:100px;}
-        .dt-a4-meta-label{font-size:7.5pt;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#7c3aed;}
-        .dt-a4-meta-input{
-          border:none;border-bottom:1px solid #d4c9e8;outline:none;
-          font-size:9pt;color:#1a0535;background:transparent;
-          padding:2px 0;font-family:'IBM Plex Sans',sans-serif;
+        .dg-vtoggle {
+          display: flex; background: rgba(124,58,237,0.1);
+          border: 1px solid rgba(168,85,247,0.2); border-radius: 8px; overflow: hidden;
         }
-        .dt-a4-meta-input::placeholder{color:#c4b5d4;}
-        .dt-a4-meta-select{
-          border:none;border-bottom:1px solid #d4c9e8;outline:none;
-          font-size:9pt;color:#1a0535;background:transparent;
-          padding:2px 0;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;
+        .dg-vbtn {
+          padding: 5px 13px; background: none; border: none;
+          color: rgba(192,132,252,0.6); font-size: 11.5px; font-weight: 500;
+          cursor: pointer; transition: all .15s;
+        }
+        .dg-vbtn.dg-von { background: linear-gradient(135deg,#7c3aed,#6d28d9); color: #fff; box-shadow: 0 0 10px rgba(124,58,237,0.4); }
+        .dg-topbar-right { display: flex; gap: 6px; align-items: center; margin-left: auto; }
+        .dg-status { font-family: 'IBM Plex Mono',monospace; font-size: 10.5px; color: rgba(192,132,252,0.5); }
+        .dg-tbtn {
+          padding: 5px 11px; border-radius: 7px;
+          background: rgba(124,58,237,0.1); border: 1px solid rgba(168,85,247,0.2);
+          color: rgba(192,132,252,0.8); font-size: 11.5px; cursor: pointer; transition: all .2s;
+        }
+        .dg-tbtn:hover { border-color: rgba(168,85,247,0.5); color: #c084fc; box-shadow: 0 0 10px rgba(168,85,247,0.2); }
+        .dg-save {
+          padding: 5px 14px; border: none; border-radius: 7px;
+          background: linear-gradient(135deg,#7c3aed,#6d28d9); color: #fff;
+          font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all .2s;
+          box-shadow: 0 0 12px rgba(124,58,237,0.35);
+        }
+        .dg-save:hover { box-shadow: 0 0 20px rgba(168,85,247,0.55); }
+
+        /* ── Pages bar ── */
+        .dg-pages-bar {
+          display: flex; align-items: center; gap: 6px;
+          padding: 8px 18px; flex-shrink: 0;
+          background: rgba(12,0,24,0.7);
+          border-bottom: 1px solid rgba(168,85,247,0.1);
+          overflow-x: auto; flex-wrap: nowrap;
+        }
+        .dg-page-tab {
+          padding: 4px 14px; border-radius: 6px; font-size: 11.5px; font-weight: 500;
+          background: rgba(124,58,237,0.08); border: 1px solid rgba(168,85,247,0.18);
+          color: rgba(192,132,252,0.6); cursor: pointer; white-space: nowrap;
+          transition: all .15s; display: flex; align-items: center; gap: 5px;
+        }
+        .dg-page-tab:hover { border-color: rgba(168,85,247,0.4); color: #c084fc; }
+        .dg-page-tab.dg-page-active {
+          background: rgba(124,58,237,0.22); border-color: rgba(168,85,247,0.5);
+          color: #c084fc; box-shadow: 0 0 10px rgba(168,85,247,0.2);
+        }
+        .dg-page-tab-del {
+          color: rgba(168,85,247,0.4); font-size: 10px; cursor: pointer; padding: 0 1px;
+          transition: color .15s;
+        }
+        .dg-page-tab-del:hover { color: #f87171; }
+        .dg-add-page {
+          padding: 4px 10px; border-radius: 6px; font-size: 11.5px;
+          background: none; border: 1px dashed rgba(168,85,247,0.25);
+          color: rgba(168,85,247,0.5); cursor: pointer; white-space: nowrap; transition: all .15s;
+        }
+        .dg-add-page:hover { border-color: rgba(168,85,247,0.5); color: #c084fc; }
+
+        /* ── Editor scroll (the grey area around A4) ── */
+        .dg-editor-scroll {
+          flex: 1; overflow-y: auto; overflow-x: hidden;
+          background: radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.12) 0%, #0c0018 60%);
+          padding: 32px 0; display: flex; flex-direction: column; align-items: center;
+        }
+        .dg-editor-scroll.dg-hidden { display: none; }
+
+        /* ── A4 Sheet — Lila Glow Glass ── */
+        .dg-a4 {
+          width: 210mm;
+          min-height: 297mm;
+          background: rgba(255,255,255,0.97);
+          border-radius: 4px;
+          box-shadow:
+            0 0 0 1px rgba(168,85,247,0.3),
+            0 0 40px rgba(168,85,247,0.25),
+            0 0 80px rgba(124,58,237,0.12),
+            0 20px 60px rgba(0,0,0,0.5);
+          padding: 20mm 20mm 24mm 25mm;
+          color: #1a0535;
+          font-family: 'IBM Plex Sans', sans-serif;
+          display: flex; flex-direction: column; gap: 0;
+          position: relative;
+          flex-shrink: 0;
         }
 
-        /* sections */
-        .dt-a4-sections{display:flex;flex-direction:column;gap:14px;flex:1;}
-        .dt-a4-block{
-          border:1px solid #e8e0f5;border-radius:6px;overflow:hidden;
-          page-break-inside:avoid;
+        /* subtle purple glow line at top of A4 */
+        .dg-a4::before {
+          content: '';
+          position: absolute; top: 0; left: 0; right: 0; height: 3px;
+          background: linear-gradient(90deg, transparent, #a855f7, #7c3aed, transparent);
+          border-radius: 4px 4px 0 0;
         }
-        .dt-a4-block-hdr{
-          display:flex;align-items:center;justify-content:space-between;
-          padding:5px 10px;background:#f5f0ff;border-bottom:1px solid #e8e0f5;
-          cursor:pointer;user-select:none;
-        }
-        .dt-a4-block-label{font-size:8pt;font-weight:700;color:#7c3aed;letter-spacing:.05em;text-transform:uppercase;}
-        .dt-a4-block-body{padding:10px 12px;}
 
-        .dt-a4-sec-title{
-          width:100%;border:none;outline:none;background:transparent;
-          font-size:13pt;font-weight:700;color:#2d0b5a;margin-bottom:8px;
-          font-family:'IBM Plex Sans',sans-serif;border-bottom:1px solid #e8e0f5;padding-bottom:4px;
+        /* ── A4 elements ── */
+        .dg-title {
+          width: 100%; border: none; outline: none; background: transparent;
+          font-size: 22pt; font-weight: 700; color: #2d0b5a;
+          border-bottom: 2px solid rgba(124,58,237,0.3);
+          padding-bottom: 6px; margin-bottom: 16px;
+          font-family: 'IBM Plex Sans', sans-serif;
+          transition: border-color .2s;
         }
-        .dt-a4-sec-title::placeholder{color:#c4b5d4;}
+        .dg-title:focus { border-bottom-color: #7c3aed; }
+        .dg-title::placeholder { color: rgba(124,58,237,0.25); }
 
-        .dt-a4-textarea{
-          width:100%;border:none;outline:none;background:transparent;
-          font-size:10pt;color:#1a0535;line-height:1.75;
-          resize:none;min-height:60px;font-family:'IBM Plex Sans',sans-serif;
+        .dg-meta-strip {
+          display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px;
+          padding-bottom: 12px; border-bottom: 1px solid rgba(124,58,237,0.12);
         }
-        .dt-a4-textarea::placeholder{color:#c4b5d4;}
+        .dg-mf { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 90px; }
+        .dg-ml { font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: #7c3aed; }
+        .dg-mi {
+          border: none; border-bottom: 1px solid rgba(124,58,237,0.18); outline: none;
+          font-size: 9pt; color: #2d0b5a; background: transparent;
+          padding: 2px 0; font-family: 'IBM Plex Sans', sans-serif; transition: border-color .2s;
+        }
+        .dg-mi:focus { border-bottom-color: #7c3aed; }
+        .dg-mi::placeholder { color: rgba(124,58,237,0.25); }
+        .dg-ms {
+          border: none; border-bottom: 1px solid rgba(124,58,237,0.18); outline: none;
+          font-size: 9pt; color: #2d0b5a; background: transparent;
+          padding: 2px 0; font-family: 'IBM Plex Sans', sans-serif; cursor: pointer;
+        }
+        .dg-ms option { background: #f5f0ff; }
 
-        /* terminal block on A4 */
-        .dt-a4-terminal{
-          background:#0d001a;border-radius:6px;overflow:hidden;
-          border:1px solid #3d1f6e;margin-top:4px;
+        /* Tags in A4 */
+        .dg-tags-wrap {
+          display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+          margin-bottom: 16px; min-height: 26px;
         }
-        .dt-a4-terminal-bar{
-          display:flex;align-items:center;gap:6px;
-          padding:5px 10px;background:#1a0030;border-bottom:1px solid #2d1b4e;
+        .dg-tag {
+          display: inline-flex; align-items: center; gap: 3px;
+          padding: 2px 8px; border-radius: 20px; font-size: 8pt;
+          background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25); color: #7c3aed;
         }
-        .dt-tdot{width:9px;height:9px;border-radius:50%;}
-        .dt-tdot.r{background:#f87171;} .dt-tdot.y{background:#fbbf24;} .dt-tdot.g{background:#34d399;}
-        .dt-terminal-title{flex:1;font-size:9pt;color:#5c4d7a;text-align:center;font-family:'JetBrains Mono',monospace;}
-        .dt-copy-btn{
-          background:none;border:1px solid #3d1f6e;border-radius:4px;
-          color:#5c4d7a;font-size:10px;padding:2px 7px;cursor:pointer;transition:all .2s;
+        .dg-tag-x { cursor: pointer; color: rgba(124,58,237,0.4); font-size: 9px; }
+        .dg-tag-x:hover { color: #dc2626; }
+        .dg-tag-inp {
+          background: none; border: none; outline: none;
+          font-size: 8pt; color: #2d0b5a; min-width: 70px; font-family: 'IBM Plex Sans', sans-serif;
         }
-        .dt-copy-btn:hover{border-color:#a855f7;color:#a855f7;}
-        .dt-cmd-row{display:flex;gap:8px;padding:8px 12px;align-items:flex-start;}
-        .dt-cmd-prompt{font-family:'JetBrains Mono',monospace;font-size:11pt;color:#a855f7;text-shadow:0 0 8px #a855f7;flex-shrink:0;padding-top:2px;}
-        .dt-cmd-input{
-          flex:1;background:transparent;border:none;outline:none;
-          color:#d8b4fe;font-family:'JetBrains Mono',monospace;font-size:10pt;
-          line-height:1.6;resize:none;min-height:22px;caret-color:#a855f7;
-        }
-        .dt-cmd-input::placeholder{color:#3d2060;}
-        .dt-cmd-out{
-          padding:0 12px 8px 34px;
-          color:#86efac;font-family:'JetBrains Mono',monospace;font-size:9pt;
-          line-height:1.6;
-        }
-        .dt-cmd-out-label{font-size:8pt;color:#3d4a3d;margin-bottom:3px;}
-        .dt-cmd-out-ta{
-          width:100%;background:transparent;border:none;outline:none;
-          color:#86efac;font-family:'JetBrains Mono',monospace;font-size:9pt;
-          line-height:1.6;resize:none;min-height:30px;
-        }
-        .dt-cmd-out-ta::placeholder{color:#1a3a1a;}
-        .dt-cmd-lbl-input{
-          width:100%;border:none;border-bottom:1px solid #2d1b4e;outline:none;
-          background:transparent;color:#5c4d7a;font-size:9pt;
-          font-family:'JetBrains Mono',monospace;padding:4px 0;margin-bottom:4px;
-        }
-        .dt-cmd-lbl-input::placeholder{color:#2d1b4e;}
+        .dg-tag-inp::placeholder { color: rgba(124,58,237,0.25); }
 
-        /* screenshot zone on A4 */
-        .dt-sz{
-          border:2px dashed #d4c9e8;border-radius:6px;
-          padding:20px;text-align:center;cursor:pointer;
-          transition:all .2s;position:relative;overflow:hidden;margin-top:4px;
-        }
-        .dt-sz:hover{border-color:#7c3aed;background:rgba(124,58,237,.04);}
-        .dt-sz.has-img{border-style:solid;border-color:#c4b5d4;padding:0;}
-        .dt-sz img{max-width:100%;border-radius:4px;display:block;}
-        .dt-sz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-        .dt-sz-icon{font-size:24px;margin-bottom:6px;opacity:.4;}
-        .dt-sz-text{font-size:9pt;color:#7c3aed;}
-        .dt-sz-sub{font-size:8pt;color:#9b89c4;margin-top:2px;}
+        /* Sections container */
+        .dg-sections { display: flex; flex-direction: column; gap: 12px; flex: 1; }
 
-        /* step block on A4 */
-        .dt-step-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f0ebfa;}
-        .dt-step-row:last-child{border-bottom:none;padding-bottom:0;}
-        .dt-step-num{
-          min-width:22px;height:22px;border-radius:50%;flex-shrink:0;
-          background:linear-gradient(135deg,#7c3aed,#6d28d9);
-          display:flex;align-items:center;justify-content:center;
-          font-size:9pt;font-weight:700;color:#fff;
+        /* Block */
+        .dg-block {
+          border: 1px solid rgba(124,58,237,0.15); border-radius: 6px; overflow: hidden;
+          page-break-inside: avoid; transition: border-color .2s;
         }
-        .dt-step-ta{
-          flex:1;border:none;outline:none;background:transparent;
-          font-size:10pt;color:#1a0535;line-height:1.65;resize:none;min-height:36px;
-          font-family:'IBM Plex Sans',sans-serif;
+        .dg-block:hover { border-color: rgba(124,58,237,0.3); }
+        .dg-block-hdr {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 5px 10px;
+          background: rgba(124,58,237,0.05);
+          border-bottom: 1px solid rgba(124,58,237,0.1);
         }
-        .dt-step-ta::placeholder{color:#c4b5d4;}
-
-        /* note block on A4 */
-        .dt-note-info{background:#eff6ff;border-left:4px solid #60a5fa;border-radius:4px;padding:10px 14px;}
-        .dt-note-warn{background:#fffbeb;border-left:4px solid #fbbf24;border-radius:4px;padding:10px 14px;}
-        .dt-note-ok  {background:#f0fdf4;border-left:4px solid #34d399;border-radius:4px;padding:10px 14px;}
-
-        /* adder */
-        .dt-adder{display:flex;gap:8px;flex-wrap:wrap;padding:6px 0;}
-        .dt-add-btn{
-          padding:6px 12px;background:#fff;border:1px dashed #d4c9e8;
-          border-radius:6px;color:#7c3aed;font-size:9pt;font-weight:500;
-          cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;
+        .dg-block-lbl { font-size: 7.5pt; font-weight: 700; color: #7c3aed; letter-spacing: .06em; text-transform: uppercase; }
+        .dg-block-del {
+          background: none; border: none; color: rgba(124,58,237,0.3); cursor: pointer;
+          font-size: 12px; padding: 2px 5px; border-radius: 4px; transition: all .15s;
         }
-        .dt-add-btn:hover{background:#f5f0ff;border-color:#7c3aed;box-shadow:0 0 10px rgba(124,58,237,.15);}
+        .dg-block-del:hover { background: rgba(220,38,38,0.08); color: #dc2626; }
+        .dg-block-body { padding: 10px 12px; }
 
-        /* del btn on A4 */
-        .dt-del{
-          background:none;border:none;color:#d4c9e8;cursor:pointer;
-          font-size:12px;padding:3px 5px;border-radius:4px;transition:all .15s;
+        .dg-sec-title {
+          width: 100%; border: none; outline: none; background: transparent;
+          font-size: 13pt; font-weight: 700; color: #2d0b5a;
+          border-bottom: 1px solid rgba(124,58,237,0.12); padding-bottom: 4px; margin-bottom: 8px;
+          font-family: 'IBM Plex Sans', sans-serif;
         }
-        .dt-del:hover{background:rgba(248,113,113,.1);color:#f87171;}
+        .dg-sec-title::placeholder { color: rgba(124,58,237,0.25); }
 
-        /* tags on A4 */
-        .dt-tag{
-          display:inline-flex;align-items:center;gap:3px;
-          padding:2px 8px;background:rgba(124,58,237,.1);
-          border:1px solid rgba(124,58,237,.3);border-radius:20px;
-          font-size:8.5pt;color:#7c3aed;
+        .dg-ta {
+          width: 100%; border: none; outline: none; background: transparent;
+          font-size: 10pt; color: #1a0535; line-height: 1.8;
+          resize: none; min-height: 56px; font-family: 'IBM Plex Sans', sans-serif;
         }
-        .dt-tag-rm{cursor:pointer;color:#c4b5d4;font-size:10px;}
-        .dt-tag-rm:hover{color:#f87171;}
-        .dt-tags-row{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
-        .dt-tag-input{background:none;border:none;outline:none;font-size:8.5pt;color:#1a0535;min-width:80px;}
-        .dt-tag-input::placeholder{color:#c4b5d4;}
+        .dg-ta::placeholder { color: rgba(124,58,237,0.25); }
 
-        /* PREVIEW */
-        .dt-preview-scroll{flex:1;overflow-y:auto;background:#2a2a3a;padding:24px 0;display:none;}
-        .dt-preview-scroll.dt-prev-active{display:block;}
-        .dt-editor-scroll.dt-editor-hidden{display:none;}
-        .dt-preview-a4{
-          width:210mm;min-height:297mm;margin:0 auto;
-          background:#fff;box-shadow:0 4px 32px rgba(0,0,0,.5);
-          border-radius:2px;padding:20mm 20mm 20mm 25mm;
-          color:#1a1a2e;font-family:'IBM Plex Sans',sans-serif;
+        /* Terminal block */
+        .dg-terminal {
+          background: #0d001a; border-radius: 6px; overflow: hidden;
+          border: 1px solid rgba(124,58,237,0.4); margin-top: 4px;
+          box-shadow: 0 0 20px rgba(168,85,247,0.1), inset 0 0 30px rgba(168,85,247,0.03);
         }
-        .dt-prev-title{font-size:22pt;font-weight:800;color:#1a0535;border-bottom:2px solid #7c3aed;padding-bottom:8px;margin-bottom:12px;}
-        .dt-prev-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:9pt;color:#5c4d7a;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #e8e0f5;}
-        .dt-prev-sec-title{font-size:12pt;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;margin-top:16px;border-bottom:1px solid #e8e0f5;padding-bottom:4px;}
-        .dt-prev-text{font-size:10pt;line-height:1.8;color:#1a0535;white-space:pre-wrap;}
-        .dt-prev-cmd{background:#0d001a;border:1px solid #3d1f6e;border-radius:6px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:9.5pt;color:#d8b4fe;white-space:pre-wrap;margin:4px 0;}
-        .dt-prev-img{max-width:100%;border-radius:6px;border:1px solid #e8e0f5;margin:4px 0;}
-        .dt-prev-caption{font-size:8pt;color:#9b89c4;margin-top:4px;}
-
-        /* toast */
-        #dt-toast{
-          position:fixed;bottom:20px;right:20px;z-index:9999;
-          background:linear-gradient(135deg,#1a003a,#0d001f);
-          border:1px solid #a855f7;border-radius:9px;
-          padding:10px 18px;font-size:12px;color:#c084fc;
-          box-shadow:0 0 24px rgba(168,85,247,.3);
-          transform:translateY(60px);opacity:0;
-          transition:all .3s cubic-bezier(.34,1.56,.64,1);
-          display:flex;align-items:center;gap:7px;
+        .dg-term-bar {
+          display: flex; align-items: center; gap: 6px; padding: 5px 10px;
+          background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(124,58,237,0.2);
         }
-        #dt-toast.dt-toast-show{transform:translateY(0);opacity:1;}
+        .dg-dot { width: 9px; height: 9px; border-radius: 50%; }
+        .dg-dot-r { background: #f87171; box-shadow: 0 0 5px rgba(248,113,113,0.5); }
+        .dg-dot-y { background: #fbbf24; box-shadow: 0 0 5px rgba(251,191,36,0.5); }
+        .dg-dot-g { background: #34d399; box-shadow: 0 0 5px rgba(52,211,153,0.5); }
+        .dg-term-title { flex:1; font-size:9pt; color:rgba(168,85,247,0.4); text-align:center; font-family:'IBM Plex Mono',monospace; }
+        .dg-copy-btn {
+          background: none; border: 1px solid rgba(124,58,237,0.3); border-radius: 4px;
+          color: rgba(168,85,247,0.5); font-size: 10px; padding: 2px 7px; cursor: pointer; transition: all .2s;
+        }
+        .dg-copy-btn:hover { border-color: #a855f7; color: #a855f7; }
+        .dg-lbl-inp {
+          width: 100%; border: none; border-bottom: 1px solid rgba(124,58,237,0.15); outline: none;
+          background: transparent; color: rgba(168,85,247,0.5); font-size: 9pt;
+          font-family: 'IBM Plex Mono',monospace; padding: 4px 0; margin-bottom: 4px;
+        }
+        .dg-lbl-inp::placeholder { color: rgba(124,58,237,0.2); }
+        .dg-cmd-row { display: flex; gap: 8px; padding: 8px 12px; align-items: flex-start; }
+        .dg-prompt { font-family:'IBM Plex Mono',monospace; font-size:11pt; color:#a855f7; text-shadow:0 0 8px rgba(168,85,247,0.7); flex-shrink:0; padding-top:2px; }
+        .dg-cmd-ta {
+          flex:1; background:transparent; border:none; outline:none;
+          color:#d8b4fe; font-family:'IBM Plex Mono',monospace; font-size:10pt;
+          line-height:1.6; resize:none; min-height:22px; caret-color:#a855f7;
+        }
+        .dg-cmd-ta::placeholder { color:rgba(124,58,237,0.2); }
+        .dg-out-wrap { padding:0 12px 8px 34px; }
+        .dg-out-lbl { font-size:8pt; color:rgba(52,211,153,0.3); margin-bottom:3px; font-family:'IBM Plex Mono',monospace; }
+        .dg-out-ta {
+          width:100%; background:transparent; border:none; outline:none;
+          color:#86efac; font-family:'IBM Plex Mono',monospace; font-size:9pt;
+          line-height:1.6; resize:none; min-height:28px;
+        }
+        .dg-out-ta::placeholder { color:rgba(52,211,153,0.15); }
 
-        @media print{
-          body > *:not(#docutool){display:none!important;}
-          #docutool .dt-sidebar,.dt-topbar{display:none!important;}
-          .dt-editor-scroll,.dt-preview-scroll{overflow:visible!important;background:transparent!important;padding:0!important;}
-          .dt-a4,.dt-preview-a4{box-shadow:none!important;margin:0!important;width:100%!important;}
+        /* Screenshot */
+        .dg-sz {
+          border: 2px dashed rgba(124,58,237,0.2); border-radius: 6px;
+          padding: 20px; text-align: center; cursor: pointer; transition: all .2s;
+          position: relative; overflow: hidden; margin-top: 4px;
+        }
+        .dg-sz:hover { border-color: rgba(124,58,237,0.5); background: rgba(124,58,237,0.03); }
+        .dg-sz.has-img { border-style:solid; border-color:rgba(124,58,237,0.25); padding:0; }
+        .dg-sz img { max-width:100%; border-radius:4px; display:block; }
+        .dg-sz input[type=file] { position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%; }
+        .dg-sz-icon { font-size:22px; margin-bottom:5px; opacity:.3; }
+        .dg-sz-txt { font-size:9pt; color:rgba(124,58,237,0.5); }
+        .dg-caption { width:100%; border:none; border-bottom:1px solid rgba(124,58,237,0.12); outline:none; background:transparent; font-size:8.5pt; color:rgba(124,58,237,0.5); padding:4px 0; margin-top:6px; font-style:italic; }
+        .dg-caption::placeholder { color:rgba(124,58,237,0.2); }
+
+        /* Steps */
+        .dg-step-row { display:flex; align-items:flex-start; gap:8px; padding:7px 0; border-bottom:1px solid rgba(124,58,237,0.07); }
+        .dg-step-row:last-child { border-bottom:none; }
+        .dg-step-num { min-width:20px; height:20px; border-radius:50%; flex-shrink:0; background:linear-gradient(135deg,#7c3aed,#6d28d9); display:flex;align-items:center;justify-content:center; font-size:8.5pt; font-weight:700; color:#fff; box-shadow:0 0 8px rgba(124,58,237,0.35); }
+        .dg-step-ta { flex:1; border:none; outline:none; background:transparent; font-size:9.5pt; color:#1a0535; line-height:1.65; resize:none; min-height:32px; font-family:'IBM Plex Sans',sans-serif; }
+        .dg-step-ta::placeholder { color:rgba(124,58,237,0.25); }
+
+        /* Note */
+        .dg-note-info { background:#eff6ff; border-left:3px solid #60a5fa; border-radius:4px; padding:9px 12px; }
+        .dg-note-warn { background:#fffbeb; border-left:3px solid #fbbf24; border-radius:4px; padding:9px 12px; }
+        .dg-note-ok   { background:#f0fdf4; border-left:3px solid #34d399; border-radius:4px; padding:9px 12px; }
+
+        /* Adder */
+        .dg-adder { display:flex; gap:7px; flex-wrap:wrap; margin-top:12px; }
+        .dg-add-btn {
+          padding:5px 12px; background:rgba(124,58,237,0.06); border:1px dashed rgba(124,58,237,0.25);
+          border-radius:6px; color:rgba(124,58,237,0.6); font-size:8.5pt; cursor:pointer;
+          transition:all .2s; display:flex; align-items:center; gap:4px;
+        }
+        .dg-add-btn:hover { background:rgba(124,58,237,0.12); border-color:rgba(124,58,237,0.5); color:#7c3aed; box-shadow:0 0 8px rgba(124,58,237,0.15); }
+
+        /* Del */
+        .dg-del { background:none; border:none; color:rgba(124,58,237,0.25); cursor:pointer; font-size:11px; padding:2px 4px; border-radius:4px; transition:all .15s; }
+        .dg-del:hover { background:rgba(220,38,38,0.08); color:#dc2626; }
+
+        /* Preview */
+        .dg-preview-scroll { flex:1; overflow-y:auto; overflow-x:hidden; background:radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.12) 0%, #0c0018 60%); padding:32px 0; display:none; flex-direction:column; align-items:center; }
+        .dg-preview-scroll.dg-prev-on { display:flex; }
+
+        .dg-prev-a4 {
+          width:210mm; min-height:297mm; margin-bottom:24px;
+          background:rgba(255,255,255,0.97); border-radius:4px;
+          box-shadow:0 0 0 1px rgba(168,85,247,0.3),0 0 40px rgba(168,85,247,0.2),0 20px 60px rgba(0,0,0,0.5);
+          padding:20mm 20mm 24mm 25mm; color:#1a1a2e;
+          font-family:'IBM Plex Sans',sans-serif; position:relative;
+        }
+        .dg-prev-a4::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,#a855f7,#7c3aed,transparent); border-radius:4px 4px 0 0; }
+        .dg-prev-title { font-size:22pt; font-weight:800; color:#2d0b5a; border-bottom:2px solid rgba(124,58,237,0.3); padding-bottom:7px; margin-bottom:12px; }
+        .dg-prev-meta { display:flex; gap:16px; flex-wrap:wrap; font-size:9pt; color:#5c4d7a; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid rgba(124,58,237,0.1); }
+        .dg-prev-tags { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px; }
+        .dg-prev-sec-title { font-size:11pt; font-weight:700; color:#7c3aed; text-transform:uppercase; letter-spacing:.06em; margin:14px 0 6px; padding-bottom:3px; border-bottom:1px solid rgba(124,58,237,0.1); }
+        .dg-prev-text { font-size:10pt; line-height:1.8; color:#1a0535; white-space:pre-wrap; }
+        .dg-prev-cmd { background:#0d001a; border:1px solid rgba(124,58,237,0.35); border-radius:6px; padding:10px 14px; font-family:'IBM Plex Mono',monospace; font-size:9.5pt; color:#d8b4fe; white-space:pre-wrap; margin:4px 0; box-shadow:0 0 16px rgba(168,85,247,0.1); }
+        .dg-prev-img { max-width:100%; border-radius:4px; border:1px solid rgba(124,58,237,0.15); margin:4px 0; display:block; }
+        .dg-prev-caption { font-size:8pt; color:#9b89c4; margin-top:3px; font-style:italic; }
+
+        /* Page separator in preview */
+        .dg-prev-pagesep { width:210mm; text-align:center; padding:16px 0; color:rgba(168,85,247,0.3); font-size:11px; font-family:'IBM Plex Mono',monospace; letter-spacing:.1em; }
+
+        /* Toast */
+        #dg-toast { position:fixed;bottom:20px;right:20px;z-index:9999; background:rgba(20,0,45,0.95); border:1px solid rgba(168,85,247,0.5); border-radius:9px; padding:10px 18px; font-size:12px; color:#c084fc; box-shadow:0 0 24px rgba(168,85,247,0.35); transform:translateY(60px);opacity:0; transition:all .3s cubic-bezier(.34,1.56,.64,1); display:flex;align-items:center;gap:7px; pointer-events:none; }
+        #dg-toast.dg-toast-on { transform:translateY(0);opacity:1; }
+
+        /* ── Inhaltsverzeichnis ── */
+        .dg-toc-a4 {
+          width: 210mm; min-height: auto;
+          background: rgba(255,255,255,0.97);
+          border-radius: 4px;
+          box-shadow:
+            0 0 0 1px rgba(168,85,247,0.3),
+            0 0 40px rgba(168,85,247,0.25),
+            0 0 80px rgba(124,58,237,0.12),
+            0 20px 60px rgba(0,0,0,0.5);
+          padding: 16mm 20mm 18mm 25mm;
+          color: #1a0535;
+          font-family: 'IBM Plex Sans', sans-serif;
+          position: relative; flex-shrink: 0;
+          margin-bottom: 24px;
+        }
+        .dg-toc-a4::before {
+          content: '';
+          position: absolute; top: 0; left: 0; right: 0; height: 3px;
+          background: linear-gradient(90deg, transparent, #a855f7, #7c3aed, transparent);
+          border-radius: 4px 4px 0 0;
+        }
+        .dg-toc-heading {
+          font-size: 14pt; font-weight: 700; color: #7c3aed;
+          text-transform: uppercase; letter-spacing: .1em;
+          margin-bottom: 14px; padding-bottom: 6px;
+          border-bottom: 2px solid rgba(124,58,237,0.2);
+          display: flex; align-items: center; gap: 8px;
+        }
+        .dg-toc-entry {
+          display: flex; align-items: baseline; gap: 0;
+          padding: 5px 0; border-bottom: 1px solid rgba(124,58,237,0.06);
+          font-size: 10pt;
+        }
+        .dg-toc-entry:last-child { border-bottom: none; }
+        .dg-toc-entry a {
+          color: #2d0b5a; text-decoration: none; font-weight: 500;
+          transition: color .15s; white-space: nowrap; overflow: hidden;
+          text-overflow: ellipsis; max-width: 70%;
+        }
+        .dg-toc-entry a:hover { color: #7c3aed; }
+        .dg-toc-dots {
+          flex: 1; border-bottom: 1px dotted rgba(124,58,237,0.25);
+          margin: 0 8px; position: relative; top: -3px;
+        }
+        .dg-toc-page {
+          font-family: 'IBM Plex Mono', monospace; font-size: 9pt;
+          color: rgba(124,58,237,0.5); white-space: nowrap;
+        }
+        .dg-toc-group { margin-bottom: 10px; }
+        .dg-toc-group-title {
+          font-size: 8pt; font-weight: 700; text-transform: uppercase;
+          letter-spacing: .1em; color: rgba(124,58,237,0.4);
+          margin: 10px 0 4px;
+        }
+        .dg-toc-entry.dg-toc-sub { padding-left: 14px; }
+        .dg-toc-entry.dg-toc-sub a { font-weight: 400; color: #5c4d7a; font-size: 9.5pt; }
+
+        @media print {
+          body > *:not(#docutool) { display:none!important; }
+          #docutool .dg-sidebar, .dg-topbar, .dg-pages-bar { display:none!important; }
+          .dg-editor-scroll, .dg-preview-scroll { overflow:visible!important; background:transparent!important; padding:0!important; display:flex!important; }
+          .dg-a4, .dg-prev-a4, .dg-toc-a4 { box-shadow:none!important; margin:0!important; width:100%!important; page-break-after:always; }
+        }
+
+        @media print {
+          .dg-toc-a4 { box-shadow:none!important; margin:0!important; width:100%!important; page-break-after:always; }
         }
       </style>
 
-      <div class="dt-wrap">
+      <div class="dg-wrap">
 
-        <!-- DT SIDEBAR -->
-        <div class="dt-sidebar">
-          <div class="dt-sidebar-hdr">
-            <div class="dt-logo">
-              <div class="dt-logo-icon">📋</div>
-              <div class="dt-logo-text">DocuTool</div>
+        <!-- SIDEBAR -->
+        <div class="dg-sidebar" id="dg-sidebar">
+          <div class="dg-sb-hdr">
+            <div class="dg-logo">
+              <div class="dg-logo-icon">D</div>
+              <div class="dg-logo-text">DocuTool</div>
             </div>
-            <button class="dt-btn-new" onclick="dtNew()">＋ Neue Anleitung</button>
+            <button class="dg-btn-new" onclick="dgNew()">＋ Neue Anleitung</button>
           </div>
-          <div class="dt-search-wrap">
-            <span class="dt-search-icon">🔍</span>
-            <input type="text" placeholder="Suchen…" id="dt-search" oninput="dtFilterDocs()">
+          <div class="dg-search">
+            <span class="dg-search-ico">&#x2315;</span>
+            <input type="text" id="dg-search" placeholder="Suchen…" oninput="dgFilterDocs()">
           </div>
-          <div class="dt-doc-list" id="dt-doc-list"></div>
+          <div class="dg-doc-list" id="dg-doc-list"></div>
         </div>
 
-        <!-- DT MAIN -->
-        <div class="dt-main">
+        <!-- MAIN WRAP (for toggle button positioning) -->
+        <div class="dg-main-wrap">
+          <!-- SIDEBAR TOGGLE -->
+          <button class="dg-sb-toggle" id="dg-sb-toggle" onclick="dgToggleSidebar()" title="Ablage ein/ausblenden">‹</button>
+
+        <!-- MAIN -->
+        <div class="dg-main">
+
           <!-- TOPBAR -->
-          <div class="dt-topbar">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <div class="dt-view-toggle">
-                <button class="dt-vbtn dt-vactive" id="dt-btn-editor" onclick="dtSetView('editor')">✏️ Editor</button>
-                <button class="dt-vbtn" id="dt-btn-preview" onclick="dtSetView('preview')">👁 Vorschau</button>
-              </div>
-              <span class="dt-status" id="dt-status">Nicht gespeichert</span>
+          <div class="dg-topbar">
+            <div class="dg-vtoggle">
+              <button class="dg-vbtn dg-von" id="dg-btn-ed" onclick="dgSetView('editor')">Editor</button>
+              <button class="dg-vbtn" id="dg-btn-pr" onclick="dgSetView('preview')">Vorschau</button>
             </div>
-            <div class="dt-topbar-actions">
-              <button class="dt-btn-icon" onclick="dtExport()">⬇ Export</button>
-              <button class="dt-btn-icon" onclick="dtPrint()">🖨 Drucken</button>
-              <button class="dt-btn-save" onclick="dtSave()">💾 Speichern</button>
-            </div>
-          </div>
-
-          <!-- EDITOR (A4) -->
-          <div class="dt-editor-scroll" id="dt-editor-scroll">
-            <div class="dt-a4" id="dt-a4">
-
-              <!-- TITLE -->
-              <input class="dt-a4-title" id="dt-title" type="text" placeholder="Titel der Anleitung…" oninput="dtMarkUnsaved()">
-
-              <!-- META STRIP -->
-              <div class="dt-a4-meta">
-                <div class="dt-a4-meta-field">
-                  <div class="dt-a4-meta-label">Autor</div>
-                  <input class="dt-a4-meta-input" id="dt-author" type="text" placeholder="Max Muster" oninput="dtMarkUnsaved()">
-                </div>
-                <div class="dt-a4-meta-field">
-                  <div class="dt-a4-meta-label">Datum</div>
-                  <input class="dt-a4-meta-input" id="dt-date" type="date" oninput="dtMarkUnsaved()">
-                </div>
-                <div class="dt-a4-meta-field">
-                  <div class="dt-a4-meta-label">Version</div>
-                  <input class="dt-a4-meta-input" id="dt-version" type="text" placeholder="1.0" oninput="dtMarkUnsaved()">
-                </div>
-                <div class="dt-a4-meta-field">
-                  <div class="dt-a4-meta-label">Kategorie</div>
-                  <select class="dt-a4-meta-select" id="dt-category" onchange="dtMarkUnsaved()">
-                    <option value="">—</option>
-                    <option>Netzwerk</option>
-                    <option>Windows Server</option>
-                    <option>Linux / Ubuntu</option>
-                    <option>Sicherheit / Hardening</option>
-                    <option>Virtualisierung</option>
-                    <option>Skripte / Automation</option>
-                    <option>Sonstiges</option>
-                  </select>
-                </div>
-                <div class="dt-a4-meta-field">
-                  <div class="dt-a4-meta-label">Status</div>
-                  <select class="dt-a4-meta-select" id="dt-status-sel" onchange="dtMarkUnsaved()">
-                    <option value="draft">Entwurf</option>
-                    <option value="review">In Review</option>
-                    <option value="final">Abgeschlossen</option>
-                  </select>
-                </div>
-              </div>
-
-              <!-- TAGS -->
-              <div style="margin-bottom:14px;">
-                <div class="dt-a4-meta-label" style="margin-bottom:5px;">Tags</div>
-                <div class="dt-tags-row" id="dt-tags-row" style="border:1px solid #e8e0f5;border-radius:6px;padding:5px 8px;min-height:32px;">
-                  <input class="dt-tag-input" id="dt-tag-input" placeholder="Tag + Enter…" onkeydown="dtAddTag(event)">
-                </div>
-              </div>
-
-              <!-- DYNAMIC SECTIONS -->
-              <div class="dt-a4-sections" id="dt-sections"></div>
-
-              <!-- ADDER -->
-              <div class="dt-adder" style="margin-top:10px;">
-                <button class="dt-add-btn" onclick="dtAddSection('text')">＋ Text</button>
-                <button class="dt-add-btn" onclick="dtAddSection('cmd')">＋ Terminal</button>
-                <button class="dt-add-btn" onclick="dtAddSection('screenshot')">＋ Screenshot</button>
-                <button class="dt-add-btn" onclick="dtAddSection('steps')">＋ Schritte</button>
-                <button class="dt-add-btn" onclick="dtAddSection('note')">＋ Hinweis</button>
-              </div>
+            <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(192,132,252,0.6);cursor:pointer;user-select:none;">
+              <input type="checkbox" id="dg-toc-toggle" checked onchange="dgRenderPreview()" style="accent-color:#7c3aed;width:13px;height:13px;cursor:pointer;">
+              Inhaltsverzeichnis
+            </label>
+            <div class="dg-topbar-right">
+              <span class="dg-status" id="dg-status">—</span>
+              <button class="dg-tbtn" onclick="dgExport()">Export</button>
+              <button class="dg-tbtn" onclick="dgPrint()">Drucken</button>
+              <button class="dg-save" onclick="dgSave()">Speichern</button>
             </div>
           </div>
 
-          <!-- PREVIEW (A4) -->
-          <div class="dt-preview-scroll" id="dt-preview-scroll">
-            <div class="dt-preview-a4" id="dt-preview-a4"></div>
+          <!-- PAGES BAR -->
+          <div class="dg-pages-bar" id="dg-pages-bar">
+            <button class="dg-add-page" onclick="dgAddPage()">＋ Seite</button>
           </div>
-        </div>
-      </div>
 
-      <div id="dt-toast">✅ <span id="dt-toast-msg">Gespeichert!</span></div>
+          <!-- EDITOR AREA -->
+          <div class="dg-editor-scroll" id="dg-editor-scroll">
+            <!-- A4 pages rendered here by JS -->
+          </div>
+
+          <!-- PREVIEW AREA -->
+          <div class="dg-preview-scroll" id="dg-preview-scroll">
+            <!-- preview A4 pages rendered here by JS -->
+          </div>
+
+        </div><!-- /dg-main -->
+        </div><!-- /dg-main-wrap -->
+      </div><!-- /dg-wrap -->
+
+      <div id="dg-toast">✅ <span id="dg-toast-msg">Gespeichert!</span></div>
 
     </div><!-- /docutool -->
 
@@ -6648,6 +6924,13 @@ function show(id, el) {
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
   if (id === 'iso') isoFilter();
+  if (id === 'docutool') {
+    dgRenderDocList();
+    if (!dgCurrentId && dgDocs.length > 0) dgLoad(dgDocs[0].id);
+    else if (!dgCurrentId) { dgRenderPagesBar(); dgRenderEditor(); }
+  }
+  if (id === 'scriptcreator') scRenderList();
+  if (id === 'm122') { sbRenderCanvas(); sbUpdateCode(); }
 }
 
 let activeTag = 'all';
@@ -6925,373 +7208,990 @@ function m263FilterGlossar(){
 }
 
 // ══════════════════════════════════
-// DOCUTOOL – Logic
+// DOCUTOOL (dg) – Lila Glow Glass
 // ══════════════════════════════════
-let dtDocs = JSON.parse(localStorage.getItem('dt_docs') || '[]');
-let dtCurrentId = null;
-let dtTags = [];
-let dtSecCounter = 0;
+let dgDocs     = JSON.parse(localStorage.getItem('dg_docs') || '[]');
+let dgCurrentId = null;
+let dgTags     = [];
+let dgPages    = [{ id:'p1', title:'Seite 1', sections:[] }];
+let dgActivePage = 0;
+let dgSecCounter = 0;
+let dgTocHidden  = new Set(); // anchors hidden from TOC
 
-// init when section becomes visible
-// Extend show() after DOM ready so function hoisting is complete
-document.addEventListener('DOMContentLoaded', () => {
-  const _orig = window.show;
-  window.show = function(id, el) {
-    _orig && _orig(id, el);
-    if (id === 'docutool') {
-      dtRenderDocList();
-      if (!dtCurrentId && dtDocs.length > 0) dtLoad(dtDocs[0].id);
-      else if (!dtCurrentId) dtNew();
-    }
-    if (id === 'scriptcreator') scRenderList();
-  };
-});
+// ── Render doc list ──
+function dgRenderDocList() {
+  const list = document.getElementById('dg-doc-list'); if (!list) return;
+  const q = (document.getElementById('dg-search')?.value||'').toLowerCase();
+  const filtered = dgDocs.filter(d => (d.title||'').toLowerCase().includes(q));
+  list.innerHTML = filtered.length === 0
+    ? '<div style="padding:10px 14px;font-size:11px;color:rgba(168,85,247,0.4)">Keine Anleitungen.</div>'
+    : filtered.map(d => `<div class="dg-doc-item ${d.id===dgCurrentId?'dg-active':''}" onclick="dgLoad('${d.id}')">
+        <div class="dg-doc-name">${dgEsc(d.title||'Ohne Titel')}</div>
+        <div class="dg-doc-meta">${d.date||''} · ${d.pages?.length||1} Seite(n)</div>
+      </div>`).join('');
+}
+function dgFilterDocs() { dgRenderDocList(); }
 
-function dtNew() {
-  dtCurrentId = null; dtTags = []; dtSecCounter = 0;
-  const el = id => document.getElementById(id);
-  el('dt-title').value = '';
-  el('dt-author').value = '';
-  el('dt-date').value = new Date().toISOString().split('T')[0];
-  el('dt-version').value = '1.0';
-  el('dt-category').value = '';
-  el('dt-status-sel').value = 'draft';
-  el('dt-sections').innerHTML = '';
-  dtRenderTags();
-  dtMarkUnsaved();
-  dtSetView('editor');
+// ── Pages bar ──
+function dgRenderPagesBar() {
+  const bar = document.getElementById('dg-pages-bar'); if (!bar) return;
+  bar.innerHTML = dgPages.map((p,i) => `
+    <div class="dg-page-tab ${i===dgActivePage?'dg-page-active':''}" onclick="dgSwitchPage(${i})">
+      ${dgEsc(p.title||'Seite '+(i+1))}
+      <span class="dg-page-tab-del" onclick="event.stopPropagation();dgDeletePage(${i})">✕</span>
+    </div>`).join('') +
+    '<button class="dg-add-page" onclick="dgAddPage()">＋ Seite</button>';
 }
 
-function dtLoad(id) {
-  const doc = dtDocs.find(d => d.id === id);
-  if (!doc) return;
-  dtCurrentId = id; dtTags = doc.tags || []; dtSecCounter = 0;
-  const el = i => document.getElementById(i);
-  el('dt-title').value   = doc.title   || '';
-  el('dt-author').value  = doc.author  || '';
-  el('dt-date').value    = doc.date    || '';
-  el('dt-version').value = doc.version || '';
-  el('dt-category').value   = doc.category || '';
-  el('dt-status-sel').value = doc.status   || 'draft';
-  el('dt-sections').innerHTML = '';
-  dtRenderTags();
-  (doc.sections || []).forEach(s => dtAddSection(s.type, s));
-  document.getElementById('dt-status').textContent = '✔ Gespeichert';
-  dtRenderDocList();
+function dgAddPage() {
+  const n = dgPages.length + 1;
+  dgPages.push({ id:'p'+Date.now(), title:'Seite '+n, sections:[] });
+  dgActivePage = dgPages.length - 1;
+  dgRenderPagesBar();
+  dgRenderEditor();
+  dgMarkUnsaved();
 }
 
-function dtSave() {
-  const id = dtCurrentId || Date.now().toString();
-  dtCurrentId = id;
-  const doc = {
-    id, tags: [...dtTags],
-    title:    document.getElementById('dt-title').value,
-    author:   document.getElementById('dt-author').value,
-    date:     document.getElementById('dt-date').value,
-    version:  document.getElementById('dt-version').value,
-    category: document.getElementById('dt-category').value,
-    status:   document.getElementById('dt-status-sel').value,
-    sections: dtCollect(),
-    savedAt:  new Date().toISOString()
-  };
-  const i = dtDocs.findIndex(d => d.id === id);
-  if (i >= 0) dtDocs[i] = doc; else dtDocs.unshift(doc);
-  localStorage.setItem('dt_docs', JSON.stringify(dtDocs));
-  document.getElementById('dt-status').textContent = '✔ Gespeichert';
-  dtRenderDocList();
-  dtShowToast('Anleitung gespeichert!');
+function dgDeletePage(idx) {
+  if (dgPages.length <= 1) { dgShowToast('Mindestens eine Seite erforderlich.'); return; }
+  dgPages.splice(idx, 1);
+  if (dgActivePage >= dgPages.length) dgActivePage = dgPages.length - 1;
+  dgRenderPagesBar();
+  dgRenderEditor();
+  dgMarkUnsaved();
 }
 
-function dtCollect() {
+function dgSwitchPage(idx) {
+  dgCollectCurrentPage(); // save before switching
+  dgActivePage = idx;
+  dgRenderPagesBar();
+  dgRenderEditor();
+}
+
+// ── Editor ──
+function dgRenderEditor() {
+  const scroll = document.getElementById('dg-editor-scroll'); if (!scroll) return;
+  const page = dgPages[dgActivePage];
+
+  // page title editable in tab — but also on the A4 itself? No — keep it simple
+  scroll.innerHTML = '';
+  const a4 = document.createElement('div');
+  a4.className = 'dg-a4';
+  a4.id = 'dg-a4-current';
+
+  // Title
+  a4.innerHTML = `
+    <input class="dg-title" id="dg-doc-title" type="text" placeholder="Titel der Anleitung…" value="${dgEsc(page._docTitle||document.getElementById('dg-doc-title-hidden')?.value||'')}" oninput="dgMarkUnsaved()">
+
+    <div class="dg-meta-strip">
+      <div class="dg-mf"><div class="dg-ml">Autor</div><input class="dg-mi" id="dg-author" type="text" placeholder="Max Muster" value="${dgEsc(page._author||dgPages[0]._author||'')}" oninput="dgMarkUnsaved()"></div>
+      <div class="dg-mf"><div class="dg-ml">Datum</div><input class="dg-mi" id="dg-date" type="date" value="${dgEsc(page._date||dgPages[0]._date||new Date().toISOString().split('T')[0])}" oninput="dgMarkUnsaved()"></div>
+      <div class="dg-mf"><div class="dg-ml">Version</div><input class="dg-mi" id="dg-version" type="text" placeholder="1.0" value="${dgEsc(page._version||dgPages[0]._version||'')}" oninput="dgMarkUnsaved()"></div>
+      <div class="dg-mf"><div class="dg-ml">Kategorie</div>
+        <select class="dg-ms" id="dg-cat" onchange="dgMarkUnsaved()">
+          <option value="">—</option>
+          ${['Netzwerk','Windows Server','Linux / Ubuntu','Sicherheit','Virtualisierung','Skripte','Sonstiges'].map(c=>`<option ${(page._cat||dgPages[0]._cat||'')==c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="dg-mf"><div class="dg-ml">Status</div>
+        <select class="dg-ms" id="dg-status-sel" onchange="dgMarkUnsaved()">
+          ${['Entwurf','In Review','Abgeschlossen'].map(s=>`<option ${(page._status||dgPages[0]._status||'Entwurf')==s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+
+    <div class="dg-tags-wrap" id="dg-tags-wrap">
+      ${dgTags.map((t,i)=>`<span class="dg-tag">${dgEsc(t)}<span class="dg-tag-x" onclick="dgRemoveTag(${i})">✕</span></span>`).join('')}
+      <input class="dg-tag-inp" id="dg-tag-inp" placeholder="Tag + Enter…" onkeydown="dgAddTag(event)">
+    </div>
+
+    <div class="dg-sections" id="dg-sections"></div>
+
+    <div class="dg-adder">
+      <button class="dg-add-btn" onclick="dgAddSection('text')">＋ Text</button>
+      <button class="dg-add-btn" onclick="dgAddSection('cmd')">＋ Terminal</button>
+      <button class="dg-add-btn" onclick="dgAddSection('screenshot')">＋ Screenshot</button>
+      <button class="dg-add-btn" onclick="dgAddSection('steps')">＋ Schritte</button>
+      <button class="dg-add-btn" onclick="dgAddSection('note')">＋ Hinweis</button>
+    </div>`;
+
+  scroll.appendChild(a4);
+
+  // Render existing sections for this page
+  dgSecCounter = 0;
+  (page.sections||[]).forEach(s => dgAddSection(s.type, s));
+}
+
+// ── Collect current page data before switching ──
+function dgCollectCurrentPage() {
+  const page = dgPages[dgActivePage]; if (!page) return;
+  page._docTitle = document.getElementById('dg-doc-title')?.value || '';
+  page._author   = document.getElementById('dg-author')?.value || '';
+  page._date     = document.getElementById('dg-date')?.value || '';
+  page._version  = document.getElementById('dg-version')?.value || '';
+  page._cat      = document.getElementById('dg-cat')?.value || '';
+  page._status   = document.getElementById('dg-status-sel')?.value || 'Entwurf';
+  page.title     = 'Seite ' + (dgActivePage+1);
+  page.sections  = dgCollectSections();
+}
+
+function dgCollectSections() {
   const secs = [];
-  document.querySelectorAll('#dt-sections [data-dt-id]').forEach(el => {
-    const type = el.dataset.dtType, sid = el.dataset.dtId;
-    const s = { type, id: sid };
-    if (type === 'text') {
-      s.title   = el.querySelector('.dt-sec-title')?.value || '';
-      s.content = el.querySelector('.dt-a4-textarea')?.value || '';
-    } else if (type === 'cmd') {
-      s.title   = el.querySelector('.dt-sec-title')?.value || '';
-      s.label   = el.querySelector('.dt-cmd-lbl-input')?.value || '';
-      s.command = el.querySelector('.dt-cmd-input')?.value || '';
-      s.output  = el.querySelector('.dt-cmd-out-ta')?.value || '';
-    } else if (type === 'screenshot') {
-      s.title   = el.querySelector('.dt-sec-title')?.value || '';
-      s.caption = el.querySelector('.dt-caption')?.value || '';
-      s.imgData = el.querySelector('.dt-sz img')?.src || '';
-    } else if (type === 'steps') {
-      s.title = el.querySelector('.dt-sec-title')?.value || '';
-      s.steps = [...el.querySelectorAll('.dt-step-ta')].map(t => t.value);
-    } else if (type === 'note') {
-      s.title   = el.querySelector('.dt-sec-title')?.value || '';
-      s.level   = el.querySelector('.dt-note-sel')?.value || 'info';
-      s.content = el.querySelector('.dt-a4-textarea')?.value || '';
+  document.querySelectorAll('#dg-sections [data-dg-id]').forEach(el => {
+    const type = el.dataset.dgType, id = el.dataset.dgId;
+    const s = { type, id };
+    if (type==='text') { s.title=el.querySelector('.dg-sec-title')?.value||''; s.content=el.querySelector('.dg-ta')?.value||''; }
+    else if (type==='cmd') {
+      s.title=el.querySelector('.dg-sec-title')?.value||'';
+      s.label=el.querySelector('.dg-lbl-inp')?.value||'';
+      s.commands=[...el.querySelectorAll('[data-cmd-row]')].map(row=>({
+        cmd: row.querySelector('.dg-cmd-ta')?.value||'',
+        out: row.nextElementSibling?.classList.contains('dg-out-wrap') ? row.nextElementSibling.querySelector('.dg-out-ta')?.value||'' : ''
+      }));
     }
+    else if (type==='screenshot') { s.title=el.querySelector('.dg-sec-title')?.value||''; s.caption=el.querySelector('.dg-caption')?.value||''; s.imgData=el.querySelector('.dg-sz img')?.src||''; }
+    else if (type==='steps') { s.title=el.querySelector('.dg-sec-title')?.value||''; s.steps=[...el.querySelectorAll('.dg-step-ta')].map(t=>t.value); }
+    else if (type==='note') { s.title=el.querySelector('.dg-sec-title')?.value||''; s.level=el.querySelector('.dg-note-sel')?.value||'info'; s.content=el.querySelector('.dg-ta')?.value||''; }
     secs.push(s);
   });
   return secs;
 }
 
-function dtMarkUnsaved() {
-  document.getElementById('dt-status').textContent = '● Nicht gespeichert';
-}
-
-function dtRenderDocList() {
-  const list = document.getElementById('dt-doc-list');
-  if (!list) return;
-  const q = (document.getElementById('dt-search')?.value || '').toLowerCase();
-  const filtered = dtDocs.filter(d =>
-    (d.title||'').toLowerCase().includes(q) || (d.category||'').toLowerCase().includes(q)
-  );
-  list.innerHTML = filtered.length === 0
-    ? '<div style="padding:10px 14px;font-size:11px;color:var(--muted)">Keine Anleitungen.</div>'
-    : filtered.map(d => `
-        <div class="dt-doc-item ${d.id === dtCurrentId ? 'dt-active' : ''}" onclick="dtLoad('${d.id}')">
-          <div class="dt-doc-title">${dtEsc(d.title || 'Ohne Titel')}</div>
-          <div class="dt-doc-meta">${d.date || ''} ${d.category ? '· ' + d.category : ''}</div>
-        </div>`).join('');
-}
-
-function dtFilterDocs() { dtRenderDocList(); }
-
-// ── SECTIONS ──
-function dtAddSection(type, data = {}) {
-  const id = data.id || ('dt_' + (++dtSecCounter));
-  const container = document.getElementById('dt-sections');
+// ── Sections ──
+function dgAddSection(type, data={}) {
+  const id = data.id||('dg_'+(++dgSecCounter));
+  const container = document.getElementById('dg-sections'); if (!container) return;
   const wrap = document.createElement('div');
-  wrap.dataset.dtId = id; wrap.dataset.dtType = type;
-  wrap.className = 'dt-a4-block';
-  const icons  = { text:'📝', cmd:'💻', screenshot:'🖼️', steps:'📋', note:'💡' };
-  const labels = { text:'Textblock', cmd:'Terminal / CMD', screenshot:'Screenshot', steps:'Schritte', note:'Hinweis' };
-
+  wrap.dataset.dgId = id; wrap.dataset.dgType = type; wrap.className = 'dg-block';
+  const icons  = {text:'TXT',cmd:'CMD',screenshot:'IMG',steps:'STP',note:'INF'};
+  const labels = {text:'Textblock',cmd:'Terminal',screenshot:'Screenshot',steps:'Schritte',note:'Hinweis'};
   let body = '';
-  if (type === 'text') {
-    body = `<div class="dt-a4-block-body">
-      <input class="dt-a4-sec-title dt-sec-title" type="text" placeholder="Abschnittstitel…" value="${dtEsc(data.title||'')}" oninput="dtMarkUnsaved()">
-      <textarea class="dt-a4-textarea" placeholder="Text, Beschreibung…" oninput="dtMarkUnsaved();dtAR(this)">${dtEsc(data.content||'')}</textarea>
-    </div>`;
-  } else if (type === 'cmd') {
-    body = `<div class="dt-a4-block-body">
-      <input class="dt-a4-sec-title dt-sec-title" type="text" placeholder="Abschnittstitel…" value="${dtEsc(data.title||'')}" oninput="dtMarkUnsaved()">
-      <div class="dt-a4-terminal">
-        <div class="dt-a4-terminal-bar">
-          <div class="dt-tdot r"></div><div class="dt-tdot y"></div><div class="dt-tdot g"></div>
-          <div class="dt-terminal-title" id="dt-tlbl-${id}">${dtEsc(data.label||'Terminal')}</div>
-          <button class="dt-copy-btn" onclick="dtCopyCmd('${id}')">📋 Kopieren</button>
-        </div>
-        <div style="padding:6px 12px 0">
-          <input class="dt-cmd-lbl-input" type="text" placeholder="Label (z.B. Ubuntu / root)" value="${dtEsc(data.label||'')}" oninput="dtMarkUnsaved();document.getElementById('dt-tlbl-${id}').textContent=this.value||'Terminal'">
-        </div>
-        <div class="dt-cmd-row">
-          <span class="dt-cmd-prompt">$</span>
-          <textarea class="dt-cmd-input" id="dt-cmd-${id}" rows="1" placeholder="Befehl…" oninput="dtMarkUnsaved();dtAR(this)">${dtEsc(data.command||'')}</textarea>
-        </div>
-        <div class="dt-cmd-out">
-          <div class="dt-cmd-out-label">// Erwartete Ausgabe</div>
-          <textarea class="dt-cmd-out-ta" rows="2" placeholder="Ausgabe…" oninput="dtMarkUnsaved();dtAR(this)">${dtEsc(data.output||'')}</textarea>
-        </div>
+  if (type==='text') {
+    body=`<div class="dg-block-body"><input class="dg-sec-title" type="text" placeholder="Abschnittstitel…" value="${dgEsc(data.title||'')}" oninput="dgMarkUnsaved()"><textarea class="dg-ta" placeholder="Text…" oninput="dgMarkUnsaved();dgAR(this)">${dgEsc(data.content||'')}</textarea></div>`;
+  } else if (type==='cmd') {
+    // commands is array of {cmd, out} pairs
+    const cmds = data.commands?.length ? data.commands : [{cmd: data.command||'', out: data.output||''}];
+    const cmdRowsHtml = cmds.map((c,i) => `
+      <div class="dg-cmd-row" data-cmd-row>
+        <span class="dg-prompt">$</span>
+        <textarea class="dg-cmd-ta" rows="1" placeholder="Befehl…" oninput="dgMarkUnsaved();dgAR(this)">${dgEsc(c.cmd||'')}</textarea>
+        <button class="dg-cmd-row-del" onclick="this.closest('[data-cmd-row]').remove();dgMarkUnsaved()" title="Entfernen" style="background:none;border:none;color:rgba(168,85,247,0.3);cursor:pointer;font-size:12px;padding:2px 4px;transition:color .15s;" onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='rgba(168,85,247,0.3)'">✕</button>
       </div>
-    </div>`;
-  } else if (type === 'screenshot') {
-    body = `<div class="dt-a4-block-body">
-      <input class="dt-a4-sec-title dt-sec-title" type="text" placeholder="Abschnittstitel…" value="${dtEsc(data.title||'')}" oninput="dtMarkUnsaved()">
-      <div class="dt-sz" id="dt-sz-${id}">
-        <div class="dt-sz-icon">🖼️</div>
-        <div class="dt-sz-text">Screenshot hinzufügen</div>
-        <div class="dt-sz-sub">Klicken · PNG, JPG</div>
-        <input type="file" accept="image/*" onchange="dtLoadImg('${id}',this)">
+      ${c.out ? `<div class="dg-out-wrap"><textarea class="dg-out-ta" rows="1" placeholder="Ausgabe…" oninput="dgMarkUnsaved();dgAR(this)">${dgEsc(c.out)}</textarea></div>` : ''}
+    `).join('');
+    body=`<div class="dg-block-body"><input class="dg-sec-title" type="text" placeholder="Abschnittstitel…" value="${dgEsc(data.title||'')}" oninput="dgMarkUnsaved()">
+      <div class="dg-terminal" id="dg-term-${id}">
+        <div class="dg-term-bar">
+          <div class="dg-dot dg-dot-r"></div><div class="dg-dot dg-dot-y"></div><div class="dg-dot dg-dot-g"></div>
+          <div class="dg-term-title" id="dg-tlbl-${id}">${dgEsc(data.label||'Terminal')}</div>
+          <button class="dg-copy-btn" onclick="dgCopyAll('${id}')">Kopieren</button>
+        </div>
+        <div style="padding:4px 12px 0 12px">
+          <input class="dg-lbl-inp" type="text" placeholder="Label (z.B. Ubuntu / root)" value="${dgEsc(data.label||'')}" oninput="dgMarkUnsaved();document.getElementById('dg-tlbl-${id}').textContent=this.value||'Terminal'">
+        </div>
+        <div class="dg-cmd-rows" id="dg-cmd-rows-${id}">${cmdRowsHtml}</div>
+        <div style="padding:4px 12px 10px;display:flex;gap:6px;">
+          <button onclick="dgAddCmdRow('dg-cmd-rows-${id}')" style="background:none;border:1px dashed rgba(168,85,247,0.25);border-radius:5px;color:rgba(168,85,247,0.5);font-size:10px;padding:3px 10px;cursor:pointer;transition:all .2s;font-family:\'IBM Plex Mono\',monospace;" onmouseover="this.style.borderColor='#a855f7';this.style.color='#c084fc'" onmouseout="this.style.borderColor='rgba(168,85,247,0.25)';this.style.color='rgba(168,85,247,0.5)'">＋ Befehl</button>
+          <button onclick="dgAddCmdRowWithOut('dg-cmd-rows-${id}')" style="background:none;border:1px dashed rgba(52,211,153,0.2);border-radius:5px;color:rgba(52,211,153,0.4);font-size:10px;padding:3px 10px;cursor:pointer;transition:all .2s;font-family:\'IBM Plex Mono\',monospace;" onmouseover="this.style.borderColor='#34d399';this.style.color='#34d399'" onmouseout="this.style.borderColor='rgba(52,211,153,0.2)';this.style.color='rgba(52,211,153,0.4)'">＋ Befehl + Ausgabe</button>
+        </div>
+      </div></div>`;
+  } else if (type==='screenshot') {
+    body=`<div class="dg-block-body"><input class="dg-sec-title" type="text" placeholder="Abschnittstitel…" value="${dgEsc(data.title||'')}" oninput="dgMarkUnsaved()">
+      <div class="dg-sz" id="dg-sz-${id}"><div class="dg-sz-icon">IMG</div><div class="dg-sz-txt">Screenshot hochladen</div><input type="file" accept="image/*" onchange="dgLoadImg('${id}',this)"></div>
+      <input class="dg-caption" type="text" placeholder="Bildunterschrift…" value="${dgEsc(data.caption||'')}" oninput="dgMarkUnsaved()"></div>`;
+  } else if (type==='steps') {
+    const sh=(data.steps?.length?data.steps:['']).map((s,i)=>dgStepRow(i+1,s)).join('');
+    body=`<div class="dg-block-body"><input class="dg-sec-title" type="text" placeholder="Abschnittstitel…" value="${dgEsc(data.title||'')}" oninput="dgMarkUnsaved()">
+      <div id="dg-sl-${id}">${sh}</div>
+      <button class="dg-add-btn" style="margin-top:6px" onclick="dgAddStep('dg-sl-${id}')">＋ Schritt</button></div>`;
+  } else if (type==='note') {
+    const lvl=data.level||'info';
+    body=`<div class="dg-block-body">
+      <div style="display:flex;gap:10px;margin-bottom:8px;align-items:flex-end">
+        <div style="flex:1"><div class="dg-ml" style="font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#7c3aed;margin-bottom:3px">Titel</div><input class="dg-mi" style="border:none;border-bottom:1px solid rgba(124,58,237,0.15);outline:none;width:100%;font-size:9pt;color:#2d0b5a;background:transparent;padding:2px 0;" type="text" placeholder="Hinweistitel…" value="${dgEsc(data.title||'')}" oninput="dgMarkUnsaved()"></div>
+        <select class="dg-ms" style="border:none;border-bottom:1px solid rgba(124,58,237,0.15);outline:none;font-size:9pt;color:#2d0b5a;background:transparent;padding:2px 0;cursor:pointer;" onchange="dgUpdateNote(this,'${id}')">
+          <option value="info" ${lvl==='info'?'selected':''}>ℹ️ Info</option>
+          <option value="warn" ${lvl==='warn'?'selected':''}>⚠️ Warnung</option>
+          <option value="ok"   ${lvl==='ok'?'selected':''}>✅ Tipp</option>
+        </select>
       </div>
-      <input class="dt-a4-meta-input dt-caption" type="text" placeholder="Bildunterschrift…" value="${dtEsc(data.caption||'')}" style="margin-top:6px;width:100%;" oninput="dtMarkUnsaved()">
-    </div>`;
-  } else if (type === 'steps') {
-    const stepsHtml = (data.steps?.length ? data.steps : ['']).map((s,i) => dtStepRow(i+1,s)).join('');
-    body = `<div class="dt-a4-block-body">
-      <input class="dt-a4-sec-title dt-sec-title" type="text" placeholder="Abschnittstitel…" value="${dtEsc(data.title||'')}" oninput="dtMarkUnsaved()">
-      <div class="dt-steps-list" id="dt-sl-${id}">${stepsHtml}</div>
-      <button class="dt-add-btn" style="margin-top:8px" onclick="dtAddStep('dt-sl-${id}')">＋ Schritt</button>
-    </div>`;
-  } else if (type === 'note') {
-    const lvl = data.level || 'info';
-    body = `<div class="dt-a4-block-body">
-      <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-end;">
-        <div style="flex:1"><div class="dt-a4-meta-label">Titel</div>
-          <input class="dt-a4-meta-input dt-sec-title" type="text" placeholder="Hinweistitel…" value="${dtEsc(data.title||'')}" style="width:100%" oninput="dtMarkUnsaved()"></div>
-        <div><div class="dt-a4-meta-label">Art</div>
-          <select class="dt-a4-meta-select dt-note-sel" onchange="dtUpdateNote(this)">
-            <option value="info" ${lvl==='info'?'selected':''}>ℹ️ Info</option>
-            <option value="warn" ${lvl==='warn'?'selected':''}>⚠️ Warnung</option>
-            <option value="ok"   ${lvl==='ok'?'selected':''}>✅ Tipp</option>
-          </select></div>
-      </div>
-      <div class="dt-note-${lvl}" id="dt-note-box-${id}">
-        <textarea class="dt-a4-textarea" placeholder="Hinweistext…" style="background:transparent;" oninput="dtMarkUnsaved();dtAR(this)">${dtEsc(data.content||'')}</textarea>
-      </div>
+      <div class="dg-note-${lvl}" id="dg-nb-${id}"><textarea class="dg-ta" style="background:transparent" placeholder="Hinweistext…" oninput="dgMarkUnsaved();dgAR(this)">${dgEsc(data.content||'')}</textarea></div>
     </div>`;
   }
-
-  wrap.innerHTML = `
-    <div class="dt-a4-block-hdr" onclick="this.closest('.dt-a4-block').querySelector('.dt-a4-block-body').style.display=this.closest('.dt-a4-block').querySelector('.dt-a4-block-body').style.display==='none'?'':'none'">
-      <div class="dt-a4-block-label">${icons[type]} ${labels[type]}</div>
-      <button class="dt-del" onclick="event.stopPropagation();this.closest('[data-dt-id]').remove();dtMarkUnsaved()" title="Entfernen">🗑</button>
-    </div>${body}`;
-
+  wrap.innerHTML=`<div class="dg-block-hdr"><div class="dg-block-lbl">${icons[type]} ${labels[type]}</div><button class="dg-del" onclick="this.closest('[data-dg-id]').remove();dgMarkUnsaved()">🗑</button></div>${body}`;
   container.appendChild(wrap);
-
-  if (type === 'screenshot' && data.imgData) {
-    const z = wrap.querySelector('.dt-sz');
-    z.classList.add('has-img');
-    z.innerHTML = `<img src="${data.imgData}"><input type="file" accept="image/*" onchange="dtLoadImg('${id}',this)">`;
-  }
-  dtMarkUnsaved();
+  if (type==='screenshot'&&data.imgData) { const z=wrap.querySelector('.dg-sz');z.innerHTML=`<img src="${data.imgData}"><input type="file" accept="image/*" onchange="dgLoadImg('${id}',this)">`; z.classList.add('has-img'); }
+  dgMarkUnsaved();
 }
 
-function dtStepRow(num, val='') {
-  return `<div class="dt-step-row">
-    <div class="dt-step-num">${num}</div>
-    <textarea class="dt-step-ta" placeholder="Schritt beschreiben…" oninput="dtMarkUnsaved();dtAR(this)">${dtEsc(val)}</textarea>
-    <button class="dt-del" onclick="const l=this.closest('.dt-steps-list');this.closest('.dt-step-row').remove();l.querySelectorAll('.dt-step-num').forEach((n,i)=>n.textContent=i+1);dtMarkUnsaved()">✕</button>
-  </div>`;
+function dgStepRow(n,v=''){return`<div class="dg-step-row"><div class="dg-step-num">${n}</div><textarea class="dg-step-ta" placeholder="Schritt…" oninput="dgMarkUnsaved();dgAR(this)">${dgEsc(v)}</textarea><button class="dg-del" onclick="const l=this.closest('[id^=dg-sl]')||this.closest('.dg-block-body').querySelector('[id^=dg-sl]');this.closest('.dg-step-row').remove();l&&l.querySelectorAll('.dg-step-num').forEach((n,i)=>n.textContent=i+1);dgMarkUnsaved()">✕</button></div>`;}
+function dgAddStep(listId){const l=document.getElementById(listId);if(!l)return;const n=l.querySelectorAll('.dg-step-row').length+1;l.insertAdjacentHTML('beforeend',dgStepRow(n));dgMarkUnsaved();}
+function dgUpdateNote(sel,id){const b=document.getElementById('dg-nb-'+id);if(b){b.className='dg-note-'+sel.value;}dgMarkUnsaved();}
+function dgCopyCmd(id){const el=document.getElementById('dg-cmd-'+id);if(!el)return;navigator.clipboard.writeText(el.value).then(()=>dgShowToast('Befehl kopiert!'));}
+function dgLoadImg(sid,input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{const z=document.getElementById('dg-sz-'+sid);if(!z)return;z.classList.add('has-img');z.innerHTML=`<img src="${e.target.result}"><input type="file" accept="image/*" onchange="dgLoadImg('${sid}',this)">`;dgMarkUnsaved();};r.readAsDataURL(file);}
+
+// ── Tags ──
+function dgAddTag(e){if(e.key==='Enter'||e.key===','){e.preventDefault();const v=e.target.value.trim().replace(',','');if(v&&!dgTags.includes(v)){dgTags.push(v);dgRefreshTags();}else e.target.value='';}}
+function dgRemoveTag(i){dgTags.splice(i,1);dgRefreshTags();}
+function dgRefreshTags(){const w=document.getElementById('dg-tags-wrap');if(!w)return;w.innerHTML=dgTags.map((t,i)=>`<span class="dg-tag">${dgEsc(t)}<span class="dg-tag-x" onclick="dgRemoveTag(${i})">✕</span></span>`).join('')+'<input class="dg-tag-inp" id="dg-tag-inp" placeholder="Tag + Enter…" onkeydown="dgAddTag(event)">';}
+
+// ── New / Load / Save ──
+function dgNew(){
+  dgCurrentId=null; dgTags=[]; dgActivePage=0; dgSecCounter=0; dgTocHidden=new Set();
+  dgPages=[{id:'p1',title:'Seite 1',sections:[]}];
+  dgMarkUnsaved(); dgRenderPagesBar(); dgRenderEditor(); dgRenderDocList();
 }
 
-function dtAddStep(listId) {
-  const l = document.getElementById(listId);
-  const n = l.querySelectorAll('.dt-step-row').length + 1;
-  l.insertAdjacentHTML('beforeend', dtStepRow(n));
-  dtMarkUnsaved();
+function dgLoad(id){
+  const doc=dgDocs.find(d=>d.id===id);if(!doc)return;
+  dgCurrentId=id; dgTags=doc.tags||[]; dgActivePage=0; dgTocHidden=new Set();
+  dgPages=doc.pages||[{id:'p1',title:'Seite 1',sections:[]}];
+  dgRenderPagesBar(); dgRenderEditor();
+  document.getElementById('dg-status').textContent='✔ Gespeichert';
+  dgRenderDocList();
 }
 
-function dtUpdateNote(sel) {
-  const id = sel.closest('[data-dt-id]').dataset.dtId;
-  const box = document.getElementById('dt-note-box-'+id);
-  if (box) { box.className = 'dt-note-'+sel.value; }
-  dtMarkUnsaved();
+function dgSave(){
+  dgCollectCurrentPage();
+  const id=dgCurrentId||Date.now().toString(); dgCurrentId=id;
+  const title=document.getElementById('dg-doc-title')?.value||dgPages[0]._docTitle||'Ohne Titel';
+  const doc={id,title,tags:[...dgTags],pages:JSON.parse(JSON.stringify(dgPages)),savedAt:new Date().toISOString(),date:document.getElementById('dg-date')?.value||''};
+  const i=dgDocs.findIndex(d=>d.id===id);
+  if(i>=0)dgDocs[i]=doc;else dgDocs.unshift(doc);
+  localStorage.setItem('dg_docs',JSON.stringify(dgDocs));
+  document.getElementById('dg-status').textContent='✔ Gespeichert';
+  dgRenderDocList(); dgShowToast('Gespeichert!');
 }
 
-// ── TAGS ──
-function dtRenderTags() {
-  const c = document.getElementById('dt-tags-row');
-  if (!c) return;
-  c.innerHTML = dtTags.map((t,i) =>
-    `<span class="dt-tag">${dtEsc(t)}<span class="dt-tag-rm" onclick="dtRemoveTag(${i})">✕</span></span>`
-  ).join('') + '<input class="dt-tag-input" id="dt-tag-input" placeholder="Tag + Enter…" onkeydown="dtAddTag(event)">';
-}
-function dtAddTag(e) {
-  if (e.key==='Enter'||e.key===',') {
-    e.preventDefault();
-    const v = e.target.value.trim();
-    if (v && !dtTags.includes(v)) { dtTags.push(v); dtRenderTags(); dtMarkUnsaved(); }
-    else e.target.value='';
-  }
-}
-function dtRemoveTag(i) { dtTags.splice(i,1); dtRenderTags(); dtMarkUnsaved(); }
-
-// ── SCREENSHOT ──
-function dtLoadImg(sectionId, input) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const z = document.getElementById('dt-sz-'+sectionId); if (!z) return;
-    z.classList.add('has-img');
-    z.innerHTML = `<img src="${e.target.result}"><input type="file" accept="image/*" onchange="dtLoadImg('${sectionId}',this)">`;
-    dtMarkUnsaved();
-  };
-  reader.readAsDataURL(file);
+function dgMarkUnsaved(){
+  const s=document.getElementById('dg-status');
+  if(s) s.textContent='● Ungespeichert';
+  // slight delay so DOM has updated before measuring
+  clearTimeout(dgMarkUnsaved._t);
+  dgMarkUnsaved._t = setTimeout(dgCheckAutoPage, 300);
 }
 
-// ── CMD COPY ──
-function dtCopyCmd(id) {
-  const el = document.getElementById('dt-cmd-'+id); if (!el) return;
-  navigator.clipboard.writeText(el.value).then(() => dtShowToast('Befehl kopiert!'));
+// ── View ──
+function dgSetView(v){
+  const es=document.getElementById('dg-editor-scroll');
+  const ps=document.getElementById('dg-preview-scroll');
+  const be=document.getElementById('dg-btn-ed');
+  const bp=document.getElementById('dg-btn-pr');
+  if(!es||!ps)return;
+  if(v==='editor'){es.classList.remove('dg-hidden');ps.classList.remove('dg-prev-on');be?.classList.add('dg-von');bp?.classList.remove('dg-von');}
+  else{dgCollectCurrentPage();es.classList.add('dg-hidden');ps.classList.add('dg-prev-on');be?.classList.remove('dg-von');bp?.classList.add('dg-von');dgRenderPreview();}
 }
 
-// ── AUTO RESIZE ──
-function dtAR(el) { el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+function dgRenderPreview(){
+  const ps=document.getElementById('dg-preview-scroll');if(!ps)return;
+  const nc={info:'#eff6ff',warn:'#fffbeb',ok:'#f0fdf4'};
+  const nb={info:'#60a5fa',warn:'#fbbf24',ok:'#34d399'};
+  const ni={info:'ℹ️',warn:'⚠️',ok:'✅'};
+  const icons={text:'',cmd:'',screenshot:'',steps:'',note:''};
 
-// ── VIEW ──
-function dtSetView(view) {
-  const es = document.getElementById('dt-editor-scroll');
-  const ps = document.getElementById('dt-preview-scroll');
-  const be = document.getElementById('dt-btn-editor');
-  const bp = document.getElementById('dt-btn-preview');
-  if (view==='editor') {
-    es.classList.remove('dt-editor-hidden'); ps.classList.remove('dt-prev-active');
-    be.classList.add('dt-vactive'); bp.classList.remove('dt-vactive');
-  } else {
-    es.classList.add('dt-editor-hidden'); ps.classList.add('dt-prev-active');
-    be.classList.remove('dt-vactive'); bp.classList.add('dt-vactive');
-    dtRenderPreview();
-  }
-}
+  // ── Build flat TOC entries across all pages ──
+  const tocEntries = [];
+  dgPages.forEach((page, pi) => {
+    const pageLabel = page._docTitle || ('Seite ' + (pi+1));
+    tocEntries.push({ label: pageLabel, anchor: 'dg-pg-'+pi, pageNum: pi+1, type: 'page' });
+    (page.sections||[]).forEach((s,si) => {
+      if (s.title) {
+        tocEntries.push({
+          label: (icons[s.type]||'') + s.title,
+          anchor: 'dg-sec-'+pi+'-'+si,
+          pageNum: pi+1,
+          type: 'section'
+        });
+      }
+    });
+  });
 
-function dtRenderPreview() {
-  const g = id => document.getElementById(id)?.value || '';
-  const title   = g('dt-title')   || 'Ohne Titel';
-  const author  = g('dt-author');
-  const date    = g('dt-date');
-  const version = g('dt-version');
-  const secs    = dtCollect();
-  const noteColors = { info:'#eff6ff', warn:'#fffbeb', ok:'#f0fdf4' };
-  const noteBorder = { info:'#60a5fa', warn:'#fbbf24', ok:'#34d399' };
-  const noteIcons  = { info:'ℹ️', warn:'⚠️', ok:'✅' };
-
-  const secsHtml = secs.map(s => {
-    if (s.type==='text') return `
-      <div>${s.title?`<div class="dt-prev-sec-title">${dtEsc(s.title)}</div>`:''}
-      <div class="dt-prev-text">${dtEsc(s.content)}</div></div>`;
-    if (s.type==='cmd') return `
-      <div>${s.title?`<div class="dt-prev-sec-title">💻 ${dtEsc(s.title)}</div>`:''}
-      <div class="dt-prev-cmd">$ ${dtEsc(s.command)}${s.output?'\n\n'+dtEsc(s.output):''}</div></div>`;
-    if (s.type==='screenshot') return `
-      <div>${s.title?`<div class="dt-prev-sec-title">🖼️ ${dtEsc(s.title)}</div>`:''}
-      ${s.imgData?`<img class="dt-prev-img" src="${s.imgData}">`:'<div style="color:#9b89c4;font-size:9pt">Kein Bild.</div>'}
-      ${s.caption?`<div class="dt-prev-caption">${dtEsc(s.caption)}</div>`:''}</div>`;
-    if (s.type==='steps') return `
-      <div>${s.title?`<div class="dt-prev-sec-title">📋 ${dtEsc(s.title)}</div>`:''}
-      ${(s.steps||[]).map((st,i)=>`<div class="dt-step-row" style="color:#1a0535"><div class="dt-step-num">${i+1}</div><div class="dt-prev-text" style="padding-top:2px">${dtEsc(st)}</div></div>`).join('')}</div>`;
-    if (s.type==='note') return `
-      <div style="background:${noteColors[s.level]};border-left:4px solid ${noteBorder[s.level]};border-radius:4px;padding:10px 14px;margin:4px 0">
-        ${s.title?`<div style="font-weight:700;font-size:10pt;margin-bottom:4px">${noteIcons[s.level]} ${dtEsc(s.title)}</div>`:''}
-        <div class="dt-prev-text" style="font-size:9.5pt">${dtEsc(s.content)}</div>
-      </div>`;
-    return '';
-  }).join('');
-
-  document.getElementById('dt-preview-a4').innerHTML = `
-    <div class="dt-prev-title">${dtEsc(title)}</div>
-    <div class="dt-prev-meta">
-      ${author  ? `<span>👤 ${dtEsc(author)}</span>` : ''}
-      ${date    ? `<span>📅 ${date}</span>` : ''}
-      ${version ? `<span>🔖 v${dtEsc(version)}</span>` : ''}
-      ${dtTags.length ? dtTags.map(t=>`<span class="dt-tag">${dtEsc(t)}</span>`).join('') : ''}
+  // ── TOC A4 page ──
+  const docTitle = dgPages[0]?._docTitle || 'Ohne Titel';
+  const showToc = document.getElementById('dg-toc-toggle')?.checked !== false;
+  const hasHidden = dgTocHidden.size > 0;
+  const visibleEntries = tocEntries.filter(e => !dgTocHidden.has(e.anchor));
+  const tocHtml = showToc ? `<div class="dg-toc-a4">
+    <div class="dg-toc-heading" style="display:flex;align-items:center;justify-content:space-between;">
+      <span>Inhaltsverzeichnis</span>
+      ${hasHidden ? `<button onclick="dgTocHidden.clear();dgRenderPreview()" style="font-size:9pt;background:none;border:1px solid rgba(124,58,237,0.3);border-radius:5px;color:rgba(124,58,237,0.6);padding:2px 9px;cursor:pointer;font-family:'IBM Plex Mono',monospace;transition:all .15s;" onmouseover="this.style.color='#7c3aed';this.style.borderColor='#7c3aed'" onmouseout="this.style.color='rgba(124,58,237,0.6)';this.style.borderColor='rgba(124,58,237,0.3)'">Alle einblenden</button>` : ''}
     </div>
-    ${secsHtml || '<div style="color:#9b89c4;font-size:10pt">Noch keine Sektionen.</div>'}`;
+    <div style="font-size:8.5pt;color:rgba(124,58,237,0.4);margin-bottom:14px;font-family:'IBM Plex Mono',monospace">${dgEsc(docTitle)}</div>
+    ${visibleEntries.map(e => `
+      <div class="dg-toc-entry ${e.type==='section'?'dg-toc-sub':''}" style="display:flex;align-items:baseline;gap:0;">
+        <a href="#${e.anchor}" style="flex-shrink:0;max-width:60%">${dgEsc(e.label)}</a>
+        <span class="dg-toc-dots"></span>
+        <span class="dg-toc-page">Seite ${e.pageNum}</span>
+        <button onclick="dgTocHidden.add('${e.anchor}');dgRenderPreview()" title="Aus Inhaltsverzeichnis ausblenden" style="margin-left:10px;flex-shrink:0;background:none;border:none;color:rgba(124,58,237,0.25);cursor:pointer;font-size:11px;padding:0 3px;line-height:1;transition:color .15s;" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='rgba(124,58,237,0.25)'">✕</button>
+      </div>`).join('')}
+    ${visibleEntries.length===0?'<div style="color:rgba(124,58,237,0.3);font-size:10pt">Alle Einträge ausgeblendet. <button onclick="dgTocHidden.clear();dgRenderPreview()" style="background:none;border:none;color:#7c3aed;cursor:pointer;font-size:10pt;text-decoration:underline;padding:0">Zurücksetzen</button></div>':''}
+  </div>` : '';
+
+  // ── Content pages ──
+  const pagesHtml = dgPages.map((page,pi)=>{
+    const title = page._docTitle || 'Ohne Titel';
+    const secs = (page.sections||[]).map((s,si)=>{
+      const anchorId = `dg-sec-${pi}-${si}`;
+      const titleHtml = s.title ? `<div class="dg-prev-sec-title" id="${anchorId}">${dgEsc(s.title)}</div>` : '';
+      if(s.type==='text')   return titleHtml+`<div class="dg-prev-text">${dgEsc(s.content)}</div>`;
+      if(s.type==='cmd') {
+        const cmds = s.commands?.length ? s.commands : (s.command ? [{cmd:s.command,out:s.output||''}] : []);
+        const cmdLines = cmds.map(c=>'$ '+dgEsc(c.cmd)+(c.out?'\n'+dgEsc(c.out):'')).join('\n');
+        return titleHtml+`<div class="dg-prev-cmd">${cmdLines}</div>`;
+      }
+      if(s.type==='screenshot') return titleHtml+(s.imgData?`<img class="dg-prev-img" src="${s.imgData}">`:'')+(s.caption?`<div class="dg-prev-caption">${dgEsc(s.caption)}</div>`:'');
+      if(s.type==='steps')  return titleHtml+(s.steps||[]).map((st,i)=>`<div class="dg-step-row" style="color:#1a0535"><div class="dg-step-num">${i+1}</div><div class="dg-prev-text" style="padding-top:1px">${dgEsc(st)}</div></div>`).join('');
+      if(s.type==='note')   return `<div style="background:${nc[s.level]};border-left:3px solid ${nb[s.level]};border-radius:4px;padding:9px 12px;margin:4px 0" id="${anchorId}">${s.title?`<div style="font-weight:700;font-size:10pt;margin-bottom:4px">${ni[s.level]} ${dgEsc(s.title)}</div>`:''}<div class="dg-prev-text" style="font-size:9.5pt">${dgEsc(s.content)}</div></div>`;
+      return '';
+    }).join('');
+    return`<div class="dg-prev-a4" id="dg-pg-${pi}">
+      <div class="dg-prev-title">${dgEsc(title)}</div>
+      <div class="dg-prev-meta">${[page._author?dgEsc(page._author):'',page._date?page._date:'',page._version?'v'+dgEsc(page._version):'',page._cat?dgEsc(page._cat):''].filter(Boolean).join('&nbsp;&nbsp;·&nbsp;&nbsp;')}</div>
+      ${dgTags.length?`<div class="dg-prev-tags">${dgTags.map(t=>`<span class="dg-tag">${dgEsc(t)}</span>`).join('')}</div>`:''}
+      ${secs||'<div style="color:rgba(124,58,237,0.3);font-size:10pt">Noch keine Inhalte.</div>'}
+    </div>`;
+  }).join('<div class="dg-prev-pagesep">— ∙ —</div>');
+
+  ps.innerHTML = (showToc ? tocHtml + '<div class="dg-prev-pagesep">— ∙ —</div>' : '') + pagesHtml;
 }
 
-// ── EXPORT ──
-function dtExport() {
-  dtSave();
-  const doc = dtDocs.find(d => d.id === dtCurrentId); if (!doc) return;
-  const blob = new Blob([JSON.stringify(doc, null, 2)], { type:'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = (doc.title||'anleitung') + '.json'; a.click();
-  dtShowToast('Als JSON exportiert!');
+// ── Export / Print ──
+function dgExport(){
+  dgSave();
+  const doc=dgDocs.find(d=>d.id===dgCurrentId);if(!doc)return;
+  const blob=new Blob([JSON.stringify(doc,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(doc.title||'anleitung')+'.json';a.click();
+  dgShowToast('Als JSON exportiert!');
+}
+function dgPrint(){dgSetView('preview');setTimeout(()=>window.print(),400);}
+
+// ── Toast ──
+function dgShowToast(msg){
+  const t=document.getElementById('dg-toast');
+  document.getElementById('dg-toast-msg').textContent=msg;
+  t.classList.add('dg-toast-on');
+  setTimeout(()=>t.classList.remove('dg-toast-on'),2500);
 }
 
-function dtPrint() { dtSetView('preview'); setTimeout(() => window.print(), 400); }
+// ── Utils ──
+function dgAR(el){el.style.height='auto';el.style.height=el.scrollHeight+'px';}
 
-// ── TOAST ──
-function dtShowToast(msg) {
-  const t = document.getElementById('dt-toast');
-  document.getElementById('dt-toast-msg').textContent = msg;
-  t.classList.add('dt-toast-show');
-  setTimeout(() => t.classList.remove('dt-toast-show'), 2500);
+// ── Multi-command helpers ──
+function dgAddCmdRow(listId) {
+  const l = document.getElementById(listId); if (!l) return;
+  l.insertAdjacentHTML('beforeend', `
+    <div class="dg-cmd-row" data-cmd-row>
+      <span class="dg-prompt">$</span>
+      <textarea class="dg-cmd-ta" rows="1" placeholder="Befehl…" oninput="dgMarkUnsaved();dgAR(this)"></textarea>
+      <button class="dg-cmd-row-del" onclick="this.closest('[data-cmd-row]').remove();dgMarkUnsaved()" style="background:none;border:none;color:rgba(168,85,247,0.3);cursor:pointer;font-size:12px;padding:2px 4px;transition:color .15s;" onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='rgba(168,85,247,0.3)'">✕</button>
+    </div>`);
+  dgMarkUnsaved();
+}
+function dgAddCmdRowWithOut(listId) {
+  const l = document.getElementById(listId); if (!l) return;
+  l.insertAdjacentHTML('beforeend', `
+    <div class="dg-cmd-row" data-cmd-row>
+      <span class="dg-prompt">$</span>
+      <textarea class="dg-cmd-ta" rows="1" placeholder="Befehl…" oninput="dgMarkUnsaved();dgAR(this)"></textarea>
+      <button class="dg-cmd-row-del" onclick="const r=this.closest('[data-cmd-row]');r.nextElementSibling?.classList.contains('dg-out-wrap')&&r.nextElementSibling.remove();r.remove();dgMarkUnsaved()" style="background:none;border:none;color:rgba(168,85,247,0.3);cursor:pointer;font-size:12px;padding:2px 4px;" onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='rgba(168,85,247,0.3)'">✕</button>
+    </div>
+    <div class="dg-out-wrap"><textarea class="dg-out-ta" rows="1" placeholder="Ausgabe…" oninput="dgMarkUnsaved();dgAR(this)"></textarea></div>`);
+  dgMarkUnsaved();
+}
+function dgCopyAll(termId) {
+  const rows = document.querySelectorAll(`#dg-term-${termId} [data-cmd-row]`);
+  const lines = [...rows].map(r => {
+    const cmd = '$ ' + (r.querySelector('.dg-cmd-ta')?.value||'');
+    const out = r.nextElementSibling?.classList.contains('dg-out-wrap') ? r.nextElementSibling.querySelector('.dg-out-ta')?.value||'' : '';
+    return cmd + (out ? '\n'+out : '');
+  }).join('\n');
+  navigator.clipboard.writeText(lines).then(() => dgShowToast('Befehle kopiert!'));
 }
 
-// ── UTILS ──
-function dtEsc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+// ── Auto page break ──
+// A4 at 96dpi: 297mm ≈ 1122px. We track filled height and auto-split.
+const DG_A4_H_PX = 1100; // safe threshold in px before new page
+function dgCheckAutoPage() {
+  const a4 = document.getElementById('dg-a4-current'); if (!a4) return;
+  // if content exceeds A4 height, offer to add new page
+  const h = a4.scrollHeight;
+  const indicator = document.getElementById('dg-page-overflow-hint');
+  if (h > DG_A4_H_PX) {
+    if (!indicator) {
+      const hint = document.createElement('div');
+      hint.id = 'dg-page-overflow-hint';
+      hint.style.cssText = 'margin-top:10px;padding:8px 14px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);border-radius:7px;font-size:10.5pt;color:#c084fc;display:flex;align-items:center;gap:10px;font-family:\'IBM Plex Sans\',sans-serif;';
+      hint.innerHTML = '📄 <span>Die Seite ist voll — Inhalt überläuft die A4-Höhe.</span> <button onclick="dgAddPage()" style="margin-left:auto;padding:4px 12px;border:none;border-radius:6px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;font-size:10pt;cursor:pointer;">＋ Neue Seite</button>';
+      a4.appendChild(hint);
+    }
+  } else if (indicator) {
+    indicator.remove();
+  }
 }
+function dgEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+// ══════════════════════════════════
+// M122 SCRIPT-BUILDER
+// ══════════════════════════════════
+let sbBlocks = [];          // flat list of block data objects
+let sbDragType = null;      // palette drag type
+let sbDragId   = null;      // canvas drag id
+let sbDragOver = null;      // id currently hovered
+let sbIdCtr    = 0;
+let sbHistory  = [];        // terminal history
+let sbHistIdx  = -1;
+
+// ── Language helpers ──
+const SB_LANG = {
+  bash: {
+    shebang: '#!/bin/bash\n',
+    comment: (t) => `# ${t}`,
+    var:     (n,v) => `${n}="${v}"`,
+    echo:    (t) => `echo "${t}"`,
+    cmd:     (c) => c,
+    if:      (c) => [`if [ ${c} ]; then`, 'fi'],
+    elif:    (c) => [`elif [ ${c} ]; then`],
+    else:    ()  => ['else'],
+    for:     (v,l) => [`for ${v} in ${l}; do`, 'done'],
+    while:   (c) => [`while [ ${c} ]; do`, 'done'],
+    func:    (n) => [`function ${n}() {`, '}'],
+    pipe:    (a,b) => `${a} | ${b}`,
+    exit:    (c) => `exit ${c}`,
+    indent: '  ',
+  },
+  powershell: {
+    shebang: '',
+    comment: (t) => `# ${t}`,
+    var:     (n,v) => `$${n} = "${v}"`,
+    echo:    (t) => `Write-Host "${t}"`,
+    cmd:     (c) => c,
+    if:      (c) => [`if (${c}) {`, '}'],
+    elif:    (c) => [`} elseif (${c}) {`],
+    else:    ()  => ['} else {'],
+    for:     (v,l) => [`foreach ($${v} in ${l}) {`, '}'],
+    while:   (c) => [`while (${c}) {`, '}'],
+    func:    (n) => [`function ${n} {`, '}'],
+    pipe:    (a,b) => `${a} | ${b}`,
+    exit:    (c) => `exit ${c}`,
+    indent: '    ',
+  },
+  python: {
+    shebang: '#!/usr/bin/env python3\n',
+    comment: (t) => `# ${t}`,
+    var:     (n,v) => `${n} = "${v}"`,
+    echo:    (t) => `print("${t}")`,
+    cmd:     (c) => `import subprocess\nsubprocess.run("${c}", shell=True)`,
+    if:      (c) => [`if ${c}:`, ''],
+    elif:    (c) => [`elif ${c}:`],
+    else:    ()  => ['else:'],
+    for:     (v,l) => [`for ${v} in ${l}:`, ''],
+    while:   (c) => [`while ${c}:`, ''],
+    func:    (n) => [`def ${n}():`, ''],
+    pipe:    (a,b) => `# pipe: ${a} | ${b}`,
+    exit:    (c) => `import sys\nsys.exit(${c})`,
+    indent: '    ',
+  },
+  batch: {
+    shebang: '@echo off\n',
+    comment: (t) => `REM ${t}`,
+    var:     (n,v) => `SET ${n}=${v}`,
+    echo:    (t) => `ECHO ${t}`,
+    cmd:     (c) => c,
+    if:      (c) => [`IF ${c} (`, ')'],
+    elif:    (c) => [`REM ELIF: ${c}`],
+    else:    ()  => [''] ,
+    for:     (v,l) => [`FOR %%${v} IN (${l}) DO (`, ')'  ],
+    while:   (c) => [`REM WHILE ${c}:`],
+    func:    (n) => [`:${n}`, 'GOTO :EOF'],
+    pipe:    (a,b) => `${a} | ${b}`,
+    exit:    (c) => `EXIT /B ${c}`,
+    indent: '  ',
+  }
+};
+
+function sbLang() { return document.getElementById('sb-lang')?.value || 'bash'; }
+
+// ── Block data defaults ──
+function sbDefaultBlock(type) {
+  const id = 'sb_' + (++sbIdCtr);
+  const base = { id, type, children: [] };
+  const d = {
+    cmd:     { ...base, cmd: '' },
+    echo:    { ...base, text: '' },
+    var:     { ...base, name: 'VAR', value: '' },
+    comment: { ...base, text: '' },
+    if:      { ...base, cond: '', children: [], elseChildren: [] },
+    elif:    { ...base, cond: '' },
+    else:    { ...base },
+    for:     { ...base, varName: 'i', list: '1 2 3', children: [] },
+    while:   { ...base, cond: 'true', children: [] },
+    func:    { ...base, name: 'myFunc', children: [] },
+    pipe:    { ...base, left: '', right: '' },
+    exit:    { ...base, code: '0' },
+  };
+  return d[type] || base;
+}
+
+// ── Palette drag ──
+function sbPilDrag(e, type) {
+  sbDragType = type;
+  sbDragId   = null;
+  e.dataTransfer.effectAllowed = 'copy';
+  e.dataTransfer.setData('text/plain', type);
+}
+
+// ── Canvas drag ──
+function sbBlockDragStart(e, id) {
+  sbDragId   = id;
+  sbDragType = null;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', id);
+  setTimeout(() => {
+    const el = document.querySelector(`[data-sbid="${id}"]`);
+    if (el) el.classList.add('sb-cb-drag');
+  }, 0);
+}
+
+function sbBlockDragEnd(e) {
+  document.querySelectorAll('.sb-cb-drag').forEach(el => el.classList.remove('sb-cb-drag'));
+  sbDragId = sbDragType = null;
+}
+
+function sbCvsDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = sbDragType ? 'copy' : 'move';
+  document.getElementById('sb-canvas').classList.add('sb-dz-active');
+}
+function sbCvsDragLeave(e) {
+  if (!document.getElementById('sb-canvas').contains(e.relatedTarget))
+    document.getElementById('sb-canvas').classList.remove('sb-dz-active');
+}
+
+function sbCvsDrop(e) {
+  e.preventDefault();
+  document.getElementById('sb-canvas').classList.remove('sb-dz-active');
+  if (sbDragType) {
+    // from palette → add new block
+    const b = sbDefaultBlock(sbDragType);
+    // find drop position based on clientY
+    const canvas = document.getElementById('sb-canvas');
+    const siblings = [...canvas.querySelectorAll(':scope > .sb-cb')];
+    let insertBefore = null;
+    for (const s of siblings) {
+      const r = s.getBoundingClientRect();
+      if (e.clientY < r.top + r.height / 2) { insertBefore = s.dataset.sbid; break; }
+    }
+    if (insertBefore) {
+      const idx = sbBlocks.findIndex(x => x.id === insertBefore);
+      sbBlocks.splice(idx, 0, b);
+    } else {
+      sbBlocks.push(b);
+    }
+  } else if (sbDragId) {
+    // reorder
+    const canvas = document.getElementById('sb-canvas');
+    const siblings = [...canvas.querySelectorAll(':scope > .sb-cb')];
+    let insertBefore = null;
+    for (const s of siblings) {
+      if (s.dataset.sbid === sbDragId) continue;
+      const r = s.getBoundingClientRect();
+      if (e.clientY < r.top + r.height / 2) { insertBefore = s.dataset.sbid; break; }
+    }
+    const fromIdx = sbBlocks.findIndex(x => x.id === sbDragId);
+    const [moved] = sbBlocks.splice(fromIdx, 1);
+    if (insertBefore) {
+      const toIdx = sbBlocks.findIndex(x => x.id === insertBefore);
+      sbBlocks.splice(toIdx, 0, moved);
+    } else {
+      sbBlocks.push(moved);
+    }
+  }
+  sbDragType = sbDragId = null;
+  sbRenderCanvas();
+  sbUpdateCode();
+}
+
+// ── Render canvas ──
+function sbRenderCanvas() {
+  const canvas = document.getElementById('sb-canvas');
+  const empty  = document.getElementById('sb-empty');
+  if (!canvas) return;
+
+  // Remove all existing blocks (keep empty div)
+  [...canvas.querySelectorAll('.sb-cb')].forEach(el => el.remove());
+
+  if (sbBlocks.length === 0) {
+    if (empty) empty.style.display = '';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+
+  sbBlocks.forEach((b, i) => {
+    const el = sbBuildBlockEl(b);
+    canvas.appendChild(el);
+  });
+}
+
+function sbBuildBlockEl(b) {
+  const colMap = {
+    cmd:'pc', echo:'pe', var:'pv', comment:'pco',
+    if:'pi', elif:'pei', else:'pel',
+    for:'pf', while:'pw', func:'pfn', pipe:'pp', exit:'px'
+  };
+  const labelMap = {
+    cmd:'Befehl', echo:'Ausgabe', var:'Variable', comment:'Kommentar',
+    if:'If', elif:'Elif / ElseIf', else:'Else',
+    for:'For', while:'While', func:'Funktion', pipe:'Pipe', exit:'Exit'
+  };
+
+  const wrap = document.createElement('div');
+  wrap.className = `sb-cb ${colMap[b.type]||'pc'}`;
+  wrap.dataset.sbid = b.id;
+  wrap.draggable = true;
+  wrap.addEventListener('dragstart', e => sbBlockDragStart(e, b.id));
+  wrap.addEventListener('dragend',   sbBlockDragEnd);
+
+  // Header
+  const hdr = document.createElement('div');
+  hdr.className = 'sb-cbh';
+  hdr.innerHTML = `<span class="sb-cbt">${labelMap[b.type]||b.type}</span>
+    <div class="sb-cba">
+      <button class="sb-cbab" onclick="sbMoveBlock('${b.id}',-1)" title="Hoch">↑</button>
+      <button class="sb-cbab" onclick="sbMoveBlock('${b.id}',1)"  title="Runter">↓</button>
+      <button class="sb-cbab" onclick="sbDeleteBlock('${b.id}')" title="Löschen" style="color:#f87171">✕</button>
+    </div>`;
+  wrap.appendChild(hdr);
+
+  // Body
+  const body = document.createElement('div');
+  body.className = 'sb-cbb';
+  body.innerHTML = sbBuildBodyHTML(b);
+  wrap.appendChild(body);
+
+  // nested children area for if/for/while/func
+  if (['if','for','while','func'].includes(b.type)) {
+    const nest = document.createElement('div');
+    nest.className = 'sb-nested';
+    nest.dataset.parentid = b.id;
+    nest.innerHTML = `<div class="sb-nested-lbl">INHALT</div>`;
+    if (!b.children?.length) {
+      nest.innerHTML += `<div class="sb-nested-empty">— Blöcke hierher ziehen —</div>`;
+    } else {
+      b.children.forEach(ch => {
+        const cel = sbBuildBlockEl(ch);
+        cel.style.marginBottom = '4px';
+        nest.appendChild(cel);
+      });
+    }
+    nest.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); nest.style.borderColor='rgba(168,85,247,.4)'; });
+    nest.addEventListener('dragleave', e => { nest.style.borderColor=''; });
+    nest.addEventListener('drop', e => {
+      e.preventDefault(); e.stopPropagation();
+      nest.style.borderColor='';
+      const parentId = nest.dataset.parentid;
+      const parent = sbFindBlock(parentId);
+      if (!parent) return;
+      if (sbDragType) {
+        const nb = sbDefaultBlock(sbDragType);
+        parent.children = parent.children || [];
+        parent.children.push(nb);
+      } else if (sbDragId && sbDragId !== parentId) {
+        // move from top-level or another parent
+        const moved = sbRemoveBlock(sbDragId);
+        if (moved) { parent.children = parent.children||[]; parent.children.push(moved); }
+      }
+      sbDragType=sbDragId=null;
+      sbRenderCanvas(); sbUpdateCode();
+    });
+    body.appendChild(nest);
+  }
+
+  // else-children for if
+  if (b.type === 'if') {
+    const enest = document.createElement('div');
+    enest.className = 'sb-nested';
+    enest.dataset.parentid = b.id;
+    enest.dataset.nesttype = 'else';
+    enest.innerHTML = `<div class="sb-nested-lbl">ELSE-INHALT</div>`;
+    if (!b.elseChildren?.length) {
+      enest.innerHTML += `<div class="sb-nested-empty">— Optional —</div>`;
+    } else {
+      b.elseChildren.forEach(ch => { const cel=sbBuildBlockEl(ch); cel.style.marginBottom='4px'; enest.appendChild(cel); });
+    }
+    body.appendChild(enest);
+  }
+
+  // Wire inputs to update data
+  setTimeout(() => sbWireInputs(wrap, b), 0);
+  return wrap;
+}
+
+function sbBuildBodyHTML(b) {
+  const lang = sbLang();
+  const ph = {
+    bash:{ cond:'[ $VAR -eq 0 ]', forvar:'i', forlist:'1 2 3', whcond:'true', pipe_l:'ls', pipe_r:'grep txt' },
+    powershell:{ cond:'$x -eq 0', forvar:'item', forlist:'$array', whcond:'$true', pipe_l:'Get-Process', pipe_r:'Where-Object' },
+    python:{ cond:'x == 0', forvar:'i', forlist:'range(10)', whcond:'True', pipe_l:'cmd', pipe_r:'grep' },
+    batch:{ cond:'%VAR%==0', forvar:'F', forlist:'*.txt', whcond:'1==1', pipe_l:'dir', pipe_r:'findstr' },
+  }[lang] || {};
+
+  const t = b.type;
+  if (t==='cmd')     return `<div class="sb-row"><span class="sb-lbl">Befehl</span><input class="sb-inp sb-d" data-field="cmd"     placeholder="z.B. ls -la" value="${sbEsc(b.cmd||'')}"></div>`;
+  if (t==='echo')    return `<div class="sb-row"><span class="sb-lbl">Text</span><input class="sb-inp sb-d" data-field="text"    placeholder="Hallo Welt" value="${sbEsc(b.text||'')}"></div>`;
+  if (t==='var')     return `<div class="sb-row"><span class="sb-lbl">Name</span><input class="sb-inp sb-d" data-field="name"    placeholder="VARNAME" value="${sbEsc(b.name||'VAR')}" style="width:90px"></div><div class="sb-row"><span class="sb-lbl">Wert</span><input class="sb-inp sb-d" data-field="value"   placeholder="wert" value="${sbEsc(b.value||'')}"></div>`;
+  if (t==='comment') return `<div class="sb-row"><span class="sb-lbl">Text</span><input class="sb-inp sb-d" data-field="text"    placeholder="Kommentar…" value="${sbEsc(b.text||'')}"></div>`;
+  if (t==='if'||t==='elif') return `<div class="sb-row"><span class="sb-lbl">Bedingung</span><input class="sb-inp sb-d" data-field="cond"    placeholder="${sbEsc(ph.cond)}" value="${sbEsc(b.cond||'')}"></div>`;
+  if (t==='else')    return `<div class="sb-row" style="color:rgba(248,113,113,.5);font-size:10px;padding:2px 0">Else-Block — kein Inhalt nötig</div>`;
+  if (t==='for')     return `<div class="sb-row"><span class="sb-lbl">Variable</span><input class="sb-inp sb-d" data-field="varName" placeholder="${sbEsc(ph.forvar)}" value="${sbEsc(b.varName||'i')}" style="width:70px"></div><div class="sb-row"><span class="sb-lbl">Liste</span><input class="sb-inp sb-d" data-field="list"    placeholder="${sbEsc(ph.forlist)}" value="${sbEsc(b.list||'')}"></div>`;
+  if (t==='while')   return `<div class="sb-row"><span class="sb-lbl">Bedingung</span><input class="sb-inp sb-d" data-field="cond"    placeholder="${sbEsc(ph.whcond)}" value="${sbEsc(b.cond||'')}"></div>`;
+  if (t==='func')    return `<div class="sb-row"><span class="sb-lbl">Name</span><input class="sb-inp sb-d" data-field="name"    placeholder="meineFunktion" value="${sbEsc(b.name||'myFunc')}"></div>`;
+  if (t==='pipe')    return `<div class="sb-row"><span class="sb-lbl">Links</span><input class="sb-inp sb-d" data-field="left"    placeholder="${sbEsc(ph.pipe_l)}" value="${sbEsc(b.left||'')}"></div><div class="sb-row"><span class="sb-lbl">Rechts</span><input class="sb-inp sb-d" data-field="right"   placeholder="${sbEsc(ph.pipe_r)}" value="${sbEsc(b.right||'')}"></div>`;
+  if (t==='exit')    return `<div class="sb-row"><span class="sb-lbl">Code</span><input class="sb-inp sb-d" data-field="code"    placeholder="0" value="${sbEsc(b.code||'0')}" style="width:60px"></div>`;
+  return '';
+}
+
+function sbWireInputs(el, b) {
+  el.querySelectorAll('input.sb-d').forEach(inp => {
+    inp.addEventListener('input', () => {
+      b[inp.dataset.field] = inp.value;
+      sbUpdateCode();
+    });
+  });
+}
+
+// ── Block utilities ──
+function sbFindBlock(id, arr) {
+  arr = arr || sbBlocks;
+  for (const b of arr) {
+    if (b.id === id) return b;
+    if (b.children?.length) { const f=sbFindBlock(id,b.children); if(f)return f; }
+    if (b.elseChildren?.length) { const f=sbFindBlock(id,b.elseChildren); if(f)return f; }
+  }
+  return null;
+}
+function sbRemoveBlock(id, arr) {
+  arr = arr || sbBlocks;
+  for (let i=0;i<arr.length;i++) {
+    if (arr[i].id===id) { const [r]=arr.splice(i,1); return r; }
+    if (arr[i].children?.length) { const r=sbRemoveBlock(id,arr[i].children); if(r)return r; }
+    if (arr[i].elseChildren?.length) { const r=sbRemoveBlock(id,arr[i].elseChildren); if(r)return r; }
+  }
+  return null;
+}
+function sbMoveBlock(id, dir) {
+  const idx = sbBlocks.findIndex(x=>x.id===id);
+  if (idx===-1) return;
+  const ni = idx+dir;
+  if (ni<0||ni>=sbBlocks.length) return;
+  [sbBlocks[idx],sbBlocks[ni]]=[sbBlocks[ni],sbBlocks[idx]];
+  sbRenderCanvas(); sbUpdateCode();
+}
+function sbDeleteBlock(id) {
+  sbRemoveBlock(id); sbRenderCanvas(); sbUpdateCode();
+}
+function sbClearCanvas() {
+  sbBlocks=[]; sbRenderCanvas(); sbUpdateCode();
+}
+
+// ── Code generation ──
+function sbUpdateCode() {
+  const code = sbGenCode(sbBlocks, sbLang(), 0);
+  const pre = document.getElementById('sb-code');
+  if (pre) pre.textContent = code;
+  sbColorize();
+}
+function sbGenCode(blocks, lang, depth) {
+  const L = SB_LANG[lang];
+  const ind = L.indent.repeat(depth);
+  let out = '';
+  if (depth===0 && L.shebang) out = L.shebang + '\n';
+
+  for (const b of blocks) {
+    const t = b.type;
+    if (t==='comment') { out += ind + L.comment(b.text||'') + '\n'; }
+    else if (t==='var')  { out += ind + L.var(b.name||'VAR', b.value||'') + '\n'; }
+    else if (t==='echo') { out += ind + L.echo(b.text||'') + '\n'; }
+    else if (t==='cmd')  { out += ind + L.cmd(b.cmd||'') + '\n'; }
+    else if (t==='pipe') { out += ind + L.pipe(b.left||'', b.right||'') + '\n'; }
+    else if (t==='exit') { out += ind + L.exit(b.code||'0') + '\n'; }
+    else if (t==='if') {
+      const [open,close] = L.if(b.cond||'condition');
+      out += ind + open + '\n';
+      if (b.children?.length) out += sbGenCode(b.children, lang, depth+1);
+      else out += ind + L.indent + L.comment('Inhalt hier') + '\n';
+      if (b.elseChildren?.length) {
+        const [,ec]=L.if('x'); // get closing token
+        out += ind + (lang==='bash'?'else':lang==='powershell'?'} else {':lang==='python'?'else:':'') + '\n';
+        out += sbGenCode(b.elseChildren, lang, depth+1);
+      }
+      if (close) out += ind + close + '\n';
+    }
+    else if (t==='elif') {
+      const [open] = L.elif(b.cond||'condition');
+      out += ind + open + '\n';
+    }
+    else if (t==='else') {
+      const [open] = L.else();
+      if (open) out += ind + open + '\n';
+    }
+    else if (t==='for') {
+      const [open,close] = L.for(b.varName||'i', b.list||'list');
+      out += ind + open + '\n';
+      if (b.children?.length) out += sbGenCode(b.children, lang, depth+1);
+      else out += ind + L.indent + L.comment('Schleifeninhalt') + '\n';
+      if (close) out += ind + close + '\n';
+    }
+    else if (t==='while') {
+      const [open,close] = L.while(b.cond||'true');
+      out += ind + open + '\n';
+      if (b.children?.length) out += sbGenCode(b.children, lang, depth+1);
+      else out += ind + L.indent + L.comment('Schleifeninhalt') + '\n';
+      if (close) out += ind + close + '\n';
+    }
+    else if (t==='func') {
+      const [open,close] = L.func(b.name||'myFunc');
+      out += ind + open + '\n';
+      if (b.children?.length) out += sbGenCode(b.children, lang, depth+1);
+      else out += ind + L.indent + L.comment('Funktionsinhalt') + '\n';
+      if (close) out += ind + close + '\n';
+    }
+    out += '\n';
+  }
+  return out;
+}
+
+function sbColorize() {
+  // simple keyword highlight via DOM
+  const pre = document.getElementById('sb-code');
+  if (!pre) return;
+  const raw = pre.textContent;
+  // highlight with span colors
+  const colored = raw
+    .replace(/(&lt;|&gt;|&amp;)/g, m => m)
+    .replace(/(^|\n)(#[^\n]*)/g, '$1<span style="color:#94a3b8">$2</span>')
+    .replace(/\b(if|elif|else|fi|then|for|while|do|done|in|function|def|return|exit|echo|print|foreach|Write-Host|REM|ECHO|GOTO|SET|CALL)\b/g,
+      '<span style="color:#fbbf24">$1</span>')
+    .replace(/\$\w+/g, '<span style="color:#34d399">$&</span>')
+    .replace(/("[^"]*")/g, '<span style="color:#86efac">$1</span>')
+    .replace(/\b(\d+)\b/g, '<span style="color:#38bdf8">$1</span>');
+  pre.innerHTML = colored;
+}
+
+// ── Run (simulated) ──
+function sbRun() {
+  const out = document.getElementById('sb-out');
+  const code = sbGenCode(sbBlocks, sbLang(), 0);
+  if (!code.trim().replace(/#!/,'').trim()) {
+    out.innerHTML = '<span class="ts">— Kein Code vorhanden —</span>';
+    return;
+  }
+  const lines = code.split('\n');
+  out.innerHTML = '';
+  const lang = sbLang();
+  const vars = {};
+  let output = '';
+
+  const append = (txt, cls) => {
+    output += `<span class="${cls||'to'}">${sbEsc(txt)}\n</span>`;
+  };
+
+  append(`[${lang}] Script wird ausgeführt (simuliert)…`, 'ts');
+
+  // Simple simulation
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('REM') || trimmed==='#!/bin/bash' || trimmed==='#!/usr/bin/env python3' || trimmed==='@echo off') continue;
+
+    // Variable assignment
+    const vaM = trimmed.match(/^(\w+)="?([^"]*)"?$/) || trimmed.match(/^\$(\w+)\s*=\s*"?([^"]*)"?/) || trimmed.match(/^SET\s+(\w+)=(.*)$/i);
+    if (vaM) { vars[vaM[1]] = vaM[2]; continue; }
+
+    // Echo/print
+    let echoM = trimmed.match(/^echo\s+"?(.+)"?$/i) || trimmed.match(/^Write-Host\s+"?(.+)"?/i) || trimmed.match(/^print\("(.+)"\)/) || trimmed.match(/^ECHO\s+(.+)/i);
+    if (echoM) {
+      let txt = echoM[1].replace(/\$(\w+)/g, (_,k)=>vars[k]||`$${k}`).replace(/\$\{(\w+)\}/g,(_,k)=>vars[k]||k);
+      append(txt, 'to');
+      continue;
+    }
+
+    // exit
+    if (trimmed.match(/^exit\s*\d*/i)||trimmed.match(/^sys\.exit/)) {
+      const code = trimmed.match(/\d+/)?.[0]||'0';
+      append(`[Prozess beendet mit Code ${code}]`, 'ts');
+      break;
+    }
+
+    // Show other lines dimmed
+    append(`  ${trimmed}`, 'ts');
+  }
+
+  append('\n[Fertig]', 'ts');
+  out.innerHTML = output;
+  out.scrollTop = out.scrollHeight;
+}
+
+// ── Terminal input ──
+function sbTermKey(e) {
+  const inp = document.getElementById('sb-tin');
+  const out = document.getElementById('sb-out');
+  if (e.key === 'ArrowUp') { if (sbHistIdx < sbHistory.length-1) { sbHistIdx++; inp.value=sbHistory[sbHistIdx]; } return; }
+  if (e.key === 'ArrowDown') { if (sbHistIdx > 0) { sbHistIdx--; inp.value=sbHistory[sbHistIdx]; } else {sbHistIdx=-1;inp.value='';} return; }
+  if (e.key !== 'Enter') return;
+  const cmd = inp.value.trim();
+  if (!cmd) return;
+  sbHistory.unshift(cmd); sbHistIdx=-1;
+  inp.value = '';
+
+  // Append prompt + command
+  out.innerHTML += `<span class="tp">$ ${sbEsc(cmd)}</span>\n`;
+
+  // Simulate common commands
+  const lang = sbLang();
+  let response = '';
+  const c = cmd.toLowerCase();
+  if (c==='clear'||c==='cls') { out.innerHTML=''; return; }
+  else if (c.startsWith('echo ')) response = cmd.slice(5).replace(/"/g,'');
+  else if (c==='ls'||c==='dir') response = 'datei1.txt  datei2.sh  ordner/  skript.py';
+  else if (c==='pwd') response = '/home/benutzer/scripts';
+  else if (c==='whoami') response = 'benutzer';
+  else if (c==='date') response = new Date().toString();
+  else if (c==='uname -a'||c==='uname') response = 'Linux simterm 5.15.0 #1 SMP x86_64 GNU/Linux';
+  else if (c==='ps'||c==='ps aux') response = '  PID TTY\n 1234 pts/0\n 5678 pts/0';
+  else if (c.startsWith('cat ')) response = `[Inhalt von "${cmd.slice(4)}" nicht verfügbar in Simulation]`;
+  else if (c.startsWith('cd ')) response = '';
+  else if (c==='help') response = 'Verfügbar: echo, ls, dir, pwd, whoami, date, uname, ps, cat, cd, clear, help';
+  else response = `bash: ${cmd.split(' ')[0]}: Befehl nicht gefunden (Simulation)`;
+
+  if (response) out.innerHTML += `<span class="to">${sbEsc(response)}</span>\n`;
+  out.scrollTop = out.scrollHeight;
+}
+
+function sbCopyCode() {
+  const code = document.getElementById('sb-code')?.textContent || '';
+  navigator.clipboard.writeText(code).then(() => {
+    const s = document.getElementById('sb-status');
+    if(s){s.textContent='✓ Kopiert!';setTimeout(()=>s.textContent='Bereit',2000);}
+  });
+}
+
+function sbExport() {
+  const code = document.getElementById('sb-code')?.textContent || '';
+  const ext = {bash:'sh',powershell:'ps1',python:'py',batch:'bat'}[sbLang()];
+  const blob = new Blob([code],{type:'text/plain'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='script.'+ext; a.click();
+}
+
+function sbEsc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── show() hook for M122 ──
+function dgToggleSidebar(){
+  const sb = document.getElementById('dg-sidebar');
+  const btn = document.getElementById('dg-sb-toggle');
+  if (!sb||!btn) return;
+  const closed = sb.classList.toggle('dg-sb-closed');
+  btn.textContent = closed ? '›' : '‹';
+  btn.title = closed ? 'Ablage einblenden' : 'Ablage ausblenden';
+}
+
 
 let adrAllRows   = [];   // full result set
 let adrPage      = 1;
