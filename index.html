@@ -83,6 +83,35 @@ body::after{
   display:flex;flex:1;
   max-width:1100px;width:100%;margin:0 auto;
   padding:0 1.5rem 3rem;
+  transition: max-width .25s ease, padding .25s ease;
+}
+
+/* ── FULLSCREEN TOOL MODE ── */
+body.tool-fullscreen .shell {
+  max-width: 100%;
+  padding: 0;
+}
+body.tool-fullscreen .sidebar {
+  flex-shrink: 0;
+}
+body.tool-fullscreen main {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 52px);
+}
+body.tool-fullscreen .section.active {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+/* The inner wrappers already handle their own layout */
+body.tool-fullscreen #docutool.active,
+body.tool-fullscreen #automatisieren.active {
+  height: 100% !important;
 }
 
 /* ── SIDEBAR ── */
@@ -5354,7 +5383,7 @@ Anna,Beispiel,HR</div>
     ══════════════════════════════════ -->
     <div id="automatisieren" class="section" style="padding:0;overflow:hidden;">
     <style>
-      #automatisieren { height:calc(100vh - 60px); }
+      #automatisieren { height:100%; }
       #automatisieren.active { display:flex; flex-direction:column; }
       /* BashFlow styles scoped inside automatisieren */
       #automatisieren * { box-sizing:border-box; }
@@ -6228,7 +6257,7 @@ Anna,Beispiel,HR</div>
 
       <style>
         /* ══ DOCUTOOL – Lila Glow Glass ══ */
-        #docutool { height: calc(100vh - 60px); }
+        #docutool { height: 100%; }
         #docutool.active { display: flex; flex-direction: column; }
 
         .dg-wrap {
@@ -6794,11 +6823,19 @@ Anna,Beispiel,HR</div>
 </div><!-- /shell -->
 
 <script>
+const FULLSCREEN_SECTIONS = new Set(['docutool','automatisieren']);
+
 function show(id, el) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
+  // Toggle fullscreen layout for tool sections
+  if (FULLSCREEN_SECTIONS.has(id)) {
+    document.body.classList.add('tool-fullscreen');
+  } else {
+    document.body.classList.remove('tool-fullscreen');
+  }
   if (id === 'iso') isoFilter();
   if (id === 'docutool') {
     dgRenderDocList();
